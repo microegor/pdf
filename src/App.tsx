@@ -1,30 +1,75 @@
 import '../style/App.css'
 
+import type {
+    MouseEvent as ReactMouseEvent,
+    MouseEventHandler,
+} from 'react';
+
 interface ButtonProps {
     disabled?: boolean;
     size: ButtonSize;
-    variant: Variants;
+    variant: Variant;
     text: string;
+    onClick?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
 }
 
-function onClick() {
-
+interface SwitcherProps {
+    disabled?: boolean;
+    onClick?: (isActive: boolean) => void;
+    state: boolean;
 }
 
 type ButtonSize = 'big' | 'medium' | 'small';
-type Variants = 'text' | 'contained' | 'outlined';
+type Variant = 'text' | 'contained' | 'outlined';
 
-function Button({ disabled, size, variant, text }: ButtonProps) {
+function onClick() {
+    alert("aaaa")
+}
 
+function Button({
+    disabled = false,
+    size,
+    variant,
+    text,
+    onClick,
+}: ButtonProps) {
     return (
         <button
+            type="button"
             disabled={disabled}
             onClick={onClick}
-            className={`${disabled ? 'disabled-button' : 'button'} ${variant} ${size}`}
+            className={`button ${variant} ${size}`}
         >
             {text}
         </button>
-    )
+    );
+}
+
+function Switch() {
+}
+
+function SwitcherButton({
+    disabled = false,
+    onClick,
+    state
+}: SwitcherProps) {
+    function handleClick(event: ReactMouseEvent<HTMLButtonElement>) {
+        const button = event.currentTarget;
+
+        const isActive = button.classList.toggle('active');
+
+        button.setAttribute('aria-checked', String(isActive));
+
+        onClick?.(isActive);
+    }
+    return (
+        <button
+            type="button"
+            disabled={disabled}
+            onClick={handleClick}
+            className={`switchButton ${state ? 'active' : ''}`}
+        />
+    );
 }
 
 function App() {
@@ -35,6 +80,7 @@ function App() {
                     size="big"
                     variant="contained"
                     text="Button"
+                    onClick={onClick}
                 />
                 <Button
                     disabled
@@ -87,6 +133,17 @@ function App() {
                     size="small"
                     variant="contained"
                     text="Button"
+                />
+            </div>
+            <div>
+                <SwitcherButton
+                    disabled
+                    onClick={Switch}
+                    state
+                />
+                <SwitcherButton
+                    onClick={Switch}
+                    state = {false}
                 />
             </div>
         </div>
