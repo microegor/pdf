@@ -1,14 +1,15 @@
 import "../style/App.css";
 import { Button } from "./components/Button";
+import { Stack } from "./components/Stack/Stack";
 import { Switch } from "./components/Switch";
 
 function App() {
   return (
-    <div>
-      <div>
+    <Stack>
+      <Stack direction="row" sx={{alignItems: "baseline"}}>
         <Button size="big" variant="contained" text="Button" onClick={() => alert("Hello")} />
         <Button disabled size="big" variant="contained" text="Button" />
-      </div>
+      </Stack>
 
       <div>
         <Button size="big" variant="outlined" text="Button" />
@@ -29,7 +30,7 @@ function App() {
         <Switch disabled state />
         <Switch onClick={(v) => alert(`Switched to ${v}`)} state={false} />
       </div>
-    </div>
+    </Stack>
   );
 }
 
