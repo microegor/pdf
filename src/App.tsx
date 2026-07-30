@@ -1,9 +1,12 @@
+import { useState } from "react";
 import "../style/App.css";
 import { Button } from "./components/Button";
 import { Stack } from "./components/Stack/Stack";
 import { Switch } from "./components/Switch";
 
 function App() {
+    const [switchState, setSwitchState] = useState(true);
+
   return (
     <Stack>
       <Stack direction="row" sx={{alignItems: "baseline"}}>
@@ -28,7 +31,8 @@ function App() {
       </div>
       <div>
         <Switch disabled state />
-        <Switch onClick={(v) => alert(`Switched to ${v}`)} state={false} />
+        <Switch onClick={v => {
+            setSwitchState(v); console.log(v)}} state={switchState} />
       </div>
     </Stack>
   );

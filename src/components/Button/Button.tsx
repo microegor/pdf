@@ -1,4 +1,4 @@
-import "./Button.module.css";
+import styles from "./Button.module.css";
 
 import type { MouseEvent as ReactMouseEvent } from "react";
 
@@ -14,12 +14,12 @@ type ButtonSize = "big" | "medium" | "small";
 type Variant = "text" | "contained" | "outlined";
 
 export function Button({ disabled = false, size, variant, text, onClick }: ButtonProps) {
-  return (
+    return (
     <button
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`button ${variant} ${size}`}
+      className={`${styles.button} ${styles[variant]} ${styles[size]}`}
     >
       {text}
     </button>

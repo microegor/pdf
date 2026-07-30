@@ -1,5 +1,4 @@
 import type React from "react";
-import "./Stack.module.css";
 
 interface StackProps {
     direction?: direction;

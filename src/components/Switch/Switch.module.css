@@ -19,7 +19,7 @@
 
     position: absolute;
     top: 50%;
-    left: 18px;
+    left: 0px;
 
     width: 20px;
     height: 20px;
@@ -39,7 +39,7 @@
 
     &::after {
       background-color: #1976d2;
-      transform: translate(-18px, -50%);
+      transform: translate(18px, -50%);
     }
   }
   &:disabled {
