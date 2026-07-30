@@ -1,76 +1,6 @@
 import '../style/App.css'
-
-import type {
-    MouseEvent as ReactMouseEvent,
-    MouseEventHandler,
-} from 'react';
-
-interface ButtonProps {
-    disabled?: boolean;
-    size: ButtonSize;
-    variant: Variant;
-    text: string;
-    onClick?: (event: ReactMouseEvent<HTMLButtonElement>) => void;
-}
-
-interface SwitcherProps {
-    disabled?: boolean;
-    onClick?: (isActive: boolean) => void;
-    state: boolean;
-}
-
-type ButtonSize = 'big' | 'medium' | 'small';
-type Variant = 'text' | 'contained' | 'outlined';
-
-function onClick() {
-    alert("aaaa")
-}
-
-function Button({
-    disabled = false,
-    size,
-    variant,
-    text,
-    onClick,
-}: ButtonProps) {
-    return (
-        <button
-            type="button"
-            disabled={disabled}
-            onClick={onClick}
-            className={`button ${variant} ${size}`}
-        >
-            {text}
-        </button>
-    );
-}
-
-function Switch() {
-}
-
-function SwitcherButton({
-    disabled = false,
-    onClick,
-    state
-}: SwitcherProps) {
-    function handleClick(event: ReactMouseEvent<HTMLButtonElement>) {
-        const button = event.currentTarget;
-
-        const isActive = button.classList.toggle('active');
-
-        button.setAttribute('aria-checked', String(isActive));
-
-        onClick?.(isActive);
-    }
-    return (
-        <button
-            type="button"
-            disabled={disabled}
-            onClick={handleClick}
-            className={`switchButton ${state ? 'active' : ''}`}
-        />
-    );
-}
+import { Button } from './components/Button';
+import { Switch } from './components/Switch';
 
 function App() {
     return (
@@ -80,7 +10,7 @@ function App() {
                     size="big"
                     variant="contained"
                     text="Button"
-                    onClick={onClick}
+                    onClick={() => alert("Hello")}
                 />
                 <Button
                     disabled
@@ -136,13 +66,12 @@ function App() {
                 />
             </div>
             <div>
-                <SwitcherButton
+                <Switch
                     disabled
-                    onClick={Switch}
                     state
                 />
-                <SwitcherButton
-                    onClick={Switch}
+                <Switch
+                    onClick={(v) => alert(`Switched to ${v}`)}
                     state = {false}
                 />
             </div>
