@@ -1,0 +1,46 @@
+.splitter {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.panel {
+    background-color: brown;
+}
+
+.horizontal {
+  flex-direction: row;
+}
+
+.vertical {
+  flex-direction: column;
+}
+
+.handle {
+  flex: 0 0 auto;
+  align-self: stretch;
+  background-color: black;
+  user-select: none;
+  touch-action: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.handle:hover {
+  opacity: 0.8;
+  transition-delay: 0.5s;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.horizontal > .handle {
+  cursor: col-resize;
+  width: 6px;
+  margin-inline: -3px;
+}
+
+.vertical > .handle {
+  cursor: row-resize;
+  height: 6px;
+  margin-block: -3px;
+}

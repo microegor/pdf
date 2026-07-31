@@ -1,0 +1,986 @@
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  useCallback,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactElement,
+  type ReactNode,
+} from "react";
+
+import styles from "./Splitter.module.css";
+
+type SplitterDirection = "horizontal" | "vertical";
+
+type SplitterLayout = Record<string, number>;
+
+type ChangeReason =
+  | "pointer"
+  | "keyboard"
+  | "collapse";
+
+interface ValueCommitMeta {
+  reason: ChangeReason;
+}
+
+interface SplitterProps {
+  children: ReactNode;
+
+  direction?: SplitterDirection;
+
+  /**
+   * Размеры панелей в процентах.
+   *
+   * Например:
+   * {
+   *   navigation: 20,
+   *   workspace: 55,
+   *   inspector: 25
+   * }
+   */
+  defaultValue: SplitterLayout;
+
+  /**
+   * Ключ для сохранения layout в localStorage.
+   */
+  storageKey?: string;
+
+  /**
+   * Шаг изменения размера с клавиатуры в процентах.
+   */
+  keyboardStep?: number;
+
+  className?: string;
+
+  onValueCommit?: (
+    layout: SplitterLayout,
+    meta: ValueCommitMeta
+  ) => void;
+}
+
+interface SplitterPanelProps {
+  id: string;
+  children: ReactNode;
+
+  /**
+   * Минимальный размер в пикселях.
+   */
+  minSize?: number;
+
+  /**
+   * Максимальный размер в пикселях.
+   */
+  maxSize?: number;
+
+  collapsible?: boolean;
+
+  /**
+   * Размер свёрнутой панели в пикселях.
+   */
+  collapsedSize?: number;
+
+  className?: string;
+
+  // Внутренний параметр Splitter.
+  __size?: number;
+}
+
+interface SplitterHandleProps {
+  ariaLabel: string;
+  className?: string;
+
+  // Внутренние параметры Splitter.
+  __ownerId?: string;
+  __direction?: SplitterDirection;
+  __value?: number;
+  __beforeId?: string;
+  __afterId?: string;
+
+  __onPointerDown?: (
+    event: PointerEvent<HTMLDivElement>
+  ) => void;
+
+  __onKeyDown?: (
+    event: KeyboardEvent<HTMLDivElement>
+  ) => void;
+
+  __onDoubleClick?: () => void;
+}
+
+interface PanelConfig {
+  id: string;
+  minSize: number;
+  maxSize: number;
+  collapsible: boolean;
+  collapsedSize: number;
+}
+
+interface StoredSplitterState {
+  layout: SplitterLayout;
+  collapsed: Record<string, boolean>;
+}
+
+interface ResizeOptions {
+  baseLayout?: SplitterLayout;
+  collapsedState?: Record<string, boolean>;
+  allowCollapseId?: string;
+}
+
+function joinClassNames(
+  ...classNames: Array<string | undefined | false>
+) {
+  return classNames.filter(Boolean).join(" ");
+}
+
+function normalizeLayout(
+  value: SplitterLayout,
+  panelIds: string[]
+): SplitterLayout {
+  const rawValues = panelIds.map((id) => {
+    const size = value[id];
+
+    return Number.isFinite(size) && size > 0
+      ? size
+      : 1;
+  });
+
+  const total = rawValues.reduce(
+    (sum, size) => sum + size,
+    0
+  );
+
+  return panelIds.reduce<SplitterLayout>(
+    (result, id, index) => {
+      result[id] = (rawValues[index] / total) * 100;
+      return result;
+    },
+    {}
+  );
+}
+
+function loadStoredState(
+  storageKey: string | undefined,
+  defaultLayout: SplitterLayout,
+  panelIds: string[]
+): StoredSplitterState {
+  const fallback: StoredSplitterState = {
+    layout: normalizeLayout(defaultLayout, panelIds),
+    collapsed: {},
+  };
+
+  if (!storageKey || typeof window === "undefined") {
+    return fallback;
+  }
+
+  try {
+    const storedValue = localStorage.getItem(storageKey);
+
+    if (!storedValue) {
+      return fallback;
+    }
+
+    const parsed = JSON.parse(storedValue);
+
+    // Новый формат:
+    // { layout: {...}, collapsed: {...} }
+    if (parsed?.layout) {
+      return {
+        layout: normalizeLayout(
+          parsed.layout,
+          panelIds
+        ),
+        collapsed: parsed.collapsed ?? {},
+      };
+    }
+
+    // Поддержка старого формата:
+    // { navigation: 20, workspace: 55 }
+    return {
+      layout: normalizeLayout(parsed, panelIds),
+      collapsed: {},
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+function SplitterPanel({
+  id,
+  children,
+  className,
+  __size = 1,
+}: SplitterPanelProps) {
+  return (
+    <div
+      className={joinClassNames(
+        styles.panel,
+        className
+      )}
+      data-splitter-panel-id={id}
+      style={{
+        flexBasis: 0,
+        flexGrow: __size,
+        flexShrink: 1,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function SplitterHandle({
+  ariaLabel,
+  className,
+  __ownerId,
+  __direction = "horizontal",
+  __value,
+  __beforeId,
+  __afterId,
+  __onPointerDown,
+  __onKeyDown,
+  __onDoubleClick,
+}: SplitterHandleProps) {
+  const isEnabled = Boolean(
+    __beforeId && __afterId
+  );
+
+  return (
+    <div
+      className={joinClassNames(
+        styles.handle,
+        className
+      )}
+      data-splitter-handle-owner={__ownerId}
+      role="separator"
+      tabIndex={isEnabled ? 0 : -1}
+      aria-label={ariaLabel}
+      aria-orientation={
+        __direction === "horizontal"
+          ? "vertical"
+          : "horizontal"
+      }
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={
+        __value !== undefined
+          ? Math.round(__value)
+          : undefined
+      }
+      onPointerDown={__onPointerDown}
+      onKeyDown={__onKeyDown}
+      onDoubleClick={__onDoubleClick}
+    />
+  );
+}
+
+function isPanelElement(
+  element: ReactNode
+): element is ReactElement<SplitterPanelProps> {
+  return (
+    isValidElement(element) &&
+    element.type === SplitterPanel
+  );
+}
+
+function isHandleElement(
+  element: ReactNode
+): element is ReactElement<SplitterHandleProps> {
+  return (
+    isValidElement(element) &&
+    element.type === SplitterHandle
+  );
+}
+
+function findAdjacentPanelId(
+  elements: ReactNode[],
+  handleIndex: number,
+  direction: -1 | 1
+): string | undefined {
+  for (
+    let index = handleIndex + direction;
+    index >= 0 && index < elements.length;
+    index += direction
+  ) {
+    const element = elements[index];
+
+    if (isPanelElement(element)) {
+      return element.props.id;
+    }
+  }
+
+  return undefined;
+}
+
+function SplitterRoot({
+  children,
+  direction = "horizontal",
+  defaultValue,
+  storageKey,
+  keyboardStep = 2,
+  className,
+  onValueCommit,
+}: SplitterProps) {
+  const generatedId = useId();
+  const ownerId = generatedId.replaceAll(":", "");
+
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  const elements = useMemo(
+    () => Children.toArray(children),
+    [children]
+  );
+
+  const panelConfigs = useMemo<PanelConfig[]>(
+    () =>
+      elements
+        .filter(isPanelElement)
+        .map((element) => ({
+          id: element.props.id,
+          minSize: element.props.minSize ?? 0,
+          maxSize:
+            element.props.maxSize ??
+            Number.POSITIVE_INFINITY,
+          collapsible:
+            element.props.collapsible ?? false,
+          collapsedSize:
+            element.props.collapsedSize ?? 0,
+        })),
+    [elements]
+  );
+
+  const panelIds = useMemo(
+    () => panelConfigs.map((panel) => panel.id),
+    [panelConfigs]
+  );
+
+  const panelMap = useMemo(
+    () =>
+      new Map(
+        panelConfigs.map((panel) => [
+          panel.id,
+          panel,
+        ])
+      ),
+    [panelConfigs]
+  );
+
+  const initialStateRef =
+    useRef<StoredSplitterState | null>(null);
+
+  if (initialStateRef.current === null) {
+    initialStateRef.current = loadStoredState(
+      storageKey,
+      defaultValue,
+      panelIds
+    );
+  }
+
+  const [layout, setLayout] =
+    useState<SplitterLayout>(
+      initialStateRef.current.layout
+    );
+
+  const [collapsed, setCollapsed] = useState<
+    Record<string, boolean>
+  >(initialStateRef.current.collapsed);
+
+  const layoutRef = useRef(layout);
+  const collapsedRef = useRef(collapsed);
+
+  const previousSizesRef = useRef<
+    Record<string, number>
+  >({});
+
+  const updateLayout = useCallback(
+    (nextLayout: SplitterLayout) => {
+      layoutRef.current = nextLayout;
+      setLayout(nextLayout);
+    },
+    []
+  );
+
+  const updateCollapsed = useCallback(
+    (nextCollapsed: Record<string, boolean>) => {
+      collapsedRef.current = nextCollapsed;
+      setCollapsed(nextCollapsed);
+    },
+    []
+  );
+
+  const getAvailableSize = useCallback(() => {
+    const root = rootRef.current;
+
+    if (!root) {
+      return 0;
+    }
+
+    const rootRect =
+      root.getBoundingClientRect();
+
+    let availableSize =
+      direction === "horizontal"
+        ? rootRect.width
+        : rootRect.height;
+
+    const handles =
+      root.querySelectorAll<HTMLElement>(
+        `[data-splitter-handle-owner="${ownerId}"]`
+      );
+
+    handles.forEach((handle) => {
+      const handleRect =
+        handle.getBoundingClientRect();
+
+      availableSize -=
+        direction === "horizontal"
+          ? handleRect.width
+          : handleRect.height;
+    });
+
+    return Math.max(availableSize, 1);
+  }, [direction, ownerId]);
+
+  const saveLayout = useCallback(
+    (
+      nextLayout: SplitterLayout,
+      reason: ChangeReason
+    ) => {
+      if (
+        storageKey &&
+        typeof window !== "undefined"
+      ) {
+        try {
+          const state: StoredSplitterState = {
+            layout: nextLayout,
+            collapsed: collapsedRef.current,
+          };
+
+          localStorage.setItem(
+            storageKey,
+            JSON.stringify(state)
+          );
+        } catch {
+          // localStorage может быть недоступен.
+        }
+      }
+
+      onValueCommit?.(nextLayout, {
+        reason,
+      });
+    },
+    [onValueCommit, storageKey]
+  );
+
+  const resizePanels = useCallback(
+    (
+      beforeId: string,
+      afterId: string,
+      requestedDelta: number,
+      options: ResizeOptions = {}
+    ) => {
+      const availableSize = getAvailableSize();
+
+      if (availableSize <= 0) {
+        return layoutRef.current;
+      }
+
+      const beforeConfig =
+        panelMap.get(beforeId);
+
+      const afterConfig = panelMap.get(afterId);
+
+      if (!beforeConfig || !afterConfig) {
+        return layoutRef.current;
+      }
+
+      const baseLayout =
+        options.baseLayout ??
+        layoutRef.current;
+
+      const collapsedState =
+        options.collapsedState ??
+        collapsedRef.current;
+
+      const beforeSize =
+        (availableSize *
+          (baseLayout[beforeId] ?? 0)) /
+        100;
+
+      const afterSize =
+        (availableSize *
+          (baseLayout[afterId] ?? 0)) /
+        100;
+
+      const getMinimumSize = (
+        config: PanelConfig
+      ) => {
+        const canUseCollapsedSize =
+          options.allowCollapseId === config.id ||
+          collapsedState[config.id];
+
+        if (
+          config.collapsible &&
+          canUseCollapsedSize
+        ) {
+          return config.collapsedSize;
+        }
+
+        return config.minSize;
+      };
+
+      const beforeMin =
+        getMinimumSize(beforeConfig);
+
+      const afterMin =
+        getMinimumSize(afterConfig);
+
+      const minimumDelta = Math.max(
+        beforeMin - beforeSize,
+        afterSize - afterConfig.maxSize
+      );
+
+      const maximumDelta = Math.min(
+        beforeConfig.maxSize - beforeSize,
+        afterSize - afterMin
+      );
+
+      if (minimumDelta > maximumDelta) {
+        return layoutRef.current;
+      }
+
+      const delta = Math.min(
+        maximumDelta,
+        Math.max(minimumDelta, requestedDelta)
+      );
+
+      const newBeforeSize = beforeSize + delta;
+      const newAfterSize = afterSize - delta;
+
+      const nextLayout: SplitterLayout = {
+        ...baseLayout,
+        [beforeId]:
+          (newBeforeSize / availableSize) * 100,
+        [afterId]:
+          (newAfterSize / availableSize) * 100,
+      };
+
+      updateLayout(nextLayout);
+
+      const nextCollapsed = {
+        ...collapsedRef.current,
+      };
+
+      let collapsedChanged = false;
+
+      for (const panelId of [
+        beforeId,
+        afterId,
+      ]) {
+        const config = panelMap.get(panelId);
+
+        if (
+          !config ||
+          !nextCollapsed[panelId]
+        ) {
+          continue;
+        }
+
+        const panelSize =
+          (availableSize *
+            nextLayout[panelId]) /
+          100;
+
+        if (
+          panelSize >
+          config.collapsedSize + 1
+        ) {
+          nextCollapsed[panelId] = false;
+          collapsedChanged = true;
+        }
+      }
+
+      if (collapsedChanged) {
+        updateCollapsed(nextCollapsed);
+      }
+
+      return nextLayout;
+    },
+    [
+      getAvailableSize,
+      panelMap,
+      updateCollapsed,
+      updateLayout,
+    ]
+  );
+
+  const handlePointerDown = useCallback(
+    (
+      event: PointerEvent<HTMLDivElement>,
+      beforeId: string,
+      afterId: string
+    ) => {
+      if (event.button !== 0) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const startPosition =
+        direction === "horizontal"
+          ? event.clientX
+          : event.clientY;
+
+      const startLayout = {
+        ...layoutRef.current,
+      };
+
+      const startCollapsed = {
+        ...collapsedRef.current,
+      };
+
+      const handlePointerMove = (
+        pointerEvent: globalThis.PointerEvent
+      ) => {
+        const currentPosition =
+          direction === "horizontal"
+            ? pointerEvent.clientX
+            : pointerEvent.clientY;
+
+        const delta =
+          currentPosition - startPosition;
+
+        resizePanels(
+          beforeId,
+          afterId,
+          delta,
+          {
+            baseLayout: startLayout,
+            collapsedState: startCollapsed,
+          }
+        );
+      };
+
+      const finishResize = () => {
+        window.removeEventListener(
+          "pointermove",
+          handlePointerMove
+        );
+
+        window.removeEventListener(
+          "pointerup",
+          finishResize
+        );
+
+        window.removeEventListener(
+          "pointercancel",
+          finishResize
+        );
+
+        saveLayout(
+          layoutRef.current,
+          "pointer"
+        );
+      };
+
+      window.addEventListener(
+        "pointermove",
+        handlePointerMove
+      );
+
+      window.addEventListener(
+        "pointerup",
+        finishResize
+      );
+
+      window.addEventListener(
+        "pointercancel",
+        finishResize
+      );
+    },
+    [direction, resizePanels, saveLayout]
+  );
+
+  const handleKeyDown = useCallback(
+    (
+      event: KeyboardEvent<HTMLDivElement>,
+      beforeId: string,
+      afterId: string
+    ) => {
+      let percentageDelta = 0;
+
+      const multiplier = event.shiftKey
+        ? 5
+        : 1;
+
+      const step =
+        keyboardStep * multiplier;
+
+      if (direction === "horizontal") {
+        if (event.key === "ArrowLeft") {
+          percentageDelta = -step;
+        }
+
+        if (event.key === "ArrowRight") {
+          percentageDelta = step;
+        }
+      } else {
+        if (event.key === "ArrowUp") {
+          percentageDelta = -step;
+        }
+
+        if (event.key === "ArrowDown") {
+          percentageDelta = step;
+        }
+      }
+
+      if (percentageDelta === 0) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const availableSize = getAvailableSize();
+
+      const pixelDelta =
+        (availableSize * percentageDelta) /
+        100;
+
+      const nextLayout = resizePanels(
+        beforeId,
+        afterId,
+        pixelDelta
+      );
+
+      saveLayout(nextLayout, "keyboard");
+    },
+    [
+      direction,
+      getAvailableSize,
+      keyboardStep,
+      resizePanels,
+      saveLayout,
+    ]
+  );
+
+  const toggleCollapse = useCallback(
+    (
+      beforeId: string,
+      afterId: string
+    ) => {
+      const beforeConfig =
+        panelMap.get(beforeId);
+
+      const afterConfig =
+        panelMap.get(afterId);
+
+      let panelId: string;
+      let partnerId: string;
+      let panelIsBefore: boolean;
+
+      if (
+        beforeConfig?.collapsible &&
+        collapsedRef.current[beforeId]
+      ) {
+        panelId = beforeId;
+        partnerId = afterId;
+        panelIsBefore = true;
+      } else if (
+        afterConfig?.collapsible &&
+        collapsedRef.current[afterId]
+      ) {
+        panelId = afterId;
+        partnerId = beforeId;
+        panelIsBefore = false;
+      } else if (beforeConfig?.collapsible) {
+        panelId = beforeId;
+        partnerId = afterId;
+        panelIsBefore = true;
+      } else if (afterConfig?.collapsible) {
+        panelId = afterId;
+        partnerId = beforeId;
+        panelIsBefore = false;
+      } else {
+        return;
+      }
+
+      const config = panelMap.get(panelId);
+
+      if (!config) {
+        return;
+      }
+
+      const availableSize = getAvailableSize();
+
+      const isCurrentlyCollapsed =
+        Boolean(
+          collapsedRef.current[panelId]
+        );
+
+      const currentPercentage =
+        layoutRef.current[panelId] ?? 0;
+
+      const currentPixelSize =
+        (availableSize *
+          currentPercentage) /
+        100;
+
+      let targetPixelSize: number;
+
+      if (!isCurrentlyCollapsed) {
+        previousSizesRef.current[panelId] =
+          currentPercentage;
+
+        targetPixelSize =
+          config.collapsedSize;
+      } else {
+        const previousPercentage =
+          previousSizesRef.current[panelId] ??
+          defaultValue[panelId] ??
+          currentPercentage;
+
+        targetPixelSize = Math.max(
+          config.minSize,
+          (availableSize *
+            previousPercentage) /
+            100
+        );
+      }
+
+      const delta = panelIsBefore
+        ? targetPixelSize -
+          currentPixelSize
+        : currentPixelSize -
+          targetPixelSize;
+
+      const beforePanelId = panelIsBefore
+        ? panelId
+        : partnerId;
+
+      const afterPanelId = panelIsBefore
+        ? partnerId
+        : panelId;
+
+      const nextLayout = resizePanels(
+        beforePanelId,
+        afterPanelId,
+        delta,
+        {
+          allowCollapseId:
+            !isCurrentlyCollapsed
+              ? panelId
+              : undefined,
+        }
+      );
+
+      updateCollapsed({
+        ...collapsedRef.current,
+        [panelId]: !isCurrentlyCollapsed,
+      });
+
+      saveLayout(nextLayout, "collapse");
+    },
+    [
+      defaultValue,
+      getAvailableSize,
+      panelMap,
+      resizePanels,
+      saveLayout,
+      updateCollapsed,
+    ]
+  );
+
+  return (
+    <div
+      ref={rootRef}
+      className={joinClassNames(
+        styles.splitter,
+        styles[direction],
+        className
+      )}
+      data-splitter-root={ownerId}
+    >
+      {elements.map((element, index) => {
+        if (isPanelElement(element)) {
+          return cloneElement(element, {
+            key:
+              element.key ??
+              element.props.id,
+            __size:
+              layout[element.props.id] ?? 0,
+          });
+        }
+
+        if (isHandleElement(element)) {
+          const beforeId =
+            findAdjacentPanelId(
+              elements,
+              index,
+              -1
+            );
+
+          const afterId =
+            findAdjacentPanelId(
+              elements,
+              index,
+              1
+            );
+
+          if (!beforeId || !afterId) {
+            return cloneElement(element, {
+              key: element.key ?? index,
+              __ownerId: ownerId,
+              __direction: direction,
+            });
+          }
+
+          return cloneElement(element, {
+            key: element.key ?? index,
+            __ownerId: ownerId,
+            __direction: direction,
+            __beforeId: beforeId,
+            __afterId: afterId,
+            __value: layout[beforeId],
+            __onPointerDown: (event) =>
+              handlePointerDown(
+                event,
+                beforeId,
+                afterId
+              ),
+            __onKeyDown: (event) =>
+              handleKeyDown(
+                event,
+                beforeId,
+                afterId
+              ),
+            __onDoubleClick: () =>
+              toggleCollapse(
+                beforeId,
+                afterId
+              ),
+          });
+        }
+
+        return element;
+      })}
+    </div>
+  );
+}
+
+type SplitterComponent =
+  typeof SplitterRoot & {
+    Panel: typeof SplitterPanel;
+    Handle: typeof SplitterHandle;
+  };
+
+export const Splitter = Object.assign(
+  SplitterRoot,
+  {
+    Panel: SplitterPanel,
+    Handle: SplitterHandle,
+  }
+) as SplitterComponent;
