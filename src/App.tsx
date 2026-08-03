@@ -37,38 +37,16 @@ function App() {
         }} state={switchState} />
       </div>
       <div className="splitterExample">
-        <Splitter direction="horizontal">
+        <Splitter>
           <SplitterPanel>
-            Левая панель
+            <SplitterPanel />
+            <SplitterHandle />
+            <SplitterPanel />
+            <SplitterHandle />
+            <SplitterPanel />
           </SplitterPanel>
-
-          <SplitterHandle />
-
-          <SplitterPanel>
-            Центральная панель
-          </SplitterPanel>
-
-          <SplitterHandle />
-
-          <SplitterPanel>
-            <Splitter direction="vertical">
-              <SplitterPanel>
-                Верхняя панель
-              </SplitterPanel>
-
-              <SplitterHandle />
-
-              <SplitterPanel>
-                Нижняя панель
-              </SplitterPanel>
-              <SplitterPanel>
-                Нижняя панель
-              </SplitterPanel>
-              <SplitterPanel>
-                Нижняя панель
-              </SplitterPanel>
-            </Splitter>
-          </SplitterPanel>
+          <SplitterHandle direction="vertical"/>
+          <SplitterPanel/>
         </Splitter>
       </div>
     </Stack>
