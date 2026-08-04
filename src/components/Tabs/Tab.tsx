@@ -1,25 +1,22 @@
 import styles from "./Tabs.module.css";
 import { useTabsContext } from "./TabsContext";
 
-interface Tab {
+interface TabProps {
     value: string;
     text: string;
 }
 
-export function Tab({ value, text }: Tab) {
+export function Tab({ value, text }: TabProps) {
     const tabs = useTabsContext();
 
-    function handleClick() {
-        tabs.setValue(value);
-    }
-
-    let active = '';
-    if (value === tabs.value) {
-        active = 'active'
-    }
-    // const active = tabs.value === value ? 'active' : '';
+    const isActive = tabs.value === value;
 
     return (
-        <div className={`${styles.tab} ${active}`} onClick={handleClick}>{text}</div>
-    )
+        <div
+            className={`${styles.tab} ${isActive ? styles.active : ""}`}
+            onClick={() => tabs.setValue(value)}
+        >
+            {text}
+        </div>
+    );
 }
