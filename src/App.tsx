@@ -6,33 +6,6 @@ import { Switch } from "./components/Switch";
 import { Tabs } from "./components/Tabs";
 import { Tab } from "./components/Tabs";
 
-// function Input() {
-//   const [text, setText] = useState('');
-
-//   return (
-//     <div>
-//       <h3>{text}</h3>
-//       <div>
-//         <button onClick={() => setText(text + '7')}>7</button>
-//         <button onClick={() => setText(text + '8')}>8</button>
-//         <button onClick={() => setText(text + '9')}>9</button>
-//       </div>
-//       <div>
-//         <button onClick={() => setText(text + '4')}>4</button>
-//         <button onClick={() => setText(text + '5')}>5</button>
-//         <button onClick={() => setText(text + '6')}>6</button>
-//       </div>
-//       <div>
-//         <button onClick={() => setText(text + '1')}>1</button>
-//         <button onClick={() => setText(text + '2')}>2</button>
-//         <button onClick={() => setText(text + '3')}>3</button>
-//       </div>
-//       <button onClick={() => setText('')}>Clear</button>
-//     </div>
-//   )
-// }
-
-
 function App() {
   const [switchState, setSwitchState] = useState(true);
 
