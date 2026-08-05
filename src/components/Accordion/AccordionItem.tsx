@@ -10,15 +10,15 @@ export type AccordionItemProps = PropsWithChildren<{
 export function AccordionItem({ title, children }: AccordionItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className={`${styles.AccordionItem}`}>
+    <div className={`${styles.accordionItem}`}>
       <div
-        className={`${styles.Title} ${isOpen ? styles.TitleOpen : ""}`}
+        className={`${styles.title} ${isOpen ? styles.titleOpen : ""}`}
         onClick={() => setIsOpen((previous) => !previous)}
       >
         {title}
       </div>
-      <div className={`${styles.ContentWrapper} ${isOpen ? styles.ContentWrapperOpen : ""}`}>
-        <div className={styles.Content}>{children}</div>
+      <div className={`${styles.contentWrapper} ${isOpen ? styles.contentWrapperOpen : ""}`}>
+        <div className={styles.content}>{children}</div>
       </div>
     </div>
   );

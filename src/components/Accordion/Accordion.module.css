@@ -1,16 +1,16 @@
-.Accordion {
+.accordion {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.AccordionItem {
+.accordionItem {
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
 }
 
-.Title {
+.title {
   position: relative;
 
   width: 100%;
@@ -25,7 +25,7 @@
   cursor: pointer;
 }
 
-.Title::after {
+.title::after {
   position: absolute;
   top: 50%;
   right: 20px;
@@ -41,11 +41,11 @@
   transition: transform 150ms ease;
 }
 
-.TitleOpen::after {
+.titleOpen::after {
   transform: translateY(-20%) rotate(225deg);
 }
 
-.ContentWrapper {
+.contentWrapper {
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
@@ -55,17 +55,17 @@
     opacity 200ms ease;
 }
 
-.ContentWrapperOpen {
+.contentWrapperOpen {
   grid-template-rows: 1fr;
   opacity: 1;
 }
 
-.Content {
+.content {
   min-height: 0;
   overflow: hidden;
   padding-inline: 16px;
 }
 
-.ContentWrapperOpen .Content {
+.contentWrapperOpen .Content {
   padding-bottom: 16px;
 }
