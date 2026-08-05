@@ -19,21 +19,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     children: [
-      <AccordionItem
-        key="1"
-        title="Item-1"
-        value="item-1"
-        >
+      <AccordionItem key="1" title="Item-1" value="item-1">
         Accordion
       </AccordionItem>,
 
-<AccordionItem
-        key="2"
-        title="Item-2"
-        value="item-2"
-      >
+      <AccordionItem key="2" title="Item-2" value="item-2">
         Accordion-2
-      </AccordionItem>
+      </AccordionItem>,
     ],
   },
 };
