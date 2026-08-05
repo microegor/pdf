@@ -1,0 +1,71 @@
+.Accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.AccordionItem {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.Title {
+  position: relative;
+
+  width: 100%;
+  padding: 16px 48px 16px 16px;
+  box-sizing: border-box;
+
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.Title::after {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+
+  width: 7px;
+  height: 7px;
+
+  border-right: 2px solid #777;
+  border-bottom: 2px solid #777;
+
+  content: "";
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform 150ms ease;
+}
+
+.TitleOpen::after {
+  transform: translateY(-20%) rotate(225deg);
+}
+
+.ContentWrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+
+  transition:
+    grid-template-rows 200ms ease,
+    opacity 200ms ease;
+}
+
+.ContentWrapperOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.Content {
+  min-height: 0;
+  overflow: hidden;
+  padding-inline: 16px;
+}
+
+.ContentWrapperOpen .Content {
+  padding-bottom: 16px;
+}
