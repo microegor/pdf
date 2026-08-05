@@ -1,19 +1,19 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { fn } from 'storybook/test';
+import { fn } from "storybook/test";
 
-import { Switch } from './Switch';
-import { useArgs } from 'storybook/internal/preview-api';
+import { Switch } from "./Switch";
+import { useArgs } from "storybook/internal/preview-api";
 
 const meta = {
-  title: 'Components/Switch',
+  title: "Components/Switch",
   component: Switch,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
-    layout: 'centered',
+    layout: "centered",
   },
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   // More on argTypes: https://storybook.js.org/docs/api/arg-types
   argTypes: {
     // backgroundColor: { control: 'color' },
@@ -28,7 +28,7 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const Default: Story = {
   args: {
-    state: true
+    state: true,
   },
 
   render: function Render(args) {
@@ -42,12 +42,6 @@ export const Default: Story = {
       args.onClick?.(isActive);
     }
 
-    return (
-      <Switch
-        {...args}
-        state={state}
-        onClick={handleClick}
-      />
-    );
-  }
+    return <Switch {...args} state={state} onClick={handleClick} />;
+  },
 };

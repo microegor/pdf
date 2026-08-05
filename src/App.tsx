@@ -5,12 +5,14 @@ import { Stack } from "./components/Stack";
 import { Switch } from "./components/Switch";
 import { Tabs } from "./components/Tabs";
 import { Tab } from "./components/Tabs";
+import { Preloader } from "./components/Loader";
 
 function App() {
   const [switchState, setSwitchState] = useState(true);
 
   return (
     <Stack>
+      <Preloader />
       <Tabs>
         <Tab value="item 1" text="First"></Tab>
         <Tab value="item 2" text="Second"></Tab>
@@ -38,9 +40,13 @@ function App() {
       </div>
       <div>
         <Switch disabled state />
-        <Switch onClick={v => {
-          setSwitchState(v); console.log(v)
-        }} state={switchState} />
+        <Switch
+          onClick={(v) => {
+            setSwitchState(v);
+            console.log(v);
+          }}
+          state={switchState}
+        />
       </div>
     </Stack>
   );

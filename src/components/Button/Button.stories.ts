@@ -1,18 +1,18 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { fn } from 'storybook/test';
+import { fn } from "storybook/test";
 
-import { Button } from './Button';
+import { Button } from "./Button";
 
 const meta = {
-  title: 'Components/Button',
+  title: "Components/Button",
   component: Button,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
-    layout: 'centered',
+    layout: "centered",
   },
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   // More on argTypes: https://storybook.js.org/docs/api/arg-types
   argTypes: {
     // backgroundColor: { control: 'color' },
@@ -29,6 +29,6 @@ export const Contained: Story = {
   args: {
     size: "big",
     text: "Button",
-    variant: 'contained'
+    variant: "contained",
   },
 };

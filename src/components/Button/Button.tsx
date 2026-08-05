@@ -14,7 +14,7 @@ type ButtonSize = "big" | "medium" | "small";
 type Variant = "text" | "contained" | "outlined";
 
 export function Button({ disabled = false, size, variant, text, onClick }: ButtonProps) {
-    return (
+  return (
     <button
       type="button"
       disabled={disabled}
