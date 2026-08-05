@@ -22,10 +22,12 @@ export const Default: Story = {
     children: null,
   },
   render: (props) => (
-    <Tabs defaultValue={props.defaultValue} onValueChange={(value) => console.log(`Tab: ${value}`)}>
-      <Tab value="item1" text="Item 1" />
-      <Tab value="item2" text="Item 2" />
-      <Tab value="item3" text="Item 3" />
-    </Tabs>
+    <>
+      <Tabs defaultValue={props.defaultValue} onValueChange={(value) => console.log(`Tab: ${value}`)}>
+          <Tab value="item1" text="Item 1">Page 1</Tab>
+          <Tab value="item2" text="Item 2">Page 2</Tab>
+          <Tab value="item3" text="Item 3">Page 3</Tab>
+      </Tabs>
+    </>
   ),
 };

@@ -1,9 +1,11 @@
+import type { ReactNode } from "react";
 import styles from "./Tabs.module.css";
 import { useTabsContext } from "./TabsContext";
 
-interface TabProps {
+export interface TabProps {
     value: string;
     text: string;
+    children?: ReactNode;
 }
 
 export function Tab({ value, text }: TabProps) {
@@ -15,7 +17,7 @@ export function Tab({ value, text }: TabProps) {
         <div
             className={`${styles.tab} ${isActive ? styles.active : ""}`}
             onClick={() => tabs.setValue(value)}
-        >
+        >   
             {text}
         </div>
     );

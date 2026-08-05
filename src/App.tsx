@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "../style/App.css";
 import { Button } from "./components/Button";
-import { Stack } from "./components/Stack/Stack";
+import { Stack } from "./components/Stack";
 import { Switch } from "./components/Switch";
 import { Tabs } from "./components/Tabs";
 import { Tab } from "./components/Tabs";
