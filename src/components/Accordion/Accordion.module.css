@@ -8,6 +8,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
 }
 
 .title {
@@ -68,4 +69,18 @@
 
 .contentWrapperOpen .Content {
   padding-bottom: 16px;
+}
+
+.title:disabled {
+  background-color: #f2f2f2;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.title:disabled::after {
+  border-color: #aaa;
+}
+
+.content:disabled{
+  opacity: 0;
 }

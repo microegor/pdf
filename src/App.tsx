@@ -16,10 +16,10 @@ function App() {
     <Stack>
       <Preloader />
       <Accordion>
-        <AccordionItem title="Accordion 1" value="accordion1">
+        <AccordionItem disabled= {true} title="Accordion 1" value="accordion1">
           Text 1
         </AccordionItem>
-        <AccordionItem title="Accordion 2" value="accordion2">
+        <AccordionItem Open={true} title="Accordion 2" value="accordion2">
           Text 2
         </AccordionItem>
         <AccordionItem title="Accordion 3" value="accordion3" />
