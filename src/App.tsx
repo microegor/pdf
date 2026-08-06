@@ -6,6 +6,8 @@ import { Switch } from "./components/Switch";
 import { Tabs } from "./components/Tabs";
 import { Tab } from "./components/Tabs";
 import { Preloader } from "./components/Loader";
+import { Accordion } from "./components/Accordion";
+import { AccordionItem } from "./components/Accordion";
 
 function App() {
   const [switchState, setSwitchState] = useState(true);
@@ -13,7 +15,16 @@ function App() {
   return (
     <Stack>
       <Preloader />
-      <Tabs>
+      <Accordion>
+        <AccordionItem disabled= {true} title="Accordion 1" value="accordion1">
+          Text 1
+        </AccordionItem>
+        <AccordionItem Open={true} title="Accordion 2" value="accordion2">
+          Text 2
+        </AccordionItem>
+        <AccordionItem title="Accordion 3" value="accordion3" />
+      </Accordion>
+      <Tabs defaultValue="item 1">
         <Tab value="item 1" text="First"></Tab>
         <Tab value="item 2" text="Second"></Tab>
         <Tab value="item 3" text="third"></Tab>

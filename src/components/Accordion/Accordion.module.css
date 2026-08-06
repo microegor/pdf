@@ -1,0 +1,86 @@
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.accordionItem {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+}
+
+.title {
+  position: relative;
+
+  width: 100%;
+  padding: 16px 48px 16px 16px;
+  box-sizing: border-box;
+
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.title::after {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+
+  width: 7px;
+  height: 7px;
+
+  border-right: 2px solid #777;
+  border-bottom: 2px solid #777;
+
+  content: "";
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform 150ms ease;
+}
+
+.titleOpen::after {
+  transform: translateY(-20%) rotate(225deg);
+}
+
+.contentWrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+
+  transition:
+    grid-template-rows 200ms ease,
+    opacity 200ms ease;
+}
+
+.contentWrapperOpen {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.content {
+  min-height: 0;
+  overflow: hidden;
+  padding-inline: 16px;
+}
+
+.contentWrapperOpen .Content {
+  padding-bottom: 16px;
+}
+
+.title:disabled {
+  background-color: #f2f2f2;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.title:disabled::after {
+  border-color: #aaa;
+}
+
+.content:disabled{
+  opacity: 0;
+}
