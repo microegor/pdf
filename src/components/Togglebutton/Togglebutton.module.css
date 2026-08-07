@@ -1,0 +1,32 @@
+.toggleButtonGroup {
+    display: flex;
+}
+
+.toggleButton {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+}
+
+.first .toggleButton {
+    border-radius: 3px 0 0 3px;
+}
+
+.middle .toggleButton {
+    border-radius: 0;
+    border-left: 0;
+}
+
+.last .toggleButton {
+    border-radius: 0 3px 3px 0;
+    border-left: 0;
+}
+
+.toggleButton:hover {
+    background: #eee;
+}
+
+.toggleButton:active {
+    background: #ddd;
+}

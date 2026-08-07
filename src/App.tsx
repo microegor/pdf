@@ -8,6 +8,9 @@ import { Tab } from "./components/Tabs";
 import { Preloader } from "./components/Loader";
 import { Accordion } from "./components/Accordion";
 import { AccordionItem } from "./components/Accordion";
+import { ToggleButtonGroup } from "./components/ToggleButton";
+import { ToggleButton } from "./components/ToggleButton";
+
 
 function App() {
   const [switchState, setSwitchState] = useState(true);
@@ -15,6 +18,11 @@ function App() {
   return (
     <Stack>
       <Preloader />
+      <ToggleButtonGroup>
+        <ToggleButton>asd</ToggleButton>
+        <ToggleButton>asd</ToggleButton>
+        <ToggleButton>asd</ToggleButton>
+      </ToggleButtonGroup>
       <Accordion>
         <AccordionItem disabled= {true} title="Accordion 1" value="accordion1">
           Text 1
