@@ -8,8 +8,8 @@ import { Tab } from "./components/Tabs";
 import { Preloader } from "./components/Loader";
 import { Accordion } from "./components/Accordion";
 import { AccordionItem } from "./components/Accordion";
+import { ToggleButtonGroup } from "./components/ToggleButton";
 import { ToggleButton } from "./components/ToggleButton";
-import { TButton } from "./components/ToggleButton";
 
 
 function App() {
