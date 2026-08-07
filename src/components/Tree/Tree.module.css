@@ -1,0 +1,30 @@
+.treeNode {
+  display: flex;
+  flex-direction: column;
+}
+
+.treeNodeHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 6px 10px;
+  border-radius: 6px;
+
+  cursor: pointer;
+  user-select: none;
+}
+
+.treeNodeArrow {
+  width: 16px;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.treeNodeChildren {
+  margin-left: 20px;
+  padding-left: 8px;
+
+  border-left: 1px solid #ddd;
+}
