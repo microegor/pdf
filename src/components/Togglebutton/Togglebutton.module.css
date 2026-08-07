@@ -1,0 +1,32 @@
+.toggleButton {
+    display: flex;
+}
+
+.tButton {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+}
+
+.first .tButton {
+    border-radius: 8px 0 0 8px;
+}
+
+.middle .tButton {
+    border-radius: 0;
+    border-left: 0;
+}
+
+.last .tButton {
+    border-radius: 0 8px 8px 0;
+    border-left: 0;
+}
+
+.tButton:hover {
+    background: #eee;
+}
+
+.tButton:active {
+    background: #ddd;
+}
