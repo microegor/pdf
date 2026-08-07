@@ -1,1 +1,2 @@
-export {ToggleButton} from "./Togglebutton";
+export {ToggleButtonGroup} from "./ToggleButtonGroup";
+export {ToggleButton} from "./ToggleButton";

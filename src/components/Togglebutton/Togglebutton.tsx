@@ -1,30 +1,11 @@
-import { Children, type PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 
-import styles from "ToggleButton.module.css";
+import styles from "./ToggleButton.module.css";
 
-type ToggleButtonProps = PropsWithChildren;
+type TButtonProps = PropsWithChildren<{
+    onClick?: () => void;
+}>;
 
-export function ToggleButton({ children }: ToggleButtonProps) {
-    const buttons = Children.toArray(children);
-
-
-    return (
-        <div className={styles.toggleButton}>
-            {buttons.map((button, index) => {
-                const isFirst = index === 0;
-                const isLast = index === buttons.length - 1;
-
-                return (
-                    <div
-                        key={index}
-                        className={
-                            isFirst ? styles.first : isLast ? styles.last : styles.middle
-                        }
-                    >
-                        {button}
-                    </div>
-                );
-            })}
-        </div>
-    );
+export function ToggleButton({ children}: TButtonProps) {
+    return(<button className={styles.toggleButton}>{children}</button>)
 }
