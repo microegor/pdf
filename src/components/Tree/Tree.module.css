@@ -1,6 +1,15 @@
+.treeContainer {
+  flex-direction: column;
+  display: flex;
+}
+
 .treeNode {
   display: flex;
   flex-direction: column;
+
+  &selected {
+    background-color: rgb(161, 158, 158);
+  }
 }
 
 .treeNodeHeader {
@@ -8,11 +17,20 @@
   align-items: center;
   gap: 8px;
 
-  padding: 6px 10px;
+  padding: 6px 15px;
   border-radius: 6px;
 
   cursor: pointer;
   user-select: none;
+}
+
+.treeNodeHeader:not(.isSelected):hover {
+  background: #f3f4f6;
+}
+
+
+.isSelected {
+  background: #bfdbfe;
 }
 
 .treeNodeArrow {
