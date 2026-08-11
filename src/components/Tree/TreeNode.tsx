@@ -11,11 +11,13 @@ import styles from "./Tree.module.css";
 type TreeNodeProps = PropsWithChildren<{
     nodeKey: string;
     Title: ReactNode;
+    indicator?: ReactNode;
 }>;
 
 export function TreeNode({
     nodeKey,
     Title,
+    indicator,
     children,
 }: TreeNodeProps) {
     const [isOpen, setIsOpen] = useState(false);
@@ -57,7 +59,7 @@ export function TreeNode({
                 <span>{Title}</span>
 
                 <span className={styles.indicator}>
-                    ●
+                    {indicator}
                 </span>
             </div>
 
