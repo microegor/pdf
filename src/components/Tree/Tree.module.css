@@ -46,3 +46,7 @@
 
   border-left: 1px solid #ddd;
 }
+
+.indicator {
+    margin-left: auto;
+}

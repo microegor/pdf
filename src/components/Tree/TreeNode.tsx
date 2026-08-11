@@ -55,6 +55,10 @@ export function TreeNode({
                 )}
 
                 <span>{Title}</span>
+
+                <span className={styles.indicator}>
+                    ●
+                </span>
             </div>
 
             {isOpen && hasChildren && (
