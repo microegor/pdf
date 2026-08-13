@@ -26,8 +26,6 @@ function App() {
       <div className="toolTab">
         <div>
           <Preloader />
-          <Preloader />
-          <Preloader />
         </div>
       </div>
 
@@ -41,6 +39,49 @@ function App() {
         }}
       >
         <div className="container">
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
+          <Preloader />
           <Preloader />
           <Preloader />
           <Preloader />

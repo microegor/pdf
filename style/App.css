@@ -19,16 +19,20 @@
     justify-content: flex-start;
     align-items: flex-end;
 
+    
     border: 1px solid grey;
   }
-
+  
   .container {
     height: 100%;
     width: 300px;
-
+    
     overflow-y: auto;
     overflow-x: hidden;
     border: 1px solid grey;
+    
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .screen {
