@@ -5,9 +5,6 @@ interface StackProps {
   spacing?: number | string;
   children?: React.ReactNode;
   sx?: {
-    /**
-     * Default `stretch`
-     */
     alignItems?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
     justifyContent?:
       | "center"
@@ -16,20 +13,36 @@ interface StackProps {
       | "space-between"
       | "space-around"
       | "space-evenly";
+
+    width?: string | number;
+    height?: string | number;
+    flex?: string | number;
+    minHeight?: string | number;
   };
 }
 
 type direction = "row" | "column";
 
-export function Stack({ direction = "column", spacing = 1, sx = {}, children }: StackProps) {
+export function Stack({
+  direction = "column",
+  spacing = 1,
+  sx = {},
+  children,
+}: StackProps) {
   return (
     <div
       style={{
         display: "flex",
         flexDirection: direction,
         gap: spacing,
+
         alignItems: sx.alignItems,
         justifyContent: sx.justifyContent,
+
+        width: sx.width,
+        height: sx.height,
+        flex: sx.flex,
+        minHeight: sx.minHeight,
       }}
     >
       {children}
