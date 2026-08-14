@@ -6,6 +6,9 @@
     min-height: 100%;
     margin: 0;
     padding: 0;
+
+    overflow-x: hidden;
+    overflow-y: hidden;
   }
 
 
@@ -19,18 +22,18 @@
     justify-content: flex-start;
     align-items: flex-end;
 
-    
+
     border: 1px solid grey;
   }
-  
+
   .container {
     height: 100%;
     width: 300px;
-    
+
     overflow-y: auto;
     overflow-x: hidden;
     border: 1px solid grey;
-    
+
     overflow-y: auto;
     overflow-x: hidden;
   }

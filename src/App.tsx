@@ -12,8 +12,18 @@ import { ToggleButton } from "./components/ToggleButton";
 import { ToggleButtonGroup } from "./components/ToggleButton";
 import { TreeContainer } from "./components/Tree";
 import { TreeNode } from "./components/Tree";
+import { Modal } from "./components/Modal";
 
 function App() {
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
   return (
     <Stack
       direction="column"
@@ -23,11 +33,37 @@ function App() {
         height: "100%",
       }}
     >
-      <div className="toolTab">
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          width: "100%",
+          height: 70,
+
+          alignItems: "center",
+          justifyContent: "center",
+
+          border: "1px solid #ccc",
+        }}
+      >
+        <Button size="big" variant="contained" text="Add" onClick={handleOpenModal}>
+        </Button>
+
+        <Modal
+          open={modalOpen}
+          onClose={handleCloseModal}
+        >
+          <h2>Мое окно</h2>
+
+          <p>Какой-то контент</p>
+
+          <Button size="big" variant="contained" text="Add" onClick={handleCloseModal}>
+          </Button>
+        </Modal>
         <div>
           <Preloader />
         </div>
-      </div>
+      </Stack>
 
       <Stack
         direction="row"
@@ -38,7 +74,7 @@ function App() {
           minHeight: 0,
         }}
       >
-        <div className="container">
+        <Stack direction="column" spacing={1} sx={{ width: 300, height: "100%", overflow: "auto" }}>
           <Preloader />
           <Preloader />
           <Preloader />
@@ -86,7 +122,7 @@ function App() {
           <Preloader />
           <Preloader />
           <Preloader />
-        </div>
+        </Stack>
 
         <div className="screen">
           <Preloader />

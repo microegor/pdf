@@ -1,11 +1,13 @@
 import type React from "react";
 
 interface StackProps {
-  direction?: direction;
+  direction?: Direction;
   spacing?: number | string;
   children?: React.ReactNode;
+
   sx?: {
     alignItems?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
+
     justifyContent?:
       | "center"
       | "flex-start"
@@ -18,10 +20,13 @@ interface StackProps {
     height?: string | number;
     flex?: string | number;
     minHeight?: string | number;
+
+    overflow?: React.CSSProperties["overflow"];
+    border?: React.CSSProperties["border"];
   };
 }
 
-type direction = "row" | "column";
+type Direction = "row" | "column";
 
 export function Stack({
   direction = "column",
@@ -43,6 +48,9 @@ export function Stack({
         height: sx.height,
         flex: sx.flex,
         minHeight: sx.minHeight,
+
+        overflow: sx.overflow,
+        border: sx.border,
       }}
     >
       {children}
