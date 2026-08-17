@@ -16,6 +16,54 @@ import { Modal } from "./components/Modal";
 
 function App() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      alert("Можно загружать только PDF");
+      return;
+    }
+
+    setPdfFile(file);
+  };
+
+  const handleSavePdf = async () => {
+    if (!pdfFile) {
+      alert("Сначала выберите PDF файл");
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("pdf", pdfFile);
+
+    try {
+      const response = await fetch("http://localhost:3001/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка загрузки");
+      }
+
+      const data = await response.json();
+
+      console.log(data);
+
+      alert("PDF сохранён");
+
+      setPdfFile(null);
+      handleCloseModal();
+    } catch (error) {
+      console.error(error);
+      alert("Не удалось сохранить PDF");
+    }
+  };
 
   const handleOpenModal = () => {
     setModalOpen(true);
@@ -24,6 +72,7 @@ function App() {
   const handleCloseModal = () => {
     setModalOpen(false);
   };
+
   return (
     <Stack
       direction="column"
@@ -53,12 +102,26 @@ function App() {
           open={modalOpen}
           onClose={handleCloseModal}
         >
-          <h2>Мое окно</h2>
+          <h2>Добавить PDF</h2>
 
-          <p>Какой-то контент</p>
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+          />
 
-          <Button size="big" variant="contained" text="Add" onClick={handleCloseModal}>
-          </Button>
+          {pdfFile && (
+            <p>
+              Выбран файл: {pdfFile.name}
+            </p>
+          )}
+
+          <Button
+            size="big"
+            variant="contained"
+            text="Сохранить"
+            onClick={handleSavePdf}
+          />
         </Modal>
         <div>
           <Preloader />
