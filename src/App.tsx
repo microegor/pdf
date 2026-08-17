@@ -2,71 +2,115 @@ import { useState } from "react";
 import "../style/App.css";
 import { Button } from "./components/Button";
 import { Stack } from "./components/Stack";
-import { Switch } from "./components/Switch";
-import { Tabs } from "./components/Tabs";
-import { Tab } from "./components/Tabs";
 import { Preloader } from "./components/Loader";
-import { Accordion } from "./components/Accordion";
-import { AccordionItem } from "./components/Accordion";
-import { ToggleButtonGroup } from "./components/ToggleButton";
-import { ToggleButton } from "./components/ToggleButton";
-
+import { Modal } from "./components/Modal";
 
 function App() {
-  const [switchState, setSwitchState] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      alert("Можно загружать только PDF");
+      return;
+    }
+
+    setPdfFile(file);
+
+    // Здесь уже доступен сам файл
+    console.log("Полученный PDF:", file);
+  };
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
   return (
-    <Stack>
-      <Preloader />
-      <ToggleButtonGroup>
-        <ToggleButton>asd</ToggleButton>
-        <ToggleButton>asd</ToggleButton>
-        <ToggleButton>asd</ToggleButton>
-      </ToggleButtonGroup>
-      <Accordion>
-        <AccordionItem disabled= {true} title="Accordion 1" value="accordion1">
-          Text 1
-        </AccordionItem>
-        <AccordionItem Open={true} title="Accordion 2" value="accordion2">
-          Text 2
-        </AccordionItem>
-        <AccordionItem title="Accordion 3" value="accordion3" />
-      </Accordion>
-      <Tabs defaultValue="item 1">
-        <Tab value="item 1" text="First"></Tab>
-        <Tab value="item 2" text="Second"></Tab>
-        <Tab value="item 3" text="third"></Tab>
-      </Tabs>
-      <Stack direction="row" sx={{ alignItems: "baseline" }}>
-        <Button size="big" variant="contained" text="Button" onClick={() => alert("Hello")} />
-        <Button disabled size="big" variant="contained" text="Button" />
+    <Stack
+      direction="column"
+      spacing={0}
+      sx={{
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{
+          width: "100%",
+          height: 70,
+          alignItems: "center",
+          justifyContent: "center",
+          border: "1px solid #ccc",
+        }}
+      >
+        <Button
+          size="big"
+          variant="contained"
+          text="Add"
+          onClick={handleOpenModal}
+        />
+
+        <Modal
+          open={modalOpen}
+          onClose={handleCloseModal}
+        >
+          <h2>Добавить PDF</h2>
+
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+          />
+
+          {pdfFile && (
+            <p>
+              Выбран файл: {pdfFile.name}
+            </p>
+          )}
+        </Modal>
+
+        <div>
+          <Preloader />
+        </div>
       </Stack>
 
-      <div>
-        <Button size="big" variant="outlined" text="Button" />
-        <Button disabled size="big" variant="outlined" text="Button" />
-      </div>
-
-      <div>
-        <Button size="big" variant="text" text="Button" />
-        <Button disabled size="big" variant="text" text="Button" />
-      </div>
-
-      <div>
-        <Button size="big" variant="contained" text="Button" />
-        <Button size="medium" variant="contained" text="Button" />
-        <Button size="small" variant="contained" text="Button" />
-      </div>
-      <div>
-        <Switch disabled state />
-        <Switch
-          onClick={(v) => {
-            setSwitchState(v);
-            console.log(v);
+      <Stack
+        direction="row"
+        spacing={0}
+        sx={{
+          width: "100%",
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
+        <Stack
+          direction="column"
+          spacing={1}
+          sx={{
+            width: 300,
+            height: "100%",
+            overflow: "auto",
           }}
-          state={switchState}
-        />
-      </div>
+        >
+          <Preloader />
+          <Preloader />
+          <Preloader />
+        </Stack>
+
+        <div className="screen">
+          <Preloader />
+        </div>
+      </Stack>
     </Stack>
   );
 }

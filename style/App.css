@@ -1,153 +1,46 @@
-.button {
-  appearance: none;
-  border: none;
-  margin: 8px;
-  padding: 0;
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
 
-  font: inherit;
-  font-family: Roboto, Helvetica, Arial, sans-serif;
-  text-align: center;
-
-  color: rgb(6, 70, 189);
-  background: transparent;
-
-  border-radius: 4px;
-  cursor: pointer;
-  transition:
-    background-color 0.25s,
-    border-color 0.25s,
-    box-shadow 0.25s;
-
-  &.big {
-    padding: 8px 22px;
-    font-size: 15px;
+    overflow-x: hidden;
+    overflow-y: hidden;
   }
 
-  &.medium {
-    padding: 6px 16px;
-    font-size: 14px;
+
+  .toolTab {
+    position: relative;
+
+    width: 100%;
+    height: 70px;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+
+
+    border: 1px solid grey;
   }
 
-  &.small {
-    padding: 4px 10px;
-    font-size: 13px;
+  .container {
+    height: 100%;
+    width: 300px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid grey;
+
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
-  &.contained {
-    color: white;
-    background-color: rgb(6, 70, 189);
-    box-shadow:
-      0 3px 1px -2px rgba(0, 0, 0, 0.2),
-      0 2px 2px rgba(0, 0, 0, 0.14),
-      0 1px 5px rgba(0, 0, 0, 0.12);
+  .screen {
+    height: 100%;
+    width: 100%;
 
-    &:hover:not(:disabled) {
-      background-color: rgb(13, 85, 219);
-      box-shadow:
-        0 2px 4px -1px rgba(0, 0, 0, 0.2),
-        0 4px 5px rgba(0, 0, 0, 0.14),
-        0 1px 10px rgba(0, 0, 0, 0.12);
-    }
-
-    &:active:not(:disabled) {
-      background-color: rgb(49, 119, 250);
-    }
-
-    &:disabled {
-      color: gray;
-      background-color: rgb(194, 188, 180);
-    }
+    border: 1px solid grey;
   }
-
-  &.outlined {
-    color: rgb(6, 70, 189);
-    background: transparent;
-    border: 2px solid rgb(6, 70, 189);
-    box-shadow: none;
-
-    &:hover:not(:disabled) {
-      border-color: rgb(13, 85, 219);
-    }
-
-    &:active:not(:disabled) {
-      border-color: rgb(49, 119, 250);
-    }
-
-    &:disabled {
-      color: gray;
-      border-color: rgb(194, 188, 180);
-    }
-  }
-
-  &.text {
-    color: rgb(6, 70, 189);
-    background: transparent;
-    box-shadow: none;
-  }
-
-  &:disabled {
-    color: rgba(0, 0, 0, 0.26);
-    box-shadow: none;
-    cursor: not-allowed;
-  }
-}
-
-.switchButton {
-  position: relative;
-
-  width: 38px;
-  height: 14px;
-  padding: 0;
-  margin: 20px;
-
-  border: none;
-  border-radius: 10px;
-
-  background-color: #bdbdbd;
-  cursor: pointer;
-
-  transition: background-color 0.2s;
-
-  &::after {
-    content: "";
-
-    position: absolute;
-    top: 50%;
-    left: 18px;
-
-    width: 20px;
-    height: 20px;
-
-    border-radius: 50%;
-    background-color: #eeeeee;
-
-    transform: translateY(-50%);
-
-    transition:
-      transform 0.2s,
-      background-color 0.2s;
-  }
-
-  &.active {
-    background-color: #90caf9;
-
-    &::after {
-      background-color: #1976d2;
-      transform: translate(-18px, -50%);
-    }
-  }
-  &:disabled {
-    cursor: not-allowed;
-    background-color: #bdbdbd;
-    &::after {
-      background-color: #9e9d9d;
-    }
-  }
-  &.activ:disabled {
-    cursor: not-allowed;
-    background-color: #bdbdbd;
-    &::after {
-      background-color: #9e9d9d;
-    }
-  }
-}
