@@ -1,0 +1,49 @@
+.dropZone {
+  width: 100%;
+  min-height: 160px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  box-sizing: border-box;
+
+  border: 2px dashed #bdbdbd;
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.dropZone:hover {
+  border-color: #777;
+  background-color: #f7f7f7;
+}
+
+.dragging {
+  border-color: #1976d2;
+  background-color: #eef6ff;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input {
+  display: none;
+}
+
+.text {
+  font-size: 16px;
+}
+
+.subText {
+  font-size: 13px;
+  color: #777;
+}

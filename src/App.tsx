@@ -4,14 +4,13 @@ import { Button } from "./components/Button";
 import { Stack } from "./components/Stack";
 import { Preloader } from "./components/Loader";
 import { Modal } from "./components/Modal";
+import { DropZone } from "./components/DropeZone";
 
 function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
+  const handleFileChange = (file: File | null) => {
     if (!file) return;
 
     if (file.type !== "application/pdf") {
@@ -21,7 +20,6 @@ function App() {
 
     setPdfFile(file);
 
-    // Здесь уже доступен сам файл
     console.log("Полученный PDF:", file);
   };
 
@@ -66,12 +64,10 @@ function App() {
         >
           <h2>Добавить PDF</h2>
 
-          <input
-            type="file"
+          <DropZone
             accept="application/pdf"
             onChange={handleFileChange}
           />
-
           {pdfFile && (
             <p>
               Выбран файл: {pdfFile.name}
