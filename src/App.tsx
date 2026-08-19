@@ -5,12 +5,50 @@ import { Stack } from "./components/Stack";
 import { Preloader } from "./components/Loader";
 import { Modal } from "./components/Modal";
 import { DropZone } from "./components/DropeZone";
+import { parse, type PDFObject } from "./reader";
+
+type PdfListItem = {
+  id: string;
+  objectNumber: number;
+  generation: number;
+  type: string;
+  value: unknown;
+};
+
+function getObjectType(value: PDFObject): string {
+  if (value.type === "dictionary") {
+    const typeEntry =
+      value.entries.get("Type") ??
+      value.entries.get("/Type");
+
+    if (typeEntry?.type === "name") {
+      return typeEntry.value;
+    }
+
+    return value.type;
+  }
+
+  if (value.type === "stream") {
+    const typeEntry =
+      value.dictionary.entries.get("Type") ??
+      value.dictionary.entries.get("/Type");
+
+    if (typeEntry?.type === "name") {
+      return typeEntry.value;
+    }
+
+    return value.type;
+  }
+
+  return value.type;
+}
 
 function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [objects, setObjects] = useState<PdfListItem[]>([]);
 
-  const handleFileChange = (file: File | null) => {
+  const handleFileChange = async (file: File | null) => {
     if (!file) return;
 
     if (file.type !== "application/pdf") {
@@ -18,6 +56,23 @@ function App() {
       return;
     }
 
+
+    const buf = await file.bytes();
+    const doc = parse(buf);
+
+    const items: PdfListItem[] = Array.from(doc.objects.entries()).map(
+      ([id, indirectObject]) => ({
+        id,
+        objectNumber: indirectObject.objectNumber,
+        generation: indirectObject.generation,
+        type: getObjectType(indirectObject.value),
+        value: indirectObject.value,
+      }),
+    );
+
+    setObjects(items);
+
+    console.log(doc);
     setPdfFile(file);
 
     console.log("Полученный PDF:", file);
@@ -98,9 +153,13 @@ function App() {
             overflow: "auto",
           }}
         >
-          <Preloader />
-          <Preloader />
-          <Preloader />
+          {objects.map((item) => (
+            <div key={item.id}>
+              <strong>
+                {item.objectNumber} {item.generation} obj — {item.type}
+              </strong>
+            </div>
+          ))}
         </Stack>
 
         <div className="screen">
