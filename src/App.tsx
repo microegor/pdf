@@ -6,6 +6,7 @@ import { Preloader } from "./components/Loader";
 import { Modal } from "./components/Modal";
 import { DropZone } from "./components/DropeZone";
 import { parse, type PDFObject } from "./reader";
+import { PdfObjectItem } from "./components/ObjectItem";
 
 type PdfListItem = {
   id: string;
@@ -14,6 +15,10 @@ type PdfListItem = {
   type: string;
   value: unknown;
 };
+
+function ObjectItemClick() {
+  alert("You've clicked on object")
+}
 
 function getObjectType(value: PDFObject): string {
   if (value.type === "dictionary") {
@@ -47,6 +52,7 @@ function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [objects, setObjects] = useState<PdfListItem[]>([]);
+  const [selectedObject, setSelectedObject] = useState<PdfListItem | null>(null);
 
   const handleFileChange = async (file: File | null) => {
     if (!file) return;
@@ -153,17 +159,32 @@ function App() {
             overflow: "auto",
           }}
         >
+
           {objects.map((item) => (
-            <div key={item.id}>
-              <strong>
-                {item.objectNumber} {item.generation} obj — {item.type}
-              </strong>
-            </div>
+            <PdfObjectItem
+              key={item.id}
+              objectNumber={item.objectNumber}
+              generation={item.generation}
+              type={item.type}
+              active={selectedObject?.id === item.id}
+              onClick={() => setSelectedObject(item)}
+            />
           ))}
         </Stack>
 
         <div className="screen">
-          <Preloader />
+          {selectedObject ? (
+            <div>
+              <h2>
+                Object {selectedObject.objectNumber}
+              </h2>
+
+              <p>Generation: {selectedObject.generation}</p>
+              <p>Type: {selectedObject.type}</p>
+            </div>
+          ) : (
+            <p>Выберите объект</p>
+          )}
         </div>
       </Stack>
     </Stack>
