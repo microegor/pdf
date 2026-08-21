@@ -12,7 +12,8 @@ type PdfListItem = {
   id: string;
   objectNumber: number;
   generation: number;
-  type: string;
+  kind: string;
+  pdfType: string | null;
   value: unknown;
 };
 
@@ -20,7 +21,19 @@ function ObjectItemClick() {
   alert("You've clicked on object")
 }
 
-function getObjectType(value: PDFObject): string {
+function getObjectKind(value: PDFObject): string {
+  if (value.type === "dictionary") {
+    return "[D]";
+  }
+
+  if (value.type === "stream") {
+    return "[S]";
+  }
+
+  return value.type.charAt(0).toUpperCase();
+}
+
+function getObjectType(value: PDFObject): string | null {
   if (value.type === "dictionary") {
     const typeEntry =
       value.entries.get("Type") ??
@@ -29,8 +42,6 @@ function getObjectType(value: PDFObject): string {
     if (typeEntry?.type === "name") {
       return typeEntry.value;
     }
-
-    return value.type;
   }
 
   if (value.type === "stream") {
@@ -41,11 +52,9 @@ function getObjectType(value: PDFObject): string {
     if (typeEntry?.type === "name") {
       return typeEntry.value;
     }
-
-    return value.type;
   }
 
-  return value.type;
+  return null;
 }
 
 function App() {
@@ -71,7 +80,10 @@ function App() {
         id,
         objectNumber: indirectObject.objectNumber,
         generation: indirectObject.generation,
-        type: getObjectType(indirectObject.value),
+
+        kind: getObjectKind(indirectObject.value),
+        pdfType: getObjectType(indirectObject.value),
+
         value: indirectObject.value,
       }),
     );
@@ -165,7 +177,7 @@ function App() {
               key={item.id}
               objectNumber={item.objectNumber}
               generation={item.generation}
-              type={item.type}
+              type={item.kind}
               active={selectedObject?.id === item.id}
               onClick={() => setSelectedObject(item)}
             />
