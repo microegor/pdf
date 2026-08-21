@@ -7,6 +7,8 @@ import { Modal } from "./components/Modal";
 import { DropZone } from "./components/DropeZone";
 import { parse, type PDFObject } from "./reader";
 import { PdfObjectItem } from "./components/ObjectItem";
+import { DictionaryView } from "./components/Dictionary";
+import { StreamView } from "./components/Stream";
 
 type PdfListItem = {
   id: string;
@@ -14,7 +16,7 @@ type PdfListItem = {
   generation: number;
   kind: string;
   pdfType: string | null;
-  value: unknown;
+  value: PDFObject;
 };
 
 function ObjectItemClick() {
@@ -188,11 +190,18 @@ function App() {
           {selectedObject ? (
             <div>
               <h2>
-                Object {selectedObject.objectNumber}
+                Object {selectedObject.objectNumber} {selectedObject.generation} R
               </h2>
 
               <p>Generation: {selectedObject.generation}</p>
-              <p>Type: {selectedObject.type}</p>
+              <p>Type: {selectedObject.pdfType ?? "—"}</p>
+
+              {selectedObject.value.type === "dictionary"  && (
+                <DictionaryView value={selectedObject.value} />
+              )}
+              {selectedObject.value.type === "stream"  && (
+                <StreamView value={selectedObject.value} />
+              )}
             </div>
           ) : (
             <p>Выберите объект</p>
