@@ -1,5 +1,5 @@
 import type { PDFObject } from "../../reader";
-import { DictionaryView } from "../Dictionary";
+import { PdfValue } from "../PdfValue";
 
 type StreamObject = Extract<
   PDFObject,
@@ -14,8 +14,7 @@ export function StreamView({ value }: Props) {
   return (
     <div>
       <h3>Stream</h3>
-
-      <DictionaryView value={value.dictionary} />
+      <PdfValue value={value} />
     </div>
   );
 }

@@ -7,8 +7,7 @@ import { Modal } from "./components/Modal";
 import { DropZone } from "./components/DropeZone";
 import { parse, type PDFObject } from "./reader";
 import { PdfObjectItem } from "./components/ObjectItem";
-import { DictionaryView } from "./components/Dictionary";
-import { StreamView } from "./components/Stream";
+import { PdfValue } from "./components/PdfValue";
 
 type PdfListItem = {
   id: string;
@@ -64,6 +63,25 @@ function App() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [objects, setObjects] = useState<PdfListItem[]>([]);
   const [selectedObject, setSelectedObject] = useState<PdfListItem | null>(null);
+
+  const handleReferenceClick = (
+    objectNumber: number,
+    generation: number,
+  ) => {
+    const target = objects.find(
+      (item) =>
+        item.objectNumber === objectNumber &&
+        item.generation === generation,
+    );
+
+    if (target) {
+      setSelectedObject(target);
+    } else {
+      console.warn(
+        `Object ${objectNumber} ${generation} R not found`,
+      );
+    }
+  };
 
   const handleFileChange = async (file: File | null) => {
     if (!file) return;
@@ -190,18 +208,30 @@ function App() {
           {selectedObject ? (
             <div>
               <h2>
-                Object {selectedObject.objectNumber} {selectedObject.generation} R
+                Object {selectedObject.objectNumber}{" "}
+                {selectedObject.generation} R
               </h2>
 
-              <p>Generation: {selectedObject.generation}</p>
-              <p>Type: {selectedObject.pdfType ?? "—"}</p>
+              <p>
+                Generation: {selectedObject.generation}
+              </p>
 
-              {selectedObject.value.type === "dictionary"  && (
-                <DictionaryView value={selectedObject.value} />
-              )}
-              {selectedObject.value.type === "stream"  && (
-                <StreamView value={selectedObject.value} />
-              )}
+              <p>
+                Type: {selectedObject.pdfType ?? "—"} (
+                {selectedObject.value.type})
+              </p>
+
+              <div
+                style={{
+                  marginTop: 12,
+                  textAlign: "left",
+                }}
+              >
+                <PdfValue
+                  value={selectedObject.value}
+                  onReferenceClick={handleReferenceClick}
+                />
+              </div>
             </div>
           ) : (
             <p>Выберите объект</p>

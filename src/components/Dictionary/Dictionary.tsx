@@ -1,4 +1,5 @@
 import type { PDFObject } from "../../reader";
+import { PdfValue } from "../PdfValue";
 
 type DictionaryObject = Extract<
   PDFObject,
@@ -9,23 +10,6 @@ type Props = {
   value: DictionaryObject;
 };
 
-function getEntryValue(entry: PDFObject) {
-  if ("value" in entry) {
-    return String(entry.value);
-  }
-
-  return "";
-}
-
 export function DictionaryView({ value }: Props) {
-  return (
-    <div>
-      {Array.from(value.entries).map(([key, entry]) => (
-        <div key={key}>
-          <strong>/{key}</strong>{" "}
-          <span>{getEntryValue(entry)}</span>
-        </div>
-      ))}
-    </div>
-  );
+  return <PdfValue value={value} />;
 }

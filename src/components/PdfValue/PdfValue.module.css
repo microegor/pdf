@@ -1,0 +1,91 @@
+.null {
+  color: #888;
+  font-style: italic;
+}
+
+.boolean {
+  color: #0b6e99;
+  font-weight: 600;
+}
+
+.number {
+  color: #1a7f37;
+}
+
+.name {
+  color: #cf222e;
+  font-weight: 600;
+}
+
+.string {
+  color: #0a3069;
+  word-break: break-all;
+}
+
+.hexstring {
+  color: #8250df;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.reference {
+  color: #0969da;
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.array,
+.dictionary,
+.stream {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.nested {
+  border-left: 1px solid #e5e8eb;
+  margin: 2px 0;
+}
+
+.dictRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 1px 0;
+}
+
+.dictKey {
+  color: #cf222e;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.arrayItem {
+  display: flex;
+  gap: 6px;
+  padding: 1px 0;
+}
+
+.arrayIndex {
+  color: #888;
+  min-width: 2ch;
+  flex-shrink: 0;
+}
+
+.streamDict {
+  margin-bottom: 4px;
+}
+
+.streamMeta {
+  color: #57606a;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.streamPreview {
+  color: #656d76;
+}
+
+.depthLimit {
+  color: #d1242f;
+  font-style: italic;
+}
