@@ -8,6 +8,7 @@ import { DropZone } from "./components/DropeZone";
 import { parse, type PDFObject } from "./reader";
 import { PdfObjectItem } from "./components/ObjectItem";
 import { PdfValue } from "./components/PdfValue";
+import { StreamView } from "./components/Stream";
 
 type PdfListItem = {
   id: string;
@@ -228,10 +229,14 @@ function App() {
                   textAlign: "left",
                 }}
               >
-                <PdfValue
-                  value={selectedObject.value}
-                  onReferenceClick={handleReferenceClick}
-                />
+                {selectedObject.value.type === "stream" ? (
+                  <StreamView value={selectedObject.value} />
+                ) : (
+                  <PdfValue
+                    value={selectedObject.value}
+                    onReferenceClick={handleReferenceClick}
+                  />
+                )}
               </div>
             </div>
           ) : (
