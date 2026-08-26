@@ -4,6 +4,7 @@ type PdfObjectItemProps = {
   objectNumber: number;
   generation: number;
   type: string;
+  pdfType?: string | null;
   active?: boolean;
   onClick: () => void;
 };
@@ -12,15 +13,15 @@ export function PdfObjectItem({
   objectNumber,
   generation,
   type,
+  pdfType,
   active = false,
   onClick,
 }: PdfObjectItemProps) {
   return (
     <button
       type="button"
-      className={`${styles["pdf-object"]} ${
-        active ? styles["pdf-object--active"] : ""
-      }`}
+      className={`${styles["pdf-object"]} ${active ? styles["pdf-object--active"] : ""
+        }`}
       onClick={onClick}
     >
       <div className={styles["pdf-object__info"]}>
@@ -30,6 +31,7 @@ export function PdfObjectItem({
 
         <span className={styles["pdf-object__type"]}>
           {type}
+          {pdfType ? ` /${pdfType}` : ""}
         </span>
       </div>
     </button>

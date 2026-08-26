@@ -198,6 +198,7 @@ function App() {
               objectNumber={item.objectNumber}
               generation={item.generation}
               type={item.kind}
+              pdfType={item.pdfType}
               active={selectedObject?.id === item.id}
               onClick={() => setSelectedObject(item)}
             />
