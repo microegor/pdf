@@ -44,3 +44,7 @@
 
     border: 1px solid grey;
   }
+
+  .fill{
+    user-select: none;
+  }

@@ -217,7 +217,7 @@ function App() {
             minHeight: 0,
           }}
         >
-          <input
+          <input className="fill"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filter objects..."
