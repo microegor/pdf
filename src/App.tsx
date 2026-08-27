@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import "../style/App.css";
 import { Button } from "./components/Button";
 import { Stack } from "./components/Stack";
@@ -64,6 +64,31 @@ function App() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [objects, setObjects] = useState<PdfListItem[]>([]);
   const [selectedObject, setSelectedObject] = useState<PdfListItem | null>(null);
+  const [filter, setFilter] = useState("");
+
+  const filteredObjects = useMemo(() => {
+    const query = filter.trim().toLowerCase();
+
+    if (!query) {
+      return objects;
+    }
+
+    return objects.filter((item) => {
+      const searchableText = [
+        item.objectNumber,
+        item.generation,
+        `${item.objectNumber} ${item.generation} R`,
+        item.kind,
+        item.pdfType,
+        item.value.type,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(query);
+    });
+  }, [objects, filter]);
 
   const handleReferenceClick = (
     objectNumber: number,
@@ -189,11 +214,36 @@ function App() {
           sx={{
             width: 300,
             height: "100%",
-            overflow: "auto",
+            minHeight: 0,
           }}
         >
+          <input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter objects..."
+          />
 
-          {objects.map((item) => (
+          <div
+            style={{
+              flex: 1,
+              overflow: "auto",
+            }}
+          >
+            {filteredObjects.map((item) => (
+              <PdfObjectItem
+                key={item.id}
+                objectNumber={item.objectNumber}
+                generation={item.generation}
+                type={item.kind}
+                pdfType={item.pdfType}
+                active={selectedObject?.id === item.id}
+                onClick={() => setSelectedObject(item)}
+              />
+            ))}
+          </div>
+        </Stack>
+
+        {/* {objects.map((item) => (
             <PdfObjectItem
               key={item.id}
               objectNumber={item.objectNumber}
@@ -203,8 +253,7 @@ function App() {
               active={selectedObject?.id === item.id}
               onClick={() => setSelectedObject(item)}
             />
-          ))}
-        </Stack>
+          ))} */}
 
         <div className="screen">
           {selectedObject ? (
