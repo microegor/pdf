@@ -22,20 +22,50 @@ type Props = {
 function bytesToHex(
   raw: Uint8Array,
   limit = 128,
+  bytesPerLine = 16,
 ): string {
   const length = Math.min(raw.length, limit);
+  const lines: string[] = [];
 
-  const result = Array.from(
-    raw.subarray(0, length),
-  )
-    .map((byte) =>
-      byte.toString(16).padStart(2, "0"),
-    )
-    .join(" ");
+  for (
+    let i = 0;
+    i < length;
+    i += bytesPerLine
+  ) {
+    const chunk = raw.subarray(
+      i,
+      Math.min(i + bytesPerLine, length),
+    );
 
-  return raw.length > limit
-    ? `${result} ...`
-    : result;
+    const hex = Array.from(chunk)
+      .map((byte) =>
+        byte.toString(16).padStart(2, "0"),
+      )
+      .join(" ");
+
+    const text = Array.from(chunk)
+      .map((byte) => {
+        if (byte >= 32 && byte <= 126) {
+          return String.fromCharCode(byte);
+        }
+
+        return ".";
+      })
+      .join("");
+
+    const hexWidth =
+      bytesPerLine * 3 - 1;
+
+    lines.push(
+      `${hex.padEnd(hexWidth, " ")}  | ${text}`,
+    );
+  }
+
+  if (raw.length > limit) {
+    lines.push("...");
+  }
+
+  return lines.join("\n");
 }
 
 function bytesToText(
