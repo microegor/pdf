@@ -15,9 +15,9 @@
  *   - Compressed objects' version identity includes the containing object stream version
  */
 
-import { createCursor } from './buffer.js';
-import { ObjectValueLimitError, parseIndirectObject, parseObject } from './objects.js';
-import { decodeStream } from './stream.js';
+import { createCursor } from "./buffer.js";
+import { ObjectValueLimitError, parseIndirectObject, parseObject } from "./objects.js";
+import { decodeStream } from "./stream.js";
 import type {
   IndirectObject,
   ObjectFreeEvent,
@@ -32,16 +32,16 @@ import type {
   PDFStream,
   XRefEntry,
   XRefEntryCompressed,
-} from './types.js';
+} from "./types.js";
 import {
   createObjectParseBudget,
   DEFAULT_PARSE_LIMITS,
   objectKey,
   objectVersionKey,
-} from './types.js';
+} from "./types.js";
 
 type DiagnosticReporter = (diagnostic: ParseDiagnostic) => void;
-type PreparsedIndirectObject = Pick<IndirectObject, 'objectNumber' | 'generation' | 'value'>;
+type PreparsedIndirectObject = Pick<IndirectObject, "objectNumber" | "generation" | "value">;
 type EffectiveObjectState = {
   sourceKey: string;
   generation: number;
@@ -61,12 +61,12 @@ type CompressedObjectIndex = Map<number, Map<number, EffectiveObjectState>>;
 export function computeEntrySourceKey(
   entry: XRefEntry,
   objectStreamSourceKey?: string,
-  revisionIndex?: number
+  revisionIndex?: number,
 ): string {
-  if (entry.type === 'free') {
+  if (entry.type === "free") {
     return `free:${entry.generation}`;
   }
-  if (entry.type === 'used') {
+  if (entry.type === "used") {
     return `used:${entry.offset}:${entry.generation}`;
   }
   // compressed: identity depends on containing stream version.
@@ -78,7 +78,7 @@ export function computeEntrySourceKey(
   // Unresolvable stream source — include stream number + index only,
   // but mark as incomplete. The plan requires this to be diagnosed.
   // We set complete = false when this path is hit (handled in buildHistoryIndex).
-  const scope = revisionIndex === undefined ? 'unknown' : String(revisionIndex);
+  const scope = revisionIndex === undefined ? "unknown" : String(revisionIndex);
   return `compressed-unknown:${entry.objectStreamNumber}:${entry.indexInStream}@${scope}`;
 }
 
@@ -124,7 +124,7 @@ export function buildHistoryIndex(doc: PDFDocument, limits: ParseLimits): Object
     const sourceKeys = new Map<number, string>();
     for (const [objNum, entry] of entriesThisRevision) {
       let streamSourceKey: string | undefined;
-      if (entry.type === 'compressed') {
+      if (entry.type === "compressed") {
         // Look up the object stream's effective source key
         const streamState = effectiveState.get(entry.objectStreamNumber);
         if (streamState && !streamState.isFree) {
@@ -134,7 +134,7 @@ export function buildHistoryIndex(doc: PDFDocument, limits: ParseLimits): Object
         const streamEntry = entriesThisRevision.get(entry.objectStreamNumber);
         if (streamEntry) {
           streamSourceKey =
-            streamEntry.type === 'free' ? undefined : computeEntrySourceKey(streamEntry, undefined);
+            streamEntry.type === "free" ? undefined : computeEntrySourceKey(streamEntry, undefined);
         }
         if (!streamSourceKey) {
           complete = false;
@@ -157,10 +157,10 @@ export function buildHistoryIndex(doc: PDFDocument, limits: ParseLimits): Object
       if (newKey === undefined) continue;
 
       const prev = effectiveState.get(objNum);
-      const isFreeEntry = entry.type === 'free';
+      const isFreeEntry = entry.type === "free";
       const newGen = isFreeEntry
         ? entry.generation
-        : entry.type === 'compressed'
+        : entry.type === "compressed"
           ? 0
           : entry.generation;
 
@@ -183,7 +183,7 @@ export function buildHistoryIndex(doc: PDFDocument, limits: ParseLimits): Object
         totalEvents++;
 
         // Update effective state
-        if (prev?.entry.type === 'compressed') {
+        if (prev?.entry.type === "compressed") {
           removeCompressedObject(compressedObjectsByStream, prev.entry, objNum);
         }
         const nextState: EffectiveObjectState = {
@@ -193,7 +193,7 @@ export function buildHistoryIndex(doc: PDFDocument, limits: ParseLimits): Object
           entry,
         };
         effectiveState.set(objNum, nextState);
-        if (entry.type === 'compressed') {
+        if (entry.type === "compressed") {
           addCompressedObject(compressedObjectsByStream, objNum, nextState);
         }
         changedObjectStreams.set(objNum, {
@@ -222,7 +222,7 @@ export function buildHistoryIndex(doc: PDFDocument, limits: ParseLimits): Object
         }
 
         const compressedEntry = objectState.entry;
-        if (compressedEntry.type !== 'compressed') continue;
+        if (compressedEntry.type !== "compressed") continue;
         const sourceKey = computeEntrySourceKey(compressedEntry, streamState.sourceKey, ri);
         if (objectState.sourceKey === sourceKey) continue;
 
@@ -235,7 +235,7 @@ export function buildHistoryIndex(doc: PDFDocument, limits: ParseLimits): Object
         pushEvent(
           eventsByObject,
           objNum,
-          createVersionLocator(objNum, compressedEntry, sectionIndex, ri, sourceKey)
+          createVersionLocator(objNum, compressedEntry, sectionIndex, ri, sourceKey),
         );
         totalEvents++;
         objectState.sourceKey = sourceKey;
@@ -267,18 +267,18 @@ function createVersionLocator(
   entry: XRefEntry,
   sectionIndex: number,
   revisionIndex: number,
-  sourceKey: string
+  sourceKey: string,
 ): ObjectVersionLocator {
-  if (entry.type === 'free') {
-    throw new Error('Internal error: free entry passed to createVersionLocator');
+  if (entry.type === "free") {
+    throw new Error("Internal error: free entry passed to createVersionLocator");
   }
   return {
-    kind: 'version',
+    kind: "version",
     objectNumber,
-    generation: entry.type === 'compressed' ? 0 : entry.generation,
+    generation: entry.type === "compressed" ? 0 : entry.generation,
     sectionIndex,
     revisionIndex,
-    entry: entry as ObjectVersionLocator['entry'],
+    entry: entry as ObjectVersionLocator["entry"],
     sourceKey,
   };
 }
@@ -287,13 +287,13 @@ function createFreeEvent(
   objectNumber: number,
   entry: XRefEntry,
   sectionIndex: number,
-  revisionIndex: number
+  revisionIndex: number,
 ): ObjectFreeEvent {
-  if (entry.type !== 'free') {
-    throw new Error('Internal error: non-free entry passed to createFreeEvent');
+  if (entry.type !== "free") {
+    throw new Error("Internal error: non-free entry passed to createFreeEvent");
   }
   return {
-    kind: 'free',
+    kind: "free",
     objectNumber,
     nextGeneration: entry.generation,
     sectionIndex,
@@ -304,7 +304,7 @@ function createFreeEvent(
 function pushEvent(
   eventsByObject: Map<number, ObjectHistoryEvent[]>,
   objectNumber: number,
-  event: ObjectHistoryEvent
+  event: ObjectHistoryEvent,
 ): void {
   let events = eventsByObject.get(objectNumber);
   if (!events) {
@@ -319,9 +319,9 @@ function pushEvent(
 function addCompressedObject(
   index: CompressedObjectIndex,
   objectNumber: number,
-  state: EffectiveObjectState
+  state: EffectiveObjectState,
 ): void {
-  if (state.entry.type !== 'compressed') return;
+  if (state.entry.type !== "compressed") return;
   let objectsInStream = index.get(state.entry.objectStreamNumber);
   if (!objectsInStream) {
     objectsInStream = new Map();
@@ -333,7 +333,7 @@ function addCompressedObject(
 function removeCompressedObject(
   index: CompressedObjectIndex,
   entry: XRefEntryCompressed,
-  objectNumber: number
+  objectNumber: number,
 ): void {
   const objectsInStream = index.get(entry.objectStreamNumber);
   if (!objectsInStream) return;
@@ -344,7 +344,7 @@ function removeCompressedObject(
 function addDiagnostic(
   doc: PDFDocument,
   reporter: DiagnosticReporter | undefined,
-  diagnostic: ParseDiagnostic
+  diagnostic: ParseDiagnostic,
 ): void {
   if (reporter) {
     reporter(diagnostic);
@@ -357,11 +357,11 @@ function addObjectValueLimitDiagnostic(
   doc: PDFDocument,
   reporter: DiagnosticReporter | undefined,
   error: ObjectValueLimitError,
-  position?: number
+  position?: number,
 ): void {
-  if (doc.diagnostics.some(diagnostic => diagnostic.code === 'max-object-values')) return;
+  if (doc.diagnostics.some((diagnostic) => diagnostic.code === "max-object-values")) return;
   addDiagnostic(doc, reporter, {
-    code: 'max-object-values',
+    code: "max-object-values",
     message: `${error.message}. Stopping object materialization.`,
     ...(position === undefined ? {} : { position }),
   });
@@ -391,7 +391,7 @@ function collectPreparsedXRefStreamObjects(doc: PDFDocument): Map<number, Prepar
 
 function findPreparsedXRefStreamObject(
   doc: PDFDocument,
-  offset: number
+  offset: number,
 ): PreparsedIndirectObject | undefined {
   for (const section of doc.sections) {
     const source = section.xrefStreamObject;
@@ -410,7 +410,7 @@ function storeCurrentObject(doc: PDFDocument, object: IndirectObject): void {
   if (object.revisionIndex !== undefined) {
     doc.history.versionCache.set(
       objectVersionKey(object.objectNumber, object.generation, object.revisionIndex),
-      object
+      object,
     );
   }
 }
@@ -429,7 +429,7 @@ function storeCurrentObject(doc: PDFDocument, object: IndirectObject): void {
 export function buildCurrentState(
   doc: PDFDocument,
   limits: ParseLimits,
-  reporter?: DiagnosticReporter
+  reporter?: DiagnosticReporter,
 ): boolean {
   const objectValueBudget = getObjectValueBudget(doc, limits);
   const preparsedXRefStreamObjects = collectPreparsedXRefStreamObjects(doc);
@@ -453,7 +453,7 @@ export function buildCurrentState(
   let complete = true;
   let objectValueLimitReached = false;
   for (const [objectNumber, { entry, sectionIndex }] of newestByObject) {
-    if (entry.type === 'free') {
+    if (entry.type === "free") {
       // Object is freed in the newest revision — not in doc.objects.
       // History events still retain older versions.
       continue;
@@ -461,7 +461,7 @@ export function buildCurrentState(
 
     if (doc.objects.size >= limits.maxObjects) {
       addDiagnostic(doc, reporter, {
-        code: 'max-objects',
+        code: "max-objects",
         message: `Exceeded maximum number of objects (${limits.maxObjects}). Stopping.`,
       });
       complete = false;
@@ -471,7 +471,7 @@ export function buildCurrentState(
     const revisionIndex = doc.sections.length - 1 - sectionIndex;
     // For used entries, generation comes from the entry itself.
     // For compressed entries, generation is always 0.
-    const generation = entry.type === 'compressed' ? 0 : entry.generation;
+    const generation = entry.type === "compressed" ? 0 : entry.generation;
     const key = objectKey(objectNumber, generation);
 
     // P1-5: find the canonical history locator for this physical version.
@@ -479,7 +479,7 @@ export function buildCurrentState(
     // index deduplicates by sourceKey, so the locator's sectionIndex/revisionIndex
     // describe the actual physical write, not the newest declaration.
     const sourceKey =
-      entry.type === 'compressed'
+      entry.type === "compressed"
         ? findHistorySourceKey(doc, objectNumber, entry, revisionIndex)
         : computeEntrySourceKey(entry);
     let physicalSectionIndex = sectionIndex;
@@ -488,7 +488,7 @@ export function buildCurrentState(
     if (eventsForObj) {
       for (const event of eventsForObj) {
         if (
-          event.kind === 'version' &&
+          event.kind === "version" &&
           event.sourceKey === sourceKey &&
           event.generation === generation
         ) {
@@ -499,11 +499,11 @@ export function buildCurrentState(
       }
     }
 
-    if (entry.type === 'used') {
+    if (entry.type === "used") {
       try {
         if (entry.offset < 0 || entry.offset >= doc.buffer.length) {
           addDiagnostic(doc, reporter, {
-            code: 'object-offset',
+            code: "object-offset",
             message: `XRef entry for object ${key} has out-of-bounds offset ${entry.offset}. Skipping.`,
             position: entry.offset,
           });
@@ -518,7 +518,7 @@ export function buildCurrentState(
         // P0-1: validate identity before storing
         if (indirectObj.objectNumber !== objectNumber || indirectObj.generation !== generation) {
           addDiagnostic(doc, reporter, {
-            code: 'object-identity',
+            code: "object-identity",
             message:
               `Object at offset ${entry.offset} has unexpected identity: ` +
               `expected ${objectNumber} ${generation}, ` +
@@ -544,7 +544,7 @@ export function buildCurrentState(
           break;
         }
         addDiagnostic(doc, reporter, {
-          code: 'object-parse',
+          code: "object-parse",
           message: `Failed to parse object ${key} at offset ${entry.offset}: ${e instanceof Error ? e.message : String(e)}`,
           position: entry.offset,
         });
@@ -571,14 +571,14 @@ function findHistorySourceKey(
   doc: PDFDocument,
   objectNumber: number,
   entry: XRefEntryCompressed,
-  targetRevisionIndex: number
+  targetRevisionIndex: number,
 ): string {
   const events = doc.history.eventsByObject.get(objectNumber) ?? [];
   let best: ObjectVersionLocator | undefined;
   for (const event of events) {
     if (
-      event.kind === 'version' &&
-      event.entry.type === 'compressed' &&
+      event.kind === "version" &&
+      event.entry.type === "compressed" &&
       event.entry.objectStreamNumber === entry.objectStreamNumber &&
       event.entry.indexInStream === entry.indexInStream &&
       event.revisionIndex <= targetRevisionIndex &&
@@ -598,7 +598,7 @@ function parseCompressedObjectsNew(
   doc: PDFDocument,
   newestByObject: Map<number, { entry: XRefEntry; sectionIndex: number }>,
   limits: ParseLimits,
-  reporter?: DiagnosticReporter
+  reporter?: DiagnosticReporter,
 ): boolean {
   let complete = true;
   const objectValueBudget = getObjectValueBudget(doc, limits);
@@ -608,7 +608,7 @@ function parseCompressedObjectsNew(
     { entry: XRefEntryCompressed; sectionIndex: number }
   >();
   for (const [objectNumber, { entry, sectionIndex }] of newestByObject) {
-    if (entry.type === 'compressed' && !doc.objects.has(objectKey(objectNumber, 0))) {
+    if (entry.type === "compressed" && !doc.objects.has(objectKey(objectNumber, 0))) {
       compressedByObjNum.set(objectNumber, { entry, sectionIndex });
     }
   }
@@ -630,26 +630,26 @@ function parseCompressedObjectsNew(
 
     if (!streamObj) {
       addDiagnostic(doc, reporter, {
-        code: 'object-stream-missing',
+        code: "object-stream-missing",
         message: `Object stream ${streamNum} is missing while materializing compressed objects.`,
       });
       complete = false;
       continue;
     }
 
-    if (streamObj.value.type !== 'stream') {
+    if (streamObj.value.type !== "stream") {
       addDiagnostic(doc, reporter, {
-        code: 'object-stream-type',
+        code: "object-stream-type",
         message: `Object ${streamNum} referenced as an object stream has type ${streamObj.value.type}.`,
       });
       complete = false;
       continue;
     }
 
-    const typeEntry = streamObj.value.dictionary.entries.get('Type');
-    if (typeEntry?.type !== 'name' || typeEntry.value !== 'ObjStm') {
+    const typeEntry = streamObj.value.dictionary.entries.get("Type");
+    if (typeEntry?.type !== "name" || typeEntry.value !== "ObjStm") {
       addDiagnostic(doc, reporter, {
-        code: 'object-stream-type',
+        code: "object-stream-type",
         message: `Object stream ${streamNum} is missing /Type /ObjStm.`,
       });
       complete = false;
@@ -660,13 +660,13 @@ function parseCompressedObjectsNew(
       const parsedItems = parseObjectStreamRetainNumbers(
         streamObj.value,
         limits,
-        objectValueBudget
+        objectValueBudget,
       );
 
       for (const { objNum, index, sectionIndex } of objects) {
         if (doc.objects.size >= limits.maxObjects) {
           addDiagnostic(doc, reporter, {
-            code: 'max-objects',
+            code: "max-objects",
             message: `Exceeded maximum number of objects (${limits.maxObjects}) while materializing object stream ${streamNum}.`,
           });
           complete = false;
@@ -676,7 +676,7 @@ function parseCompressedObjectsNew(
         const item = parsedItems[index];
         if (!item) {
           addDiagnostic(doc, reporter, {
-            code: 'object-stream-index',
+            code: "object-stream-index",
             message: `Object stream ${streamNum} has no item at index ${index}.`,
           });
           complete = false;
@@ -687,7 +687,7 @@ function parseCompressedObjectsNew(
         if (item.objectNumber !== objNum) {
           complete = false;
           addDiagnostic(doc, reporter, {
-            code: 'object-stream-identity',
+            code: "object-stream-identity",
             message: `Object stream ${streamNum} index ${index}: embedded number ${item.objectNumber} ≠ expected ${objNum}. Skipping.`,
           });
           continue;
@@ -704,16 +704,16 @@ function parseCompressedObjectsNew(
               // its compressed entry was inherited from an older XRef section,
               // resolve the locator against the newest revision so an implicit
               // ObjStm rewrite is reflected in the current object's metadata.
-              doc.sections.length - 1
+              doc.sections.length - 1,
             )
-          : '';
+          : "";
         let physicalRevisionIndex = doc.sections.length - 1 - sectionIndex;
         let physicalSectionIndex = sectionIndex;
         const eventsForObj = doc.history.eventsByObject.get(objNum);
         if (eventsForObj) {
           for (const event of eventsForObj) {
             if (
-              event.kind === 'version' &&
+              event.kind === "version" &&
               event.sourceKey === entrySourceKey &&
               event.generation === 0
             ) {
@@ -738,7 +738,7 @@ function parseCompressedObjectsNew(
         break;
       }
       addDiagnostic(doc, reporter, {
-        code: 'object-stream-parse',
+        code: "object-stream-parse",
         message: `Failed to parse object stream ${streamNum}: ${e instanceof Error ? e.message : String(e)}`,
       });
     }
@@ -761,17 +761,17 @@ export type ParsedObjectStreamItem = {
 function parseObjectStreamRetainNumbers(
   stream: PDFStream,
   limits?: ParseLimits,
-  budget?: ObjectParseBudget
+  budget?: ObjectParseBudget,
 ): (ParsedObjectStreamItem | null)[] {
   const dict = stream.dictionary;
   const effectiveLimits = limits ?? DEFAULT_PARSE_LIMITS;
   const effectiveBudget = budget ?? createObjectParseBudget(effectiveLimits.maxObjectValues);
 
-  const nObj = dict.entries.get('N');
-  const firstObj = dict.entries.get('First');
+  const nObj = dict.entries.get("N");
+  const firstObj = dict.entries.get("First");
 
-  if (nObj?.type !== 'number' || !firstObj || firstObj.type !== 'number') {
-    throw new Error('Invalid object stream dictionary');
+  if (nObj?.type !== "number" || !firstObj || firstObj.type !== "number") {
+    throw new Error("Invalid object stream dictionary");
   }
 
   const n = nObj.value;
@@ -790,7 +790,7 @@ function parseObjectStreamRetainNumbers(
     data = decodeStream(stream, effectiveLimits);
   } catch (e) {
     throw new Error(
-      `Failed to decode object stream: ${e instanceof Error ? e.message : String(e)}`
+      `Failed to decode object stream: ${e instanceof Error ? e.message : String(e)}`,
     );
   }
 
@@ -887,12 +887,12 @@ function isObjectStreamWhitespace(byte: number): boolean {
  */
 export function materializeVersion(
   doc: PDFDocument,
-  locator: ObjectVersionLocator
+  locator: ObjectVersionLocator,
 ): IndirectObject {
   const cacheKey = objectVersionKey(
     locator.objectNumber,
     locator.generation,
-    locator.revisionIndex
+    locator.revisionIndex,
   );
 
   // Check cache first
@@ -903,7 +903,7 @@ export function materializeVersion(
   if (doc.history.materializingKeys.has(cacheKey)) {
     throw new Error(
       `Cyclic materialization detected for object ${locator.objectNumber} ` +
-        `generation ${locator.generation} at revision ${locator.revisionIndex}`
+        `generation ${locator.generation} at revision ${locator.revisionIndex}`,
     );
   }
   doc.history.materializingKeys.add(cacheKey);
@@ -911,15 +911,15 @@ export function materializeVersion(
   try {
     let result: IndirectObject;
 
-    if (locator.entry.type === 'used') {
+    if (locator.entry.type === "used") {
       result = materializeUncompressed(doc, locator);
-    } else if (locator.entry.type === 'compressed') {
+    } else if (locator.entry.type === "compressed") {
       const compressed = materializeCompressed(doc, locator);
       if (!compressed) {
         throw new Error(
           `Compressed object ${locator.objectNumber} could not be resolved: ` +
             `object stream ${locator.entry.objectStreamNumber} not found or not parseable ` +
-            `at revision ${locator.revisionIndex}`
+            `at revision ${locator.revisionIndex}`,
         );
       }
       result = compressed;
@@ -937,10 +937,10 @@ export function materializeVersion(
       doc.history.incompleteReason ??= message;
       if (
         !doc.diagnostics.some(
-          diagnostic => diagnostic.code === 'max-object-values' && diagnostic.message === message
+          (diagnostic) => diagnostic.code === "max-object-values" && diagnostic.message === message,
         )
       ) {
-        doc.diagnostics.push({ code: 'max-object-values', message });
+        doc.diagnostics.push({ code: "max-object-values", message });
       }
     }
     throw error;
@@ -954,12 +954,12 @@ export function materializeVersion(
  * Throws on parse failure (never returns null).
  */
 function materializeUncompressed(doc: PDFDocument, locator: ObjectVersionLocator): IndirectObject {
-  const entry = locator.entry as { type: 'used'; offset: number; generation: number };
+  const entry = locator.entry as { type: "used"; offset: number; generation: number };
 
   if (entry.offset < 0 || entry.offset >= doc.buffer.length) {
     throw new Error(
       `XRef offset ${entry.offset} out of bounds (buffer size ${doc.buffer.length}) ` +
-        `for object ${locator.objectNumber} at revision ${locator.revisionIndex}`
+        `for object ${locator.objectNumber} at revision ${locator.revisionIndex}`,
     );
   }
 
@@ -968,7 +968,7 @@ function materializeUncompressed(doc: PDFDocument, locator: ObjectVersionLocator
     parseIndirectObject(
       createCursor(doc.buffer, entry.offset),
       doc.history.limits,
-      getObjectValueBudget(doc, doc.history.limits)
+      getObjectValueBudget(doc, doc.history.limits),
     );
 
   // Verify object number and generation match the locator.
@@ -980,7 +980,7 @@ function materializeUncompressed(doc: PDFDocument, locator: ObjectVersionLocator
     throw new Error(
       `Object at offset ${entry.offset} has unexpected identity: ` +
         `expected ${locator.objectNumber} ${locator.generation}, ` +
-        `got ${indirectObj.objectNumber} ${indirectObj.generation}`
+        `got ${indirectObj.objectNumber} ${indirectObj.generation}`,
     );
   }
 
@@ -1003,16 +1003,16 @@ function materializeCompressed(doc: PDFDocument, locator: ObjectVersionLocator):
   // Get the object stream version effective at this revision
   const streamObj = getObjectAtRevision(doc, entry.objectStreamNumber, 0, locator.revisionIndex);
 
-  if (streamObj?.value.type !== 'stream') {
+  if (streamObj?.value.type !== "stream") {
     throw new Error(
-      `Object stream ${entry.objectStreamNumber} not found at revision ${locator.revisionIndex}`
+      `Object stream ${entry.objectStreamNumber} not found at revision ${locator.revisionIndex}`,
     );
   }
 
-  const typeEntry = streamObj.value.dictionary.entries.get('Type');
-  if (typeEntry?.type !== 'name' || typeEntry.value !== 'ObjStm') {
+  const typeEntry = streamObj.value.dictionary.entries.get("Type");
+  if (typeEntry?.type !== "name" || typeEntry.value !== "ObjStm") {
     throw new Error(
-      `Stream ${entry.objectStreamNumber} is not an Object Stream at revision ${locator.revisionIndex}`
+      `Stream ${entry.objectStreamNumber} is not an Object Stream at revision ${locator.revisionIndex}`,
     );
   }
 
@@ -1020,7 +1020,7 @@ function materializeCompressed(doc: PDFDocument, locator: ObjectVersionLocator):
   const streamVersionKey = objectVersionKey(
     entry.objectStreamNumber,
     0,
-    streamObj.revisionIndex ?? locator.revisionIndex
+    streamObj.revisionIndex ?? locator.revisionIndex,
   );
   let parsedItems = doc.history.parsedStreamCache.get(streamVersionKey) ?? null;
 
@@ -1029,7 +1029,7 @@ function materializeCompressed(doc: PDFDocument, locator: ObjectVersionLocator):
       parsedItems = parseObjectStreamRetainNumbers(
         streamObj.value,
         doc.history.limits,
-        getObjectValueBudget(doc, doc.history.limits)
+        getObjectValueBudget(doc, doc.history.limits),
       );
       doc.history.parsedStreamCache.set(streamVersionKey, parsedItems);
     } catch (e) {
@@ -1039,7 +1039,7 @@ function materializeCompressed(doc: PDFDocument, locator: ObjectVersionLocator):
       throw new Error(
         `Failed to parse object stream ${entry.objectStreamNumber} ` +
           `at revision ${locator.revisionIndex}:`,
-        { cause: e }
+        { cause: e },
       );
     }
   }
@@ -1047,14 +1047,14 @@ function materializeCompressed(doc: PDFDocument, locator: ObjectVersionLocator):
   if (entry.indexInStream < 0 || entry.indexInStream >= parsedItems.length) {
     throw new Error(
       `Index ${entry.indexInStream} out of range for object stream ${entry.objectStreamNumber} ` +
-        `at revision ${locator.revisionIndex} (${parsedItems.length} items)`
+        `at revision ${locator.revisionIndex} (${parsedItems.length} items)`,
     );
   }
 
   const item = parsedItems[entry.indexInStream];
   if (!item) {
     throw new Error(
-      `Object stream ${entry.objectStreamNumber} item ${entry.indexInStream} could not be parsed`
+      `Object stream ${entry.objectStreamNumber} item ${entry.indexInStream} could not be parsed`,
     );
   }
 
@@ -1062,7 +1062,7 @@ function materializeCompressed(doc: PDFDocument, locator: ObjectVersionLocator):
   if (item.objectNumber !== locator.objectNumber) {
     throw new Error(
       `Object stream mismatch: expected ${locator.objectNumber} at index ${entry.indexInStream}, ` +
-        `got ${item.objectNumber}. Skipping.`
+        `got ${item.objectNumber}. Skipping.`,
     );
   }
 
@@ -1090,7 +1090,7 @@ export function getObjectAtRevision(
   doc: PDFDocument,
   objectNumber: number,
   generation: number,
-  revisionIndex: number
+  revisionIndex: number,
 ): IndirectObject | null {
   // Validate revision range
   const newestRevision = doc.sections.length - 1;
@@ -1116,11 +1116,11 @@ export function getObjectAtRevision(
   for (const event of events) {
     if (event.revisionIndex > revisionIndex) break;
 
-    if (event.kind === 'free') {
+    if (event.kind === "free") {
       // Free event clears all generations for this object number
       activeVersionLocator = null;
       activeGeneration = -1;
-    } else if (event.kind === 'version') {
+    } else if (event.kind === "version") {
       // Version event makes this identity active
       activeVersionLocator = event;
       activeGeneration = event.generation;
@@ -1137,7 +1137,7 @@ export function getObjectAtRevision(
     return materializeVersion(doc, activeVersionLocator);
   } catch (e) {
     doc.diagnostics.push({
-      code: 'history-materialization',
+      code: "history-materialization",
       message:
         `Failed to materialize object ${objectNumber} ${generation} ` +
         `at revision ${revisionIndex}: ${e instanceof Error ? e.message : String(e)}`,

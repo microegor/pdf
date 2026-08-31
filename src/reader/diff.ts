@@ -6,9 +6,9 @@
  * dictionaries, and streams.
  */
 
-import { decodeStream } from './stream.js';
-import type { PDFArray, PDFDictionary, PDFObject, PDFStream } from './types.js';
-import { DEFAULT_PARSE_LIMITS } from './types.js';
+import { decodeStream } from "./stream.js";
+import type { PDFArray, PDFDictionary, PDFObject, PDFStream } from "./types.js";
+import { DEFAULT_PARSE_LIMITS } from "./types.js";
 
 // ============================================================================
 // Types
@@ -16,7 +16,7 @@ import { DEFAULT_PARSE_LIMITS } from './types.js';
 
 export type DictDiffEntry = {
   key: string;
-  kind: 'added' | 'removed' | 'changed' | 'unchanged';
+  kind: "added" | "removed" | "changed" | "unchanged";
   oldValue?: PDFObject | undefined;
   newValue?: PDFObject | undefined;
 };
@@ -31,7 +31,7 @@ export type DictionaryDiff = {
 
 export type ArrayDiffEntry = {
   index: number;
-  kind: 'added' | 'removed' | 'changed' | 'unchanged';
+  kind: "added" | "removed" | "changed" | "unchanged";
   oldValue?: PDFObject | undefined;
   newValue?: PDFObject | undefined;
 };
@@ -84,7 +84,7 @@ type ComparedPairs = WeakMap<object, WeakSet<object>>;
 export function equalPDFObject(
   a: PDFObject | undefined | null,
   b: PDFObject | undefined | null,
-  depth: number = 0
+  depth: number = 0,
 ): boolean {
   return equalPDFObjectInternal(a, b, depth, new WeakMap());
 }
@@ -93,7 +93,7 @@ function equalPDFObjectInternal(
   a: PDFObject | undefined | null,
   b: PDFObject | undefined | null,
   depth: number,
-  comparedPairs: ComparedPairs
+  comparedPairs: ComparedPairs,
 ): boolean {
   // Both null/undefined → equal
   if (a == null && b == null) return true;
@@ -113,29 +113,29 @@ function equalPDFObjectInternal(
   else comparedPairs.set(a, new WeakSet([b]));
 
   switch (a.type) {
-    case 'null':
+    case "null":
       return true;
 
-    case 'boolean':
+    case "boolean":
       return a.value === (b as typeof a).value;
 
-    case 'number':
+    case "number":
       return a.value === (b as typeof a).value;
 
-    case 'string':
-    case 'hexstring':
+    case "string":
+    case "hexstring":
       return rawBytesEqual(a.raw, (b as typeof a).raw);
 
-    case 'name':
+    case "name":
       return a.value === (b as typeof a).value;
 
-    case 'reference':
+    case "reference":
       return (
         a.objectNumber === (b as typeof a).objectNumber &&
         a.generation === (b as typeof a).generation
       );
 
-    case 'array': {
+    case "array": {
       const arrA = a as PDFArray;
       const arrB = b as PDFArray;
       if (arrA.items.length !== arrB.items.length) return false;
@@ -147,7 +147,7 @@ function equalPDFObjectInternal(
       return true;
     }
 
-    case 'dictionary': {
+    case "dictionary": {
       const dictA = a as PDFDictionary;
       const dictB = b as PDFDictionary;
       if (dictA.entries.size !== dictB.entries.size) return false;
@@ -158,7 +158,7 @@ function equalPDFObjectInternal(
       return true;
     }
 
-    case 'stream': {
+    case "stream": {
       const sA = a as PDFStream;
       const sB = b as PDFStream;
       // Compare dictionaries
@@ -193,7 +193,7 @@ function rawBytesEqual(a: Uint8Array, b: Uint8Array): boolean {
  */
 export function diffDictionaries(
   oldDict: PDFDictionary | undefined | null,
-  newDict: PDFDictionary | undefined | null
+  newDict: PDFDictionary | undefined | null,
 ): DictionaryDiff {
   const entries: DictDiffEntry[] = [];
   let addedCount = 0;
@@ -212,16 +212,16 @@ export function diffDictionaries(
     const newVal = newEntries.get(key);
 
     if (oldVal === undefined && newVal !== undefined) {
-      entries.push({ key, kind: 'added', newValue: newVal });
+      entries.push({ key, kind: "added", newValue: newVal });
       addedCount++;
     } else if (oldVal !== undefined && newVal === undefined) {
-      entries.push({ key, kind: 'removed', oldValue: oldVal });
+      entries.push({ key, kind: "removed", oldValue: oldVal });
       removedCount++;
     } else if (!equalPDFObject(oldVal, newVal)) {
-      entries.push({ key, kind: 'changed', oldValue: oldVal, newValue: newVal });
+      entries.push({ key, kind: "changed", oldValue: oldVal, newValue: newVal });
       changedCount++;
     } else {
-      entries.push({ key, kind: 'unchanged' });
+      entries.push({ key, kind: "unchanged" });
       unchangedCount++;
     }
   }
@@ -245,7 +245,7 @@ export function diffDictionaries(
  */
 export function diffArrays(
   oldArr: PDFArray | undefined | null,
-  newArr: PDFArray | undefined | null
+  newArr: PDFArray | undefined | null,
 ): ArrayDiff {
   const entries: ArrayDiffEntry[] = [];
   let addedCount = 0;
@@ -262,19 +262,19 @@ export function diffArrays(
     const newVal = newItems[i];
 
     if (oldVal === undefined && newVal !== undefined) {
-      entries.push({ index: i, kind: 'added', newValue: newVal });
+      entries.push({ index: i, kind: "added", newValue: newVal });
       addedCount++;
     } else if (oldVal !== undefined && newVal === undefined) {
-      entries.push({ index: i, kind: 'removed', oldValue: oldVal });
+      entries.push({ index: i, kind: "removed", oldValue: oldVal });
       removedCount++;
     } else if (!equalPDFObject(oldVal, newVal)) {
-      const entry: ArrayDiffEntry = { index: i, kind: 'changed' };
+      const entry: ArrayDiffEntry = { index: i, kind: "changed" };
       if (oldVal !== undefined) entry.oldValue = oldVal;
       if (newVal !== undefined) entry.newValue = newVal;
       entries.push(entry);
       changedCount++;
     } else {
-      entries.push({ index: i, kind: 'unchanged' });
+      entries.push({ index: i, kind: "unchanged" });
       unchangedCount++;
     }
   }
@@ -300,7 +300,7 @@ const STREAM_PREVIEW_BYTES = 64;
  */
 export function diffStreams(
   oldStream: PDFStream | undefined | null,
-  newStream: PDFStream | undefined | null
+  newStream: PDFStream | undefined | null,
 ): StreamDiff {
   if (!oldStream && !newStream) {
     return {
@@ -348,8 +348,8 @@ export function diffStreams(
   };
 
   // Optionally compare decoded data (only if same filter)
-  const oldFilter = oldStream.dictionary.entries.get('Filter');
-  const newFilter = newStream.dictionary.entries.get('Filter');
+  const oldFilter = oldStream.dictionary.entries.get("Filter");
+  const newFilter = newStream.dictionary.entries.get("Filter");
 
   if (oldFilter && newFilter && equalPDFObject(oldFilter, newFilter)) {
     try {
@@ -373,13 +373,13 @@ export function diffStreams(
 // ============================================================================
 
 function formatHexPreview(data: Uint8Array, maxBytes: number): string {
-  if (!data || data.length === 0) return '';
+  if (!data || data.length === 0) return "";
   const len = Math.min(data.length, maxBytes);
   const hex: string[] = [];
   for (let i = 0; i < len; i++) {
-    hex.push((data[i] ?? 0).toString(16).padStart(2, '0'));
+    hex.push((data[i] ?? 0).toString(16).padStart(2, "0"));
   }
-  return hex.join(' ');
+  return hex.join(" ");
 }
 
 /**
@@ -391,5 +391,5 @@ function simpleHash(data: Uint8Array): string {
   for (let i = 0; i < data.length; i++) {
     hash = ((hash << 5) + hash + (data[i] ?? 0)) | 0;
   }
-  return (hash >>> 0).toString(16).padStart(8, '0');
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }

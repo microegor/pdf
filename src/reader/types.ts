@@ -20,16 +20,16 @@ export type Cursor = {
 // ============================================================================
 
 export type PDFNull = {
-  type: 'null';
+  type: "null";
 };
 
 export type PDFBoolean = {
-  type: 'boolean';
+  type: "boolean";
   value: boolean;
 };
 
 export type PDFNumber = {
-  type: 'number';
+  type: "number";
   value: number;
 };
 
@@ -38,7 +38,7 @@ export type PDFNumber = {
  * The raw field is a subarray view of the original buffer
  */
 export type PDFString = {
-  type: 'string';
+  type: "string";
   raw: Uint8Array;
 };
 
@@ -46,7 +46,7 @@ export type PDFString = {
  * PDF Hex String - stores raw hex bytes
  */
 export type PDFHexString = {
-  type: 'hexstring';
+  type: "hexstring";
   raw: Uint8Array;
 };
 
@@ -54,7 +54,7 @@ export type PDFHexString = {
  * PDF Name - stored as string since names are typically short
  */
 export type PDFName = {
-  type: 'name';
+  type: "name";
   value: string;
 };
 
@@ -62,7 +62,7 @@ export type PDFName = {
  * PDF Array
  */
 export type PDFArray = {
-  type: 'array';
+  type: "array";
   items: PDFObject[];
 };
 
@@ -70,7 +70,7 @@ export type PDFArray = {
  * PDF Dictionary - uses Map for O(1) lookups
  */
 export type PDFDictionary = {
-  type: 'dictionary';
+  type: "dictionary";
   entries: Map<string, PDFObject>;
 };
 
@@ -79,7 +79,7 @@ export type PDFDictionary = {
  * Data is a subarray view of the original buffer
  */
 export type PDFStream = {
-  type: 'stream';
+  type: "stream";
   dictionary: PDFDictionary;
   data: Uint8Array;
 };
@@ -88,7 +88,7 @@ export type PDFStream = {
  * PDF Reference to indirect object
  */
 export type PDFReference = {
-  type: 'reference';
+  type: "reference";
   objectNumber: number;
   generation: number;
 };
@@ -119,7 +119,7 @@ export const MAX_PDF_GENERATION = 65_535;
  * Free object entry in XRef
  */
 export type XRefEntryFree = {
-  type: 'free';
+  type: "free";
   nextFreeObject: number;
   generation: number;
 };
@@ -128,7 +128,7 @@ export type XRefEntryFree = {
  * Used object entry in XRef - object is at specified byte offset
  */
 export type XRefEntryUsed = {
-  type: 'used';
+  type: "used";
   offset: number;
   generation: number;
 };
@@ -137,7 +137,7 @@ export type XRefEntryUsed = {
  * Compressed object entry - object is in an object stream
  */
 export type XRefEntryCompressed = {
-  type: 'compressed';
+  type: "compressed";
   objectStreamNumber: number;
   indexInStream: number;
 };
@@ -208,7 +208,7 @@ export type RevisionMetadata = {
  * Identifies the exact byte location and revision where this version was written.
  */
 export type ObjectVersionLocator = {
-  kind: 'version';
+  kind: "version";
   objectNumber: number;
   generation: number;
   sectionIndex: number;
@@ -222,7 +222,7 @@ export type ObjectVersionLocator = {
  * Records that an object number was freed in a specific revision.
  */
 export type ObjectFreeEvent = {
-  kind: 'free';
+  kind: "free";
   objectNumber: number;
   /** The generation that the free entry declares as "next" */
   nextGeneration: number;
@@ -321,12 +321,12 @@ export class ObjectVersionParseError extends Error {
   override cause: unknown;
 
   constructor(descriptor: ObjectVersionDescriptor, cause: unknown) {
-    const causeMsg = cause instanceof Error ? cause.message : String(cause ?? 'unknown error');
+    const causeMsg = cause instanceof Error ? cause.message : String(cause ?? "unknown error");
     const msg =
       `Failed to parse object ${descriptor.objectNumber} ${descriptor.generation} ` +
       `version ${descriptor.versionIndex} (revision ${descriptor.revisionIndex}): ${causeMsg}`;
     super(msg);
-    this.name = 'ObjectVersionParseError';
+    this.name = "ObjectVersionParseError";
     this.descriptor = descriptor;
     this.cause = cause;
   }
@@ -368,16 +368,16 @@ export type PDFDocument = {
 // ============================================================================
 
 export type TokenType =
-  | 'keyword' // true, false, null, obj, endobj, stream, endstream, xref, trailer, startxref, R
-  | 'number' // Integer or real numbers
-  | 'name' // /Name
-  | 'string' // (literal string)
-  | 'hexstring' // <hex string>
-  | 'array_start' // [
-  | 'array_end' // ]
-  | 'dict_start' // <<
-  | 'dict_end' // >>
-  | 'eof'; // End of file
+  | "keyword" // true, false, null, obj, endobj, stream, endstream, xref, trailer, startxref, R
+  | "number" // Integer or real numbers
+  | "name" // /Name
+  | "string" // (literal string)
+  | "hexstring" // <hex string>
+  | "array_start" // [
+  | "array_end" // ]
+  | "dict_start" // <<
+  | "dict_end" // >>
+  | "eof"; // End of file
 
 export type Token = {
   type: TokenType;
@@ -462,7 +462,7 @@ export type ParseOptions = {
 /** Limits accepted by the low-level object parser. */
 export type ObjectParseOptions = Pick<
   ParseLimits,
-  'maxDepth' | 'maxObjectValues' | 'maxStringBytes' | 'maxStreamBytes'
+  "maxDepth" | "maxObjectValues" | "maxStringBytes" | "maxStreamBytes"
 >;
 
 /** Create a fresh cumulative object-value budget. */
@@ -489,7 +489,7 @@ export function objectKey(objectNumber: number, generation: number): string {
 export function objectVersionKey(
   objectNumber: number,
   generation: number,
-  revisionIndex: number
+  revisionIndex: number,
 ): string {
   return `${objectNumber}_${generation}@${revisionIndex}`;
 }
@@ -498,70 +498,70 @@ export function objectVersionKey(
  * Create PDF null object
  */
 export function createNull(): PDFNull {
-  return { type: 'null' };
+  return { type: "null" };
 }
 
 /**
  * Create PDF boolean object
  */
 export function createBoolean(value: boolean): PDFBoolean {
-  return { type: 'boolean', value };
+  return { type: "boolean", value };
 }
 
 /**
  * Create PDF number object
  */
 export function createNumber(value: number): PDFNumber {
-  return { type: 'number', value };
+  return { type: "number", value };
 }
 
 /**
  * Create PDF string object
  */
 export function createString(raw: Uint8Array): PDFString {
-  return { type: 'string', raw };
+  return { type: "string", raw };
 }
 
 /**
  * Create PDF hex string object
  */
 export function createHexString(raw: Uint8Array): PDFHexString {
-  return { type: 'hexstring', raw };
+  return { type: "hexstring", raw };
 }
 
 /**
  * Create PDF name object
  */
 export function createName(value: string): PDFName {
-  return { type: 'name', value };
+  return { type: "name", value };
 }
 
 /**
  * Create PDF array object
  */
 export function createArray(items: PDFObject[]): PDFArray {
-  return { type: 'array', items };
+  return { type: "array", items };
 }
 
 /**
  * Create PDF dictionary object
  */
 export function createDictionary(entries?: Map<string, PDFObject>): PDFDictionary {
-  return { type: 'dictionary', entries: entries ?? new Map() };
+  return { type: "dictionary", entries: entries ?? new Map() };
 }
 
 /**
  * Create PDF stream object
  */
 export function createStream(dictionary: PDFDictionary, data: Uint8Array): PDFStream {
-  return { type: 'stream', dictionary, data };
+  return { type: "stream", dictionary, data };
 }
 
 /**
  * Create PDF reference object
  */
 export function createReference(objectNumber: number, generation: number): PDFReference {
-  return { type: 'reference', objectNumber, generation };
+  return { type: "reference", objectNumber, generation };
 }
 
 // ============================================================================
@@ -569,41 +569,41 @@ export function createReference(objectNumber: number, generation: number): PDFRe
 // ============================================================================
 
 export function isNull(obj: PDFObject): obj is PDFNull {
-  return obj.type === 'null';
+  return obj.type === "null";
 }
 
 export function isBoolean(obj: PDFObject): obj is PDFBoolean {
-  return obj.type === 'boolean';
+  return obj.type === "boolean";
 }
 
 export function isNumber(obj: PDFObject): obj is PDFNumber {
-  return obj.type === 'number';
+  return obj.type === "number";
 }
 
 export function isString(obj: PDFObject): obj is PDFString {
-  return obj.type === 'string';
+  return obj.type === "string";
 }
 
 export function isHexString(obj: PDFObject): obj is PDFHexString {
-  return obj.type === 'hexstring';
+  return obj.type === "hexstring";
 }
 
 export function isName(obj: PDFObject): obj is PDFName {
-  return obj.type === 'name';
+  return obj.type === "name";
 }
 
 export function isArray(obj: PDFObject): obj is PDFArray {
-  return obj.type === 'array';
+  return obj.type === "array";
 }
 
 export function isDictionary(obj: PDFObject): obj is PDFDictionary {
-  return obj.type === 'dictionary';
+  return obj.type === "dictionary";
 }
 
 export function isStream(obj: PDFObject): obj is PDFStream {
-  return obj.type === 'stream';
+  return obj.type === "stream";
 }
 
 export function isReference(obj: PDFObject): obj is PDFReference {
-  return obj.type === 'reference';
+  return obj.type === "reference";
 }

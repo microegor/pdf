@@ -3,8 +3,8 @@
  * Functions for parsing all PDF object types
  */
 
-import { CR, hexValue, isWhitespace, LF, skipWhitespaceAndComments } from './buffer.js';
-import { nextToken, peekToken } from './tokenizer.js';
+import { CR, hexValue, isWhitespace, LF, skipWhitespaceAndComments } from "./buffer.js";
+import { nextToken, peekToken } from "./tokenizer.js";
 import type {
   Cursor,
   ObjectParseBudget,
@@ -20,7 +20,7 @@ import type {
   PDFStream,
   PDFString,
   Token,
-} from './types.js';
+} from "./types.js";
 import {
   createArray,
   createBoolean,
@@ -35,7 +35,7 @@ import {
   createString,
   DEFAULT_PARSE_LIMITS,
   MAX_PDF_GENERATION,
-} from './types.js';
+} from "./types.js";
 
 // ============================================================================
 // Object Parsing
@@ -55,7 +55,7 @@ export class ObjectValueLimitError extends Error {
 
   constructor(limit: number, position: number) {
     super(`Maximum PDF object values (${limit}) exceeded at position ${position}`);
-    this.name = 'ObjectValueLimitError';
+    this.name = "ObjectValueLimitError";
     this.limit = limit;
   }
 }
@@ -67,7 +67,7 @@ export function parseObject(
   cursor: Cursor,
   limits: ObjectParseOptions = DEFAULT_PARSE_LIMITS,
   depth: number = 0,
-  budget: ObjectParseBudget = createObjectParseBudget(limits.maxObjectValues)
+  budget: ObjectParseBudget = createObjectParseBudget(limits.maxObjectValues),
 ): PDFObject {
   return parseObjectInternal(cursor, limits, depth, createObjectParseContext(budget));
 }
@@ -76,11 +76,11 @@ function parseObjectInternal(
   cursor: Cursor,
   limits: ObjectParseOptions,
   depth: number,
-  context: ObjectParseContext
+  context: ObjectParseContext,
 ): PDFObject {
   if (depth > limits.maxDepth) {
     throw new Error(
-      `Maximum PDF object nesting depth (${limits.maxDepth}) exceeded at position ${cursor.position}`
+      `Maximum PDF object nesting depth (${limits.maxDepth}) exceeded at position ${cursor.position}`,
     );
   }
 
@@ -96,26 +96,26 @@ function parseObjectInternal(
   context.budget.used++;
 
   switch (token.type) {
-    case 'keyword':
+    case "keyword":
       return parseKeywordObject(cursor, token);
 
-    case 'number':
+    case "number":
       return parseNumberOrReference(cursor, limits.maxStringBytes);
 
-    case 'name':
+    case "name":
       nextToken(cursor, limits.maxStringBytes); // consume token
       return createName(token.value as string);
 
-    case 'string':
+    case "string":
       return parseLiteralString(cursor, token, limits);
 
-    case 'hexstring':
+    case "hexstring":
       return parseHexString(cursor, token, limits);
 
-    case 'array_start':
+    case "array_start":
       return parseArray(cursor, limits, depth, context);
 
-    case 'dict_start':
+    case "dict_start":
       return parseDictionaryOrStream(cursor, limits, depth, context);
 
     default:
@@ -130,11 +130,11 @@ function parseKeywordObject(cursor: Cursor, token: Token): PDFNull | PDFBoolean 
   nextToken(cursor); // consume token
 
   switch (token.value) {
-    case 'true':
+    case "true":
       return createBoolean(true);
-    case 'false':
+    case "false":
       return createBoolean(false);
-    case 'null':
+    case "null":
       return createNull();
     default:
       throw new Error(`Unexpected keyword: ${token.value} at position ${token.start}`);
@@ -146,7 +146,7 @@ function parseKeywordObject(cursor: Cursor, token: Token): PDFNull | PDFBoolean 
  */
 function parseNumberOrReference(cursor: Cursor, maxNameBytes: number): PDFNumber | PDFReference {
   const token1 = nextToken(cursor, maxNameBytes);
-  if (token1?.type !== 'number') {
+  if (token1?.type !== "number") {
     throw new Error(`Expected number at position ${cursor.position}`);
   }
 
@@ -154,14 +154,14 @@ function parseNumberOrReference(cursor: Cursor, maxNameBytes: number): PDFNumber
   const savedPos = cursor.position;
   const token2 = peekToken(cursor, maxNameBytes);
 
-  if (token2 && token2.type === 'number') {
+  if (token2 && token2.type === "number") {
     nextToken(cursor, maxNameBytes); // consume token2
     const token3 = peekToken(cursor, maxNameBytes);
 
     if (
       token3 &&
-      token3.type === 'keyword' &&
-      token3.value === 'R' &&
+      token3.type === "keyword" &&
+      token3.value === "R" &&
       Number.isSafeInteger(token1.value) &&
       (token1.value as number) >= 0 &&
       Number.isSafeInteger(token2.value) &&
@@ -172,7 +172,7 @@ function parseNumberOrReference(cursor: Cursor, maxNameBytes: number): PDFNumber
       return createReference(token1.value as number, token2.value as number);
     }
 
-    if (token3?.type === 'keyword' && token3.value === 'R') {
+    if (token3?.type === "keyword" && token3.value === "R") {
       throw new Error(`Invalid PDF reference at position ${token1.start}`);
     }
 
@@ -307,7 +307,7 @@ function decodeHexString(bytes: Uint8Array, sourceOffset: number): Uint8Array {
     const nibble = hexValue(byte);
     if (nibble === -1) {
       throw new Error(
-        `Invalid hex string byte 0x${byte.toString(16).padStart(2, '0')} at position ${sourceOffset + i}`
+        `Invalid hex string byte 0x${byte.toString(16).padStart(2, "0")} at position ${sourceOffset + i}`,
       );
     }
 
@@ -330,7 +330,7 @@ function decodeHexString(bytes: Uint8Array, sourceOffset: number): Uint8Array {
 function ensureStringSize(bytes: Uint8Array, limits: ObjectParseOptions): void {
   if (limits.maxStringBytes !== Infinity && bytes.length > limits.maxStringBytes) {
     throw new Error(
-      `PDF string size ${bytes.length} exceeds maximum allowed (${limits.maxStringBytes} bytes)`
+      `PDF string size ${bytes.length} exceeds maximum allowed (${limits.maxStringBytes} bytes)`,
     );
   }
 }
@@ -342,7 +342,7 @@ function parseArray(
   cursor: Cursor,
   limits: ObjectParseOptions,
   depth: number,
-  context: ObjectParseContext
+  context: ObjectParseContext,
 ): PDFArray {
   nextToken(cursor); // consume [
 
@@ -355,7 +355,7 @@ function parseArray(
       throw new Error(`Unexpected end of array at position ${cursor.position}`);
     }
 
-    if (token.type === 'array_end') {
+    if (token.type === "array_end") {
       nextToken(cursor); // consume ]
       break;
     }
@@ -373,7 +373,7 @@ function parseDictionaryOrStream(
   cursor: Cursor,
   limits: ObjectParseOptions,
   depth: number,
-  context: ObjectParseContext
+  context: ObjectParseContext,
 ): PDFDictionary | PDFStream {
   const dict = parseDictionary(cursor, limits, depth, context);
 
@@ -381,7 +381,7 @@ function parseDictionaryOrStream(
   skipWhitespaceAndComments(cursor);
   const token = peekToken(cursor, limits.maxStringBytes);
 
-  if (token && token.type === 'keyword' && token.value === 'stream') {
+  if (token && token.type === "keyword" && token.value === "stream") {
     return parseStream(cursor, dict, limits);
   }
 
@@ -395,7 +395,7 @@ function parseDictionary(
   cursor: Cursor,
   limits: ObjectParseOptions,
   depth: number,
-  context: ObjectParseContext
+  context: ObjectParseContext,
 ): PDFDictionary {
   nextToken(cursor); // consume <<
 
@@ -408,12 +408,12 @@ function parseDictionary(
       throw new Error(`Unexpected end of dictionary at position ${cursor.position}`);
     }
 
-    if (token.type === 'dict_end') {
+    if (token.type === "dict_end") {
       nextToken(cursor); // consume >>
       break;
     }
 
-    if (token.type !== 'name') {
+    if (token.type !== "name") {
       throw new Error(`Expected name in dictionary, got ${token.type} at position ${token.start}`);
     }
 
@@ -446,27 +446,27 @@ function parseStream(cursor: Cursor, dict: PDFDictionary, limits: ObjectParseOpt
   }
 
   // Get stream length from dictionary
-  const lengthObj = dict.entries.get('Length');
+  const lengthObj = dict.entries.get("Length");
   let length: number;
 
   if (!lengthObj) {
     throw new Error(`Stream missing Length at position ${cursor.position}`);
   }
 
-  if (lengthObj.type === 'number') {
+  if (lengthObj.type === "number") {
     length = lengthObj.value;
 
     // Validate: Length must be a non-negative integer
     if (!Number.isInteger(length) || length < 0) {
       throw new Error(
         `Invalid stream Length: ${length} at position ${cursor.position}. ` +
-          `Expected a non-negative integer.`
+          `Expected a non-negative integer.`,
       );
     }
 
     if (length > limits.maxStreamBytes) {
       throw new Error(
-        `Stream Length ${length} exceeds maximum allowed (${limits.maxStreamBytes} bytes) at position ${cursor.position}`
+        `Stream Length ${length} exceeds maximum allowed (${limits.maxStreamBytes} bytes) at position ${cursor.position}`,
       );
     }
 
@@ -474,10 +474,10 @@ function parseStream(cursor: Cursor, dict: PDFDictionary, limits: ObjectParseOpt
     if (cursor.position + length > cursor.buffer.length) {
       throw new Error(
         `Stream Length ${length} exceeds buffer bounds at position ${cursor.position}. ` +
-          `Buffer has ${cursor.buffer.length - cursor.position} bytes remaining.`
+          `Buffer has ${cursor.buffer.length - cursor.position} bytes remaining.`,
       );
     }
-  } else if (lengthObj.type === 'reference') {
+  } else if (lengthObj.type === "reference") {
     // Length is an indirect reference — search for endstream marker
     // This is a best-effort heuristic; indirect Length should be resolved
     // by the caller before parsing the stream
@@ -486,19 +486,19 @@ function parseStream(cursor: Cursor, dict: PDFDictionary, limits: ObjectParseOpt
     // Validate found length
     if (length < 0) {
       throw new Error(
-        `Could not determine stream length from indirect reference at position ${cursor.position}`
+        `Could not determine stream length from indirect reference at position ${cursor.position}`,
       );
     }
 
     // Bounds check for found length
     if (cursor.position + length > cursor.buffer.length) {
       throw new Error(
-        `Stream length ${length} (found via endstream search) exceeds buffer bounds at position ${cursor.position}`
+        `Stream length ${length} (found via endstream search) exceeds buffer bounds at position ${cursor.position}`,
       );
     }
     if (length > limits.maxStreamBytes) {
       throw new Error(
-        `Stream length ${length} exceeds maximum allowed (${limits.maxStreamBytes} bytes) at position ${cursor.position}`
+        `Stream length ${length} exceeds maximum allowed (${limits.maxStreamBytes} bytes) at position ${cursor.position}`,
       );
     }
   } else {
@@ -512,7 +512,7 @@ function parseStream(cursor: Cursor, dict: PDFDictionary, limits: ObjectParseOpt
   // Skip to endstream
   skipWhitespaceAndComments(cursor);
   const endToken = nextToken(cursor);
-  if (endToken?.value !== 'endstream') {
+  if (endToken?.value !== "endstream") {
     throw new Error(`Missing endstream marker after stream at position ${cursor.position}`);
   }
 
@@ -573,7 +573,7 @@ function findEndStream(cursor: Cursor): number {
 export function parseIndirectObject(
   cursor: Cursor,
   limits: ObjectParseOptions = DEFAULT_PARSE_LIMITS,
-  budget: ObjectParseBudget = createObjectParseBudget(limits.maxObjectValues)
+  budget: ObjectParseBudget = createObjectParseBudget(limits.maxObjectValues),
 ): {
   objectNumber: number;
   generation: number;
@@ -584,7 +584,7 @@ export function parseIndirectObject(
   // Read object number
   const objNumToken = nextToken(cursor);
   if (
-    objNumToken?.type !== 'number' ||
+    objNumToken?.type !== "number" ||
     !Number.isSafeInteger(objNumToken.value) ||
     (objNumToken.value as number) < 0
   ) {
@@ -594,7 +594,7 @@ export function parseIndirectObject(
   // Read generation number
   const genNumToken = nextToken(cursor);
   if (
-    genNumToken?.type !== 'number' ||
+    genNumToken?.type !== "number" ||
     !Number.isSafeInteger(genNumToken.value) ||
     (genNumToken.value as number) < 0 ||
     (genNumToken.value as number) > MAX_PDF_GENERATION
@@ -604,7 +604,7 @@ export function parseIndirectObject(
 
   // Read 'obj' keyword
   const objToken = nextToken(cursor);
-  if (objToken?.type !== 'keyword' || objToken.value !== 'obj') {
+  if (objToken?.type !== "keyword" || objToken.value !== "obj") {
     throw new Error(`Expected 'obj' keyword at position ${cursor.position}`);
   }
 
@@ -614,7 +614,7 @@ export function parseIndirectObject(
   // Read 'endobj' keyword
   skipWhitespaceAndComments(cursor);
   const endObjToken = nextToken(cursor);
-  if (endObjToken?.type !== 'keyword' || endObjToken.value !== 'endobj') {
+  if (endObjToken?.type !== "keyword" || endObjToken.value !== "endobj") {
     throw new Error(`Expected 'endobj' keyword at position ${cursor.position}`);
   }
 

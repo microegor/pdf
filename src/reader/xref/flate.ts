@@ -3,7 +3,7 @@
  * Uses pako for cross-platform compatibility (browser, Node.js, Electron)
  */
 
-import { Inflate } from 'pako';
+import { Inflate } from "pako";
 
 /**
  * Inflate (decompress) data compressed with zlib/deflate
@@ -23,7 +23,7 @@ export function inflate(data: Uint8Array, maxOutputBytes: number = 200 * 1024 * 
   const inflator = new Inflate({
     chunkSize: Math.min(16 * 1024, Math.max(1, maxOutputBytes)),
   });
-  inflator.onData = chunk => {
+  inflator.onData = (chunk) => {
     const bytes = chunk instanceof Uint8Array ? chunk : new Uint8Array(chunk);
     total += bytes.length;
     if (total > maxOutputBytes) {
@@ -34,14 +34,14 @@ export function inflate(data: Uint8Array, maxOutputBytes: number = 200 * 1024 * 
 
   try {
     if (!inflator.push(data, true)) {
-      throw new Error(inflator.msg || 'Failed to inflate stream');
+      throw new Error(inflator.msg || "Failed to inflate stream");
     }
   } catch (error) {
-    if (error instanceof Error && error.message.includes('Decoded stream size')) {
+    if (error instanceof Error && error.message.includes("Decoded stream size")) {
       throw error;
     }
     throw new Error(
-      `Failed to inflate stream: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to inflate stream: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 

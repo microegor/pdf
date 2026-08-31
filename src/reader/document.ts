@@ -3,9 +3,9 @@
  * Functions for navigating document structure and sections
  */
 
-import { decodePDFNameValue, decodePDFString } from './encoding.js';
-import { getObjectsInSection as getObjectsInSectionHistory } from './history-api.js';
-import { getCatalog, resolveReference } from './parser.js';
+import { decodePDFNameValue, decodePDFString } from "./encoding.js";
+import { getObjectsInSection as getObjectsInSectionHistory } from "./history-api.js";
+import { getCatalog, resolveReference } from "./parser.js";
 import type {
   IndirectObject,
   PDFArray,
@@ -13,10 +13,10 @@ import type {
   PDFDocument,
   PDFObject,
   XRefSection,
-} from './types.js';
-import { isArray, isDictionary, objectKey } from './types.js';
+} from "./types.js";
+import { isArray, isDictionary, objectKey } from "./types.js";
 
-export { decodePDFNameValue, decodePDFString } from './encoding.js';
+export { decodePDFNameValue, decodePDFString } from "./encoding.js";
 
 // ============================================================================
 // Section Navigation
@@ -51,7 +51,7 @@ export function getObjectsInSection(doc: PDFDocument, sectionIndex: number): Ind
 export function getObjectSection(
   doc: PDFDocument,
   objectNumber: number,
-  generation: number = 0
+  generation: number = 0,
 ): number {
   const key = objectKey(objectNumber, generation);
   const obj = doc.objects.get(key);
@@ -69,7 +69,7 @@ export function getPagesRoot(doc: PDFDocument): PDFDictionary | null {
   const catalog = getCatalog(doc);
   if (!catalog) return null;
 
-  const pagesRef = catalog.entries.get('Pages');
+  const pagesRef = catalog.entries.get("Pages");
   if (!pagesRef) return null;
 
   const pages = resolveReference(doc, pagesRef);
@@ -99,27 +99,27 @@ function collectPages(
   node: PDFDictionary,
   pages: PDFDictionary[],
   visited: Set<string> = new Set(),
-  depth: number = 0
+  depth: number = 0,
 ): void {
   const maxDepth = doc.history.limits.maxDepth;
   if (depth > maxDepth) {
     doc.diagnostics.push({
-      code: 'page-tree-depth',
+      code: "page-tree-depth",
       message: `Exceeded maximum page tree depth (${maxDepth}). Stopping traversal.`,
     });
     return;
   }
 
-  const typeObj = node.entries.get('Type');
-  if (typeObj?.type !== 'name') return;
+  const typeObj = node.entries.get("Type");
+  if (typeObj?.type !== "name") return;
 
-  if (typeObj.value === 'Page') {
+  if (typeObj.value === "Page") {
     pages.push(node);
     return;
   }
 
-  if (typeObj.value === 'Pages') {
-    const kidsObj = node.entries.get('Kids');
+  if (typeObj.value === "Pages") {
+    const kidsObj = node.entries.get("Kids");
     if (!kidsObj) return;
 
     const kids = resolveReference(doc, kidsObj);
@@ -127,11 +127,11 @@ function collectPages(
 
     for (const kidRef of kids.items) {
       // Track references to detect cycles
-      if (kidRef.type === 'reference') {
+      if (kidRef.type === "reference") {
         const refKey = objectKey(kidRef.objectNumber, kidRef.generation);
         if (visited.has(refKey)) {
           doc.diagnostics.push({
-            code: 'page-tree-cycle',
+            code: "page-tree-cycle",
             message: `Cyclic page tree reference detected: ${refKey}. Skipping.`,
           });
           continue;
@@ -154,8 +154,8 @@ export function getPageCount(doc: PDFDocument): number {
   const pagesRoot = getPagesRoot(doc);
   if (!pagesRoot) return 0;
 
-  const countObj = pagesRoot.entries.get('Count');
-  if (countObj?.type !== 'number') return 0;
+  const countObj = pagesRoot.entries.get("Count");
+  if (countObj?.type !== "number") return 0;
 
   return countObj.value;
 }
@@ -190,11 +190,11 @@ export function getDictString(doc: PDFDocument, dict: PDFDictionary, key: string
   const value = getDictEntry(doc, dict, key);
   if (!value) return null;
 
-  if (value.type === 'string' || value.type === 'hexstring') {
+  if (value.type === "string" || value.type === "hexstring") {
     return decodePDFString(value.raw);
   }
 
-  if (value.type === 'name') {
+  if (value.type === "name") {
     // Names may contain UTF-16BE with BOM, encoded via #XX hex escapes.
     // The name decoder resolves #XX to raw bytes but interprets them as Latin-1.
     // We need to convert back to bytes and check for UTF-16BE BOM.
@@ -209,7 +209,7 @@ export function getDictString(doc: PDFDocument, dict: PDFDictionary, key: string
  */
 export function getDictNumber(doc: PDFDocument, dict: PDFDictionary, key: string): number | null {
   const value = getDictEntry(doc, dict, key);
-  if (value?.type !== 'number') return null;
+  if (value?.type !== "number") return null;
   return value.value;
 }
 
@@ -218,7 +218,7 @@ export function getDictNumber(doc: PDFDocument, dict: PDFDictionary, key: string
  */
 export function getDictArray(doc: PDFDocument, dict: PDFDictionary, key: string): PDFArray | null {
   const value = getDictEntry(doc, dict, key);
-  if (value?.type !== 'array') return null;
+  if (value?.type !== "array") return null;
   return value;
 }
 
@@ -228,10 +228,10 @@ export function getDictArray(doc: PDFDocument, dict: PDFDictionary, key: string)
 export function getDictDict(
   doc: PDFDocument,
   dict: PDFDictionary,
-  key: string
+  key: string,
 ): PDFDictionary | null {
   const value = getDictEntry(doc, dict, key);
-  if (value?.type !== 'dictionary') return null;
+  if (value?.type !== "dictionary") return null;
   return value;
 }
 
@@ -245,7 +245,7 @@ export function getDictDict(
 export function getTitle(doc: PDFDocument): string | null {
   const info = getInfo(doc);
   if (!info) return null;
-  return getDictString(doc, info, 'Title');
+  return getDictString(doc, info, "Title");
 }
 
 /**
@@ -254,7 +254,7 @@ export function getTitle(doc: PDFDocument): string | null {
 export function getAuthor(doc: PDFDocument): string | null {
   const info = getInfo(doc);
   if (!info) return null;
-  return getDictString(doc, info, 'Author');
+  return getDictString(doc, info, "Author");
 }
 
 /**
@@ -263,7 +263,7 @@ export function getAuthor(doc: PDFDocument): string | null {
 export function getSubject(doc: PDFDocument): string | null {
   const info = getInfo(doc);
   if (!info) return null;
-  return getDictString(doc, info, 'Subject');
+  return getDictString(doc, info, "Subject");
 }
 
 /**
@@ -272,7 +272,7 @@ export function getSubject(doc: PDFDocument): string | null {
 export function getKeywords(doc: PDFDocument): string | null {
   const info = getInfo(doc);
   if (!info) return null;
-  return getDictString(doc, info, 'Keywords');
+  return getDictString(doc, info, "Keywords");
 }
 
 /**
@@ -281,7 +281,7 @@ export function getKeywords(doc: PDFDocument): string | null {
 export function getCreator(doc: PDFDocument): string | null {
   const info = getInfo(doc);
   if (!info) return null;
-  return getDictString(doc, info, 'Creator');
+  return getDictString(doc, info, "Creator");
 }
 
 /**
@@ -290,8 +290,8 @@ export function getCreator(doc: PDFDocument): string | null {
 export function getProducer(doc: PDFDocument): string | null {
   const info = getInfo(doc);
   if (!info) return null;
-  return getDictString(doc, info, 'Producer');
+  return getDictString(doc, info, "Producer");
 }
 
 // Import getInfo from parser
-import { getInfo } from './parser.js';
+import { getInfo } from "./parser.js";

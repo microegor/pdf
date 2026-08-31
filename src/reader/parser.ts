@@ -11,9 +11,9 @@ import {
   matchBytes,
   PDF_HEADER,
   parseInteger,
-} from './buffer.js';
-import { buildCurrentState, buildHistoryIndex } from './history.js';
-import { ObjectValueLimitError } from './objects.js';
+} from "./buffer.js";
+import { buildCurrentState, buildHistoryIndex } from "./history.js";
+import { ObjectValueLimitError } from "./objects.js";
 import type {
   ObjectParseBudget,
   ParseDiagnostic,
@@ -23,9 +23,9 @@ import type {
   PDFDocument,
   PDFObject,
   XRefSection,
-} from './types.js';
-import { createObjectParseBudget, DEFAULT_PARSE_LIMITS, objectKey } from './types.js';
-import { isXRefStream, isXRefTable, parseXRefStream, parseXRefTable } from './xref/index.js';
+} from "./types.js";
+import { createObjectParseBudget, DEFAULT_PARSE_LIMITS, objectKey } from "./types.js";
+import { isXRefStream, isXRefTable, parseXRefStream, parseXRefTable } from "./xref/index.js";
 
 // ============================================================================
 // Document Parsing
@@ -52,7 +52,7 @@ export function parse(buffer: Uint8Array, options?: ParseOptions): PDFDocument {
   if (sourceBuffer.length > limits.maxFileBytes) {
     throw new Error(
       `PDF file size ${sourceBuffer.length} bytes exceeds maximum allowed ${limits.maxFileBytes} bytes. ` +
-        `Adjust ParseLimits.maxFileBytes to process larger files.`
+        `Adjust ParseLimits.maxFileBytes to process larger files.`,
     );
   }
 
@@ -72,7 +72,7 @@ export function parse(buffer: Uint8Array, options?: ParseOptions): PDFDocument {
     startXRef,
     limits,
     report,
-    objectValueBudget
+    objectValueBudget,
   );
   const sections = parsedSections.sections;
 
@@ -108,26 +108,26 @@ export function parse(buffer: Uint8Array, options?: ParseOptions): PDFDocument {
   if (parsedSections.truncated) {
     doc.history.complete = false;
     doc.history.incompleteReason ??=
-      'The XRef revision chain was truncated during parsing; older history may be unavailable.';
+      "The XRef revision chain was truncated during parsing; older history may be unavailable.";
   }
   if (!doc.history.complete) {
     report({
-      code: 'incomplete-history',
-      message: doc.history.incompleteReason ?? 'Object history index is incomplete.',
+      code: "incomplete-history",
+      message: doc.history.incompleteReason ?? "Object history index is incomplete.",
     });
   }
 
   // Build current state (newest→oldest scan, materialize active objects)
   const currentStateComplete = buildCurrentState(doc, limits, report);
   doc.complete = doc.complete && doc.history.complete && currentStateComplete;
-  if (!doc.complete && !diagnostics.some(d => d.code === 'max-sections')) {
+  if (!doc.complete && !diagnostics.some((d) => d.code === "max-sections")) {
     const message = !currentStateComplete
-      ? 'The document was parsed partially because one or more objects could not be materialized.'
+      ? "The document was parsed partially because one or more objects could not be materialized."
       : parsedSections.truncated
-        ? 'The document was parsed partially because the XRef revision chain was truncated during recovery.'
-        : 'The document was parsed partially because object history indexing was truncated.';
+        ? "The document was parsed partially because the XRef revision chain was truncated during recovery."
+        : "The document was parsed partially because object history indexing was truncated.";
     report({
-      code: 'partial-document',
+      code: "partial-document",
       message,
     });
   }
@@ -140,7 +140,7 @@ export function parse(buffer: Uint8Array, options?: ParseOptions): PDFDocument {
  */
 function parseHeader(buffer: Uint8Array): string {
   if (!matchBytes(buffer, 0, PDF_HEADER)) {
-    throw new Error('Invalid PDF header');
+    throw new Error("Invalid PDF header");
   }
 
   // Find end of version line
@@ -165,13 +165,13 @@ function findStartXRef(buffer: Uint8Array): number {
   // Find %%EOF marker
   const eofPos = findPatternBackward(buffer, EOF_MARKER);
   if (eofPos === -1) {
-    throw new Error('Could not find %%EOF marker');
+    throw new Error("Could not find %%EOF marker");
   }
 
   // Find startxref before %%EOF (search within last 100 bytes)
   const startxrefPos = findPatternBackward(buffer, KEYWORD_STARTXREF, eofPos);
   if (startxrefPos === -1) {
-    throw new Error('Could not find startxref');
+    throw new Error("Could not find startxref");
   }
 
   // Read the offset after startxref
@@ -217,7 +217,7 @@ function parseAllXRefSections(
   startXRef: number,
   limits: ParseLimits,
   report: (diagnostic: ParseDiagnostic) => void,
-  objectValueBudget: ObjectParseBudget
+  objectValueBudget: ObjectParseBudget,
 ): { sections: XRefSection[]; truncated: boolean } {
   const sections: XRefSection[] = [];
   const visitedOffsets = new Set<number>();
@@ -230,7 +230,7 @@ function parseAllXRefSections(
     // Guard against cyclic /Prev chains
     if (visitedOffsets.has(currentPos)) {
       report({
-        code: 'cyclic-prev',
+        code: "cyclic-prev",
         message: `Cyclic /Prev chain detected at offset ${currentPos}. Stopping.`,
         position: currentPos,
       });
@@ -245,7 +245,7 @@ function parseAllXRefSections(
     } catch (error) {
       if (error instanceof ObjectValueLimitError) {
         report({
-          code: 'max-object-values',
+          code: "max-object-values",
           message: error.message,
           position: currentPos,
         });
@@ -255,7 +255,7 @@ function parseAllXRefSections(
       if (sections.length === 0) throw error;
 
       report({
-        code: 'invalid-prev',
+        code: "invalid-prev",
         message:
           `Failed to parse previous XRef section at offset ${currentPos}: ` +
           `${error instanceof Error ? error.message : String(error)}. Stopping the revision chain.`,
@@ -267,7 +267,7 @@ function parseAllXRefSections(
     const isTable = isXRefTable(buffer, currentPos);
     if (section.malformedPrev) {
       report({
-        code: 'malformed-prev',
+        code: "malformed-prev",
         message: `Malformed /Prev value in XRef section at offset ${currentPos}. Stopping the revision chain.`,
         position: currentPos,
       });
@@ -280,15 +280,15 @@ function parseAllXRefSections(
     // Per PDF spec 1.5+, a table may have /XRefStm pointing to a supplemental
     // XRef stream. They belong to the SAME revision.
     if (isTable) {
-      const xrefStmObj = section.trailer.entries.get('XRefStm');
-      if (xrefStmObj !== undefined && xrefStmObj.type !== 'number') {
+      const xrefStmObj = section.trailer.entries.get("XRefStm");
+      if (xrefStmObj !== undefined && xrefStmObj.type !== "number") {
         report({
-          code: 'malformed-xref-stm',
+          code: "malformed-xref-stm",
           message: `Malformed /XRefStm value in XRef section at offset ${currentPos}.`,
           position: currentPos,
         });
         truncated = true;
-      } else if (xrefStmObj?.type === 'number') {
+      } else if (xrefStmObj?.type === "number") {
         const xrefStmOffset = xrefStmObj.value;
         if (
           !Number.isSafeInteger(xrefStmOffset) ||
@@ -296,14 +296,14 @@ function parseAllXRefSections(
           xrefStmOffset >= buffer.length
         ) {
           report({
-            code: 'malformed-xref-stm',
+            code: "malformed-xref-stm",
             message: `Invalid /XRefStm offset ${xrefStmOffset} in XRef section at offset ${currentPos}.`,
             position: currentPos,
           });
           truncated = true;
         } else if (visitedOffsets.has(xrefStmOffset)) {
           report({
-            code: 'malformed-xref-stm',
+            code: "malformed-xref-stm",
             message: `Already visited /XRefStm offset ${xrefStmOffset} in XRef section at offset ${currentPos}.`,
             position: xrefStmOffset,
           });
@@ -315,7 +315,7 @@ function parseAllXRefSections(
               buffer,
               xrefStmOffset,
               limits,
-              objectValueBudget
+              objectValueBudget,
             );
             if (supplementalSection.xrefStreamObject) {
               section.xrefStreamObject = supplementalSection.xrefStreamObject;
@@ -323,7 +323,7 @@ function parseAllXRefSections(
 
             if (supplementalSection.malformedPrev) {
               report({
-                code: 'malformed-prev',
+                code: "malformed-prev",
                 message: `Malformed /Prev value in supplemental XRef section at offset ${xrefStmOffset}.`,
                 position: xrefStmOffset,
               });
@@ -343,7 +343,7 @@ function parseAllXRefSections(
               countLogicalXRefObjects(merged) > limits.maxObjects
             ) {
               report({
-                code: 'max-objects',
+                code: "max-objects",
                 message: `Hybrid XRef section contains more than ${limits.maxObjects} logical objects after merging /XRefStm.`,
                 position: xrefStmOffset,
               });
@@ -357,13 +357,13 @@ function parseAllXRefSections(
             truncated = true;
             if (e instanceof ObjectValueLimitError) {
               report({
-                code: 'max-object-values',
+                code: "max-object-values",
                 message: e.message,
                 position: xrefStmOffset,
               });
             } else {
               report({
-                code: 'hybrid-xref-stream',
+                code: "hybrid-xref-stream",
                 message: `Failed to parse hybrid XRef stream at offset ${xrefStmOffset}: ${e instanceof Error ? e.message : String(e)}`,
                 position: xrefStmOffset,
               });
@@ -383,7 +383,7 @@ function parseAllXRefSections(
         section.entries.size > limits.maxXRefEntries - totalXRefEntries)
     ) {
       report({
-        code: 'max-xref-entries',
+        code: "max-xref-entries",
         message: `Exceeded maximum retained XRef entries (${limits.maxXRefEntries}). Stopping the revision chain.`,
         position: currentPos,
       });
@@ -405,7 +405,7 @@ function parseAllXRefSections(
 
   if (logicalCount >= limits.maxSections && currentPos !== undefined) {
     report({
-      code: 'max-sections',
+      code: "max-sections",
       message: `Exceeded maximum number of XRef sections (${limits.maxSections}). Stopping.`,
     });
     truncated = true;
@@ -414,7 +414,7 @@ function parseAllXRefSections(
   return { sections, truncated };
 }
 
-function countLogicalXRefObjects(entries: XRefSection['entries']): number {
+function countLogicalXRefObjects(entries: XRefSection["entries"]): number {
   let count = 0;
   for (const objectNumber of entries.keys()) {
     if (objectNumber !== 0) count++;
@@ -429,7 +429,7 @@ function parseXRefSection(
   buffer: Uint8Array,
   position: number,
   limits: ParseLimits,
-  objectValueBudget: ObjectParseBudget
+  objectValueBudget: ObjectParseBudget,
 ): XRefSection {
   if (position < 0 || position >= buffer.length) {
     throw new Error(`XRef position ${position} is outside the input buffer`);
@@ -447,16 +447,16 @@ function parseXRefSection(
 
 function validateLimits(limits: ParseLimits): void {
   const names: (keyof ParseLimits)[] = [
-    'maxFileBytes',
-    'maxObjects',
-    'maxXRefEntries',
-    'maxSections',
-    'maxDepth',
-    'maxObjectValues',
-    'maxStringBytes',
-    'maxStreamBytes',
-    'maxDecodedStreamBytes',
-    'maxObjectVersions',
+    "maxFileBytes",
+    "maxObjects",
+    "maxXRefEntries",
+    "maxSections",
+    "maxDepth",
+    "maxObjectValues",
+    "maxStringBytes",
+    "maxStreamBytes",
+    "maxDecodedStreamBytes",
+    "maxObjectVersions",
   ];
   for (const name of names) {
     const value = limits[name];
@@ -476,7 +476,7 @@ function validateLimits(limits: ParseLimits): void {
 export function getObject(
   doc: PDFDocument,
   objectNumber: number,
-  generation: number = 0
+  generation: number = 0,
 ): PDFObject | null {
   const key = objectKey(objectNumber, generation);
   const entry = doc.objects.get(key);
@@ -498,27 +498,27 @@ function resolveReferenceWithDepth(
   doc: PDFDocument,
   obj: PDFObject,
   visited: Set<string>,
-  depth: number
+  depth: number,
 ): PDFObject {
   const maxDepth = doc.history.limits.maxDepth;
   if (depth > maxDepth) {
     doc.diagnostics.push({
-      code: 'reference-depth',
+      code: "reference-depth",
       message: `Exceeded maximum reference resolution depth (${maxDepth}). Possible cycle.`,
     });
-    return { type: 'null' };
+    return { type: "null" };
   }
 
-  if (obj.type === 'reference') {
+  if (obj.type === "reference") {
     const refKey = objectKey(obj.objectNumber, obj.generation);
 
     // Cycle detection
     if (visited.has(refKey)) {
       doc.diagnostics.push({
-        code: 'reference-cycle',
+        code: "reference-cycle",
         message: `Cyclic reference detected: ${refKey}. Returning null.`,
       });
-      return { type: 'null' };
+      return { type: "null" };
     }
 
     visited.add(refKey);
@@ -528,7 +528,7 @@ function resolveReferenceWithDepth(
       return resolveReferenceWithDepth(doc, resolved, visited, depth + 1);
     }
 
-    return { type: 'null' };
+    return { type: "null" };
   }
 
   return obj;
@@ -549,11 +549,11 @@ export function getCatalog(doc: PDFDocument): PDFDictionary | null {
   const trailer = getTrailer(doc);
   if (!trailer) return null;
 
-  const rootRef = trailer.entries.get('Root');
-  if (rootRef?.type !== 'reference') return null;
+  const rootRef = trailer.entries.get("Root");
+  if (rootRef?.type !== "reference") return null;
 
   const root = getObject(doc, rootRef.objectNumber, rootRef.generation);
-  if (root?.type !== 'dictionary') return null;
+  if (root?.type !== "dictionary") return null;
 
   return root;
 }
@@ -565,11 +565,11 @@ export function getInfo(doc: PDFDocument): PDFDictionary | null {
   const trailer = getTrailer(doc);
   if (!trailer) return null;
 
-  const infoRef = trailer.entries.get('Info');
-  if (infoRef?.type !== 'reference') return null;
+  const infoRef = trailer.entries.get("Info");
+  if (infoRef?.type !== "reference") return null;
 
   const info = getObject(doc, infoRef.objectNumber, infoRef.generation);
-  if (info?.type !== 'dictionary') return null;
+  if (info?.type !== "dictionary") return null;
 
   return info;
 }

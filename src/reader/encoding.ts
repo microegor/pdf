@@ -1,7 +1,7 @@
 /** Canonical PDF string/name decoding shared by document and history APIs. */
 
 export function decodePDFString(raw: Uint8Array): string {
-  if (raw.length === 0) return '';
+  if (raw.length === 0) return "";
   if (raw.length >= 2 && raw[0] === 0xfe && raw[1] === 0xff) {
     return decodeUTF16BE(raw.subarray(2));
   }
@@ -27,7 +27,7 @@ function decodeUTF16BE(bytes: Uint8Array): string {
   // spread over a normal PDF string can exceed V8's argument limit.
   const chunkCodeUnits = 8_192;
   const chunkBytes = chunkCodeUnits * 2;
-  let result = '';
+  let result = "";
 
   for (let start = 0; start + 1 < bytes.length; start += chunkBytes) {
     const end = Math.min(start + chunkBytes, bytes.length);
@@ -42,7 +42,7 @@ function decodeUTF16BE(bytes: Uint8Array): string {
 }
 
 function decodePDFDocEncoding(bytes: Uint8Array): string {
-  let result = '';
+  let result = "";
   for (const byte of bytes) {
     result += String.fromCodePoint(pdfDocEncodingToUnicode(byte));
   }

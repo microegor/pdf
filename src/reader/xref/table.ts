@@ -11,9 +11,9 @@ import {
   matchPattern,
   parseInteger,
   skipWhitespace,
-} from '../buffer.js';
-import { parseObject } from '../objects.js';
-import { nextToken } from '../tokenizer.js';
+} from "../buffer.js";
+import { parseObject } from "../objects.js";
+import { nextToken } from "../tokenizer.js";
 import type {
   Cursor,
   ObjectParseBudget,
@@ -21,8 +21,8 @@ import type {
   PDFDictionary,
   XRefEntry,
   XRefSection,
-} from '../types.js';
-import { DEFAULT_PARSE_LIMITS, MAX_PDF_GENERATION } from '../types.js';
+} from "../types.js";
+import { DEFAULT_PARSE_LIMITS, MAX_PDF_GENERATION } from "../types.js";
 
 // ============================================================================
 // XRef Table Parsing
@@ -43,13 +43,13 @@ export function parseXRefTable(
   buffer: Uint8Array,
   position: number,
   limits: ParseLimits = DEFAULT_PARSE_LIMITS,
-  objectValueBudget?: ObjectParseBudget
+  objectValueBudget?: ObjectParseBudget,
 ): XRefSection {
   const cursor = createCursor(buffer, position);
 
   // Expect 'xref' keyword
   const token = nextToken(cursor);
-  if (token?.value !== 'xref') {
+  if (token?.value !== "xref") {
     throw new Error(`Expected 'xref' at position ${position}`);
   }
 
@@ -63,14 +63,14 @@ export function parseXRefTable(
 
     // Check for trailer
     const nextTokenPeek = cursor.buffer.subarray(cursor.position, cursor.position + 7);
-    if (bytesToString(nextTokenPeek) === 'trailer') {
+    if (bytesToString(nextTokenPeek) === "trailer") {
       break;
     }
 
     // Parse subsection header: first_object_number count
-    const subsectionStart = readNumber(cursor, 'subsection start');
+    const subsectionStart = readNumber(cursor, "subsection start");
     skipWhitespace(cursor);
-    const subsectionCount = readNumber(cursor, 'subsection count');
+    const subsectionCount = readNumber(cursor, "subsection count");
 
     if (
       !Number.isSafeInteger(subsectionStart) ||
@@ -89,7 +89,7 @@ export function parseXRefTable(
       subsectionStart + subsectionCount > Number.MAX_SAFE_INTEGER
     ) {
       throw new Error(
-        `XRef object entries exceed maximum allowed (${limits.maxObjects}) at subsection ${subsectionStart}`
+        `XRef object entries exceed maximum allowed (${limits.maxObjects}) at subsection ${subsectionStart}`,
       );
     }
     totalObjectEntries += objectEntries;
@@ -106,19 +106,19 @@ export function parseXRefTable(
 
   // Parse trailer
   const trailerToken = nextToken(cursor);
-  if (trailerToken?.value !== 'trailer') {
+  if (trailerToken?.value !== "trailer") {
     throw new Error(`Expected 'trailer' at position ${cursor.position}`);
   }
 
   const trailerObj = parseObject(cursor, limits, 0, objectValueBudget);
-  if (trailerObj.type !== 'dictionary') {
+  if (trailerObj.type !== "dictionary") {
     throw new Error(`Expected dictionary after trailer at position ${cursor.position}`);
   }
 
   const trailer = trailerObj as PDFDictionary;
 
   // Get Prev if exists
-  const prevObj = trailer.entries.get('Prev');
+  const prevObj = trailer.entries.get("Prev");
 
   const section: XRefSection = {
     entries,
@@ -127,7 +127,7 @@ export function parseXRefTable(
   };
 
   if (prevObj !== undefined) {
-    if (prevObj.type === 'number' && Number.isSafeInteger(prevObj.value) && prevObj.value >= 0) {
+    if (prevObj.type === "number" && Number.isSafeInteger(prevObj.value) && prevObj.value >= 0) {
       section.prev = prevObj.value;
     } else {
       section.malformedPrev = true;
@@ -155,7 +155,7 @@ function parseXRefEntry(cursor: Cursor, objectNumber: number): XRefEntry {
 
   if (generation > MAX_PDF_GENERATION) {
     throw new Error(
-      `XRef generation ${generation} exceeds maximum allowed (${MAX_PDF_GENERATION}) for object ${objectNumber}`
+      `XRef generation ${generation} exceeds maximum allowed (${MAX_PDF_GENERATION}) for object ${objectNumber}`,
     );
   }
 
@@ -188,14 +188,14 @@ function parseXRefEntry(cursor: Cursor, objectNumber: number): XRefEntry {
   if (entryType === 0x6e) {
     // 'n' - in use
     return {
-      type: 'used',
+      type: "used",
       offset,
       generation,
     };
   } else if (entryType === 0x66) {
     // 'f' - free
     return {
-      type: 'free',
+      type: "free",
       nextFreeObject: offset,
       generation,
     };

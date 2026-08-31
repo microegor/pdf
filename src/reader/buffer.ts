@@ -3,7 +3,7 @@
  * Uses Uint8Array and subarray for zero-copy operations
  */
 
-import type { Cursor } from './types.js';
+import type { Cursor } from "./types.js";
 
 // ============================================================================
 // Character codes for fast comparison
@@ -304,7 +304,7 @@ export function skipWhitespaceAndComments(cursor: Cursor): void {
 export function findPattern(
   buffer: Uint8Array,
   pattern: Uint8Array,
-  startOffset: number = 0
+  startOffset: number = 0,
 ): number {
   const maxOffset = buffer.length - pattern.length;
   for (let i = startOffset; i <= maxOffset; i++) {
@@ -322,7 +322,7 @@ export function findPattern(
 export function findPatternBackward(
   buffer: Uint8Array,
   pattern: Uint8Array,
-  startOffset?: number
+  startOffset?: number,
 ): number {
   const start = startOffset ?? buffer.length - pattern.length;
   for (let i = start; i >= 0; i--) {
@@ -360,7 +360,7 @@ export function bytesToString(bytes: Uint8Array): string {
   // TextDecoder('latin1') is specified as Windows-1252 by WHATWG, so bytes
   // 0x80..0x9f do not round-trip. PDF names are byte strings and must retain
   // their original values for later #XX/UTF-16 decoding.
-  let result = '';
+  let result = "";
   const chunkSize = 0x8000;
   for (let start = 0; start < bytes.length; start += chunkSize) {
     const end = Math.min(start + chunkSize, bytes.length);

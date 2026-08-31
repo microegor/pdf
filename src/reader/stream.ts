@@ -1,31 +1,31 @@
 /** Shared, bounded PDF stream filter pipeline. */
 
-import type { ParseLimits, PDFDictionary, PDFObject, PDFStream } from './types.js';
-import { DEFAULT_PARSE_LIMITS } from './types.js';
-import { inflate } from './xref/flate.js';
+import type { ParseLimits, PDFDictionary, PDFObject, PDFStream } from "./types.js";
+import { DEFAULT_PARSE_LIMITS } from "./types.js";
+import { inflate } from "./xref/flate.js";
 
 export function decodeStream(
   stream: PDFStream,
-  limits: ParseLimits = DEFAULT_PARSE_LIMITS
+  limits: ParseLimits = DEFAULT_PARSE_LIMITS,
 ): Uint8Array {
   if (stream.data.length > limits.maxStreamBytes) {
     throw new Error(
-      `Stream raw size ${stream.data.length} exceeds maximum allowed (${limits.maxStreamBytes} bytes)`
+      `Stream raw size ${stream.data.length} exceeds maximum allowed (${limits.maxStreamBytes} bytes)`,
     );
   }
 
-  const filterObject = stream.dictionary.entries.get('Filter');
+  const filterObject = stream.dictionary.entries.get("Filter");
   if (!filterObject) {
     if (stream.data.length > limits.maxDecodedStreamBytes) {
       throw new Error(
-        `Decoded stream size ${stream.data.length} exceeds maximum allowed (${limits.maxDecodedStreamBytes} bytes)`
+        `Decoded stream size ${stream.data.length} exceeds maximum allowed (${limits.maxDecodedStreamBytes} bytes)`,
       );
     }
     return stream.data;
   }
 
   const filters = getFilterNames(filterObject);
-  const decodeParms = getDecodeParms(stream.dictionary.entries.get('DecodeParms'), filters.length);
+  const decodeParms = getDecodeParms(stream.dictionary.entries.get("DecodeParms"), filters.length);
   let data = stream.data;
 
   for (let i = 0; i < filters.length; i++) {
@@ -34,14 +34,14 @@ export function decodeStream(
     const params = decodeParms[i];
 
     switch (filter) {
-      case 'FlateDecode':
+      case "FlateDecode":
         data = inflate(data, limits.maxDecodedStreamBytes);
         data = applyPredictor(data, params);
         break;
-      case 'ASCIIHexDecode':
+      case "ASCIIHexDecode":
         data = decodeASCIIHex(data, limits.maxDecodedStreamBytes);
         break;
-      case 'ASCII85Decode':
+      case "ASCII85Decode":
         data = decodeASCII85(data, limits.maxDecodedStreamBytes);
         break;
       default:
@@ -50,7 +50,7 @@ export function decodeStream(
 
     if (data.length > limits.maxDecodedStreamBytes) {
       throw new Error(
-        `Decoded stream size ${data.length} exceeds maximum allowed (${limits.maxDecodedStreamBytes} bytes)`
+        `Decoded stream size ${data.length} exceeds maximum allowed (${limits.maxDecodedStreamBytes} bytes)`,
       );
     }
   }
@@ -59,34 +59,34 @@ export function decodeStream(
 }
 
 function getFilterNames(value: PDFObject): string[] {
-  if (value.type === 'name') return [value.value];
-  if (value.type !== 'array') {
-    throw new Error('Stream /Filter must be a name or array of names');
+  if (value.type === "name") return [value.value];
+  if (value.type !== "array") {
+    throw new Error("Stream /Filter must be a name or array of names");
   }
   return value.items.map((item, index) => {
-    if (item.type !== 'name') throw new Error(`Stream /Filter[${index}] must be a name`);
+    if (item.type !== "name") throw new Error(`Stream /Filter[${index}] must be a name`);
     return item.value;
   });
 }
 
 function getDecodeParms(
   value: PDFObject | undefined,
-  count: number
+  count: number,
 ): (PDFDictionary | undefined)[] {
   if (!value) return new Array(count).fill(undefined);
-  if (value.type === 'dictionary')
+  if (value.type === "dictionary")
     return [value, ...new Array(Math.max(0, count - 1)).fill(undefined)];
-  if (value.type !== 'array') throw new Error('Stream /DecodeParms must be a dictionary or array');
-  return value.items.map(item => (item.type === 'dictionary' ? item : undefined));
+  if (value.type !== "array") throw new Error("Stream /DecodeParms must be a dictionary or array");
+  return value.items.map((item) => (item.type === "dictionary" ? item : undefined));
 }
 
 function applyPredictor(data: Uint8Array, params: PDFDictionary | undefined): Uint8Array {
-  const predictor = getNumber(params, 'Predictor') ?? 1;
+  const predictor = getNumber(params, "Predictor") ?? 1;
   if (predictor === 1) return data;
 
-  const columns = getNumber(params, 'Columns') ?? 1;
-  const colors = getNumber(params, 'Colors') ?? 1;
-  const bitsPerComponent = getNumber(params, 'BitsPerComponent') ?? 8;
+  const columns = getNumber(params, "Columns") ?? 1;
+  const colors = getNumber(params, "Colors") ?? 1;
+  const bitsPerComponent = getNumber(params, "BitsPerComponent") ?? 8;
   if (
     !Number.isInteger(columns) ||
     columns <= 0 ||
@@ -95,7 +95,7 @@ function applyPredictor(data: Uint8Array, params: PDFDictionary | undefined): Ui
     !Number.isInteger(bitsPerComponent) ||
     bitsPerComponent <= 0
   ) {
-    throw new Error('Invalid Flate predictor parameters');
+    throw new Error("Invalid Flate predictor parameters");
   }
   if (![1, 2, 4, 8, 16].includes(bitsPerComponent)) {
     throw new Error(`Unsupported Flate predictor BitsPerComponent: ${bitsPerComponent}`);
@@ -108,7 +108,7 @@ function applyPredictor(data: Uint8Array, params: PDFDictionary | undefined): Ui
     return decodePNGPredictor(
       data,
       Math.ceil((columns * colors * bitsPerComponent) / 8),
-      Math.ceil((colors * bitsPerComponent) / 8)
+      Math.ceil((colors * bitsPerComponent) / 8),
     );
   }
   throw new Error(`Unsupported Flate predictor: ${predictor}`);
@@ -116,18 +116,18 @@ function applyPredictor(data: Uint8Array, params: PDFDictionary | undefined): Ui
 
 function getNumber(dict: PDFDictionary | undefined, key: string): number | undefined {
   const value = dict?.entries.get(key);
-  return value?.type === 'number' ? value.value : undefined;
+  return value?.type === "number" ? value.value : undefined;
 }
 
 function decodeTiffPredictor(
   data: Uint8Array,
   samplesPerRow: number,
   samplesPerPixel: number,
-  bitsPerComponent: number
+  bitsPerComponent: number,
 ): Uint8Array {
   const rowBytes = Math.ceil((samplesPerRow * bitsPerComponent) / 8);
   if (rowBytes <= 0 || data.length % rowBytes !== 0) {
-    throw new Error('Invalid TIFF predictor row length');
+    throw new Error("Invalid TIFF predictor row length");
   }
 
   const result = new Uint8Array(data);
@@ -168,7 +168,7 @@ function decodeTiffPredictor(
         result,
         rowStart * 8 + currentOffset,
         bitsPerComponent,
-        (current + previous) & mask
+        (current + previous) & mask,
       );
     }
   }
@@ -201,7 +201,7 @@ function writePackedSample(data: Uint8Array, bitOffset: number, bits: number, va
 function decodePNGPredictor(data: Uint8Array, rowBytes: number, bytesPerPixel: number): Uint8Array {
   const encodedRowLength = rowBytes + 1;
   if (encodedRowLength <= 1 || data.length % encodedRowLength !== 0) {
-    throw new Error('Invalid PNG predictor row length');
+    throw new Error("Invalid PNG predictor row length");
   }
   const rows = data.length / encodedRowLength;
   const result = new Uint8Array(rows * rowBytes);
@@ -262,10 +262,7 @@ class ByteAccumulator {
   private readonly maxOutputBytes: number;
   private readonly filterName: string;
 
-  constructor(
-    maxOutputBytes: number,
-    filterName: string
-  ) {
+  constructor(maxOutputBytes: number, filterName: string) {
     this.maxOutputBytes = maxOutputBytes;
     this.filterName = filterName;
   }
@@ -306,14 +303,14 @@ class ByteAccumulator {
         additionalLength > this.maxOutputBytes - this.totalLength)
     ) {
       throw new Error(
-        `${this.filterName} output exceeds maximum decoded stream size (${this.maxOutputBytes} bytes)`
+        `${this.filterName} output exceeds maximum decoded stream size (${this.maxOutputBytes} bytes)`,
       );
     }
   }
 }
 
 function decodeASCIIHex(data: Uint8Array, maxOutputBytes: number): Uint8Array {
-  const result = new ByteAccumulator(maxOutputBytes, 'ASCIIHexDecode');
+  const result = new ByteAccumulator(maxOutputBytes, "ASCIIHexDecode");
   let high: number | undefined;
   for (const byte of data) {
     if (byte === 0x20 || byte === 0x09 || byte === 0x0a || byte === 0x0d || byte === 0x0c) continue;
@@ -340,7 +337,7 @@ function hexNibble(byte: number): number {
 }
 
 function decodeASCII85(data: Uint8Array, maxOutputBytes: number): Uint8Array {
-  const result = new ByteAccumulator(maxOutputBytes, 'ASCII85Decode');
+  const result = new ByteAccumulator(maxOutputBytes, "ASCII85Decode");
   let tuple = 0;
   let count = 0;
   for (let index = 0; index < data.length; index++) {
@@ -348,12 +345,12 @@ function decodeASCII85(data: Uint8Array, maxOutputBytes: number): Uint8Array {
     if (byte === 0x20 || byte === 0x09 || byte === 0x0a || byte === 0x0d || byte === 0x0c) continue;
     if (byte === 0x7e) {
       if (data[index + 1] !== 0x3e) {
-        throw new Error('Invalid ASCII85 end marker: expected > after ~');
+        throw new Error("Invalid ASCII85 end marker: expected > after ~");
       }
       break;
     }
     if (byte === 0x7a) {
-      if (count !== 0) throw new Error('Invalid ASCII85 z shortcut');
+      if (count !== 0) throw new Error("Invalid ASCII85 z shortcut");
       result.push(0);
       result.push(0);
       result.push(0);
@@ -364,7 +361,7 @@ function decodeASCII85(data: Uint8Array, maxOutputBytes: number): Uint8Array {
     tuple = tuple * 85 + byte - 0x21;
     count++;
     if (count === 5) {
-      if (tuple > 0xffffffff) throw new Error('ASCII85 tuple exceeds 0xffffffff');
+      if (tuple > 0xffffffff) throw new Error("ASCII85 tuple exceeds 0xffffffff");
       result.push((tuple >>> 24) & 0xff);
       result.push((tuple >>> 16) & 0xff);
       result.push((tuple >>> 8) & 0xff);
@@ -374,9 +371,9 @@ function decodeASCII85(data: Uint8Array, maxOutputBytes: number): Uint8Array {
     }
   }
   if (count > 0) {
-    if (count === 1) throw new Error('Invalid trailing ASCII85 tuple');
+    if (count === 1) throw new Error("Invalid trailing ASCII85 tuple");
     for (let i = count; i < 5; i++) tuple = tuple * 85 + 84;
-    if (tuple > 0xffffffff) throw new Error('ASCII85 tuple exceeds 0xffffffff');
+    if (tuple > 0xffffffff) throw new Error("ASCII85 tuple exceeds 0xffffffff");
     for (let i = 0; i < count - 1; i++) {
       result.push((tuple >>> (24 - i * 8)) & 0xff);
     }

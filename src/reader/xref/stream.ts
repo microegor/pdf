@@ -3,9 +3,9 @@
  * Parses compressed XRef streams (PDF 1.5+)
  */
 
-import { createCursor } from '../buffer.js';
-import { parseIndirectObject } from '../objects.js';
-import { decodeStream } from '../stream.js';
+import { createCursor } from "../buffer.js";
+import { parseIndirectObject } from "../objects.js";
+import { decodeStream } from "../stream.js";
 import type {
   ObjectParseBudget,
   ParseLimits,
@@ -13,8 +13,8 @@ import type {
   PDFStream,
   XRefEntry,
   XRefSection,
-} from '../types.js';
-import { DEFAULT_PARSE_LIMITS, MAX_PDF_GENERATION } from '../types.js';
+} from "../types.js";
+import { DEFAULT_PARSE_LIMITS, MAX_PDF_GENERATION } from "../types.js";
 
 // ============================================================================
 // XRef Stream Parsing
@@ -37,14 +37,14 @@ export function parseXRefStream(
   buffer: Uint8Array,
   position: number,
   limits: ParseLimits = DEFAULT_PARSE_LIMITS,
-  objectValueBudget?: ObjectParseBudget
+  objectValueBudget?: ObjectParseBudget,
 ): XRefSection {
   const cursor = createCursor(buffer, position);
 
   // Parse the indirect object containing the XRef stream
   const indirectObj = parseIndirectObject(cursor, limits, objectValueBudget);
 
-  if (indirectObj.value.type !== 'stream') {
+  if (indirectObj.value.type !== "stream") {
     throw new Error(`Expected stream object at position ${position}`);
   }
 
@@ -52,14 +52,14 @@ export function parseXRefStream(
   const dict = stream.dictionary;
 
   // Verify it's an XRef stream
-  const typeObj = dict.entries.get('Type');
-  if (typeObj?.type !== 'name' || typeObj.value !== 'XRef') {
+  const typeObj = dict.entries.get("Type");
+  if (typeObj?.type !== "name" || typeObj.value !== "XRef") {
     throw new Error(`Expected XRef stream type at position ${position}`);
   }
 
   // Get stream parameters
-  const sizeObj = dict.entries.get('Size');
-  if (sizeObj?.type !== 'number') {
+  const sizeObj = dict.entries.get("Size");
+  if (sizeObj?.type !== "number") {
     throw new Error(`Missing Size in XRef stream at position ${position}`);
   }
   const size = sizeObj.value;
@@ -71,8 +71,8 @@ export function parseXRefStream(
   }
 
   // Get W array (field widths)
-  const wObj = dict.entries.get('W');
-  if (wObj?.type !== 'array') {
+  const wObj = dict.entries.get("W");
+  if (wObj?.type !== "array") {
     throw new Error(`Missing W array in XRef stream at position ${position}`);
   }
   const wArray = wObj as PDFArray;
@@ -81,7 +81,7 @@ export function parseXRefStream(
   }
 
   const wValues = wArray.items.map((item, index) => {
-    if (item.type !== 'number' || !Number.isSafeInteger(item.value) || item.value < 0) {
+    if (item.type !== "number" || !Number.isSafeInteger(item.value) || item.value < 0) {
       throw new Error(`Invalid W[${index}] in XRef stream at position ${position}`);
     }
     return item.value;
@@ -95,23 +95,23 @@ export function parseXRefStream(
   }
   if (entryWidth > 256) {
     throw new Error(
-      `XRef stream entry width ${entryWidth} exceeds maximum allowed (256) at position ${position}`
+      `XRef stream entry width ${entryWidth} exceeds maximum allowed (256) at position ${position}`,
     );
   }
 
   // Get Index array (subsection ranges)
-  const indexObj = dict.entries.get('Index');
+  const indexObj = dict.entries.get("Index");
   let index: number[];
   if (indexObj === undefined) {
     // Default: single subsection starting at 0
     index = [0, size];
-  } else if (indexObj.type === 'array') {
+  } else if (indexObj.type === "array") {
     const indexArray = indexObj as PDFArray;
     if (indexArray.items.length % 2 !== 0) {
       throw new Error(`Invalid odd-length Index array in XRef stream at position ${position}`);
     }
     index = indexArray.items.map((item, i) => {
-      if (item.type !== 'number' || !Number.isSafeInteger(item.value) || item.value < 0) {
+      if (item.type !== "number" || !Number.isSafeInteger(item.value) || item.value < 0) {
         throw new Error(`Invalid Index[${i}] in XRef stream at position ${position}`);
       }
       return item.value;
@@ -135,7 +135,7 @@ export function parseXRefStream(
   const entries = parseXRefStreamEntries(decodedData, w, index, limits.maxObjects);
 
   // Get Prev if exists
-  const prevObj = dict.entries.get('Prev');
+  const prevObj = dict.entries.get("Prev");
 
   const section: XRefSection = {
     entries,
@@ -150,7 +150,7 @@ export function parseXRefStream(
   };
 
   if (prevObj !== undefined) {
-    if (prevObj.type === 'number' && Number.isSafeInteger(prevObj.value) && prevObj.value >= 0) {
+    if (prevObj.type === "number" && Number.isSafeInteger(prevObj.value) && prevObj.value >= 0) {
       section.prev = prevObj.value;
     } else {
       section.malformedPrev = true;
@@ -167,7 +167,7 @@ function parseXRefStreamEntries(
   data: Uint8Array,
   w: [number, number, number],
   index: number[],
-  maxObjects: number
+  maxObjects: number,
 ): Map<number, XRefEntry> {
   const entries = new Map<number, XRefEntry>();
   const entryWidth = w[0] + w[1] + w[2];
@@ -193,13 +193,13 @@ function parseXRefStreamEntries(
     throw new Error(`XRef stream object entries exceed maximum allowed (${maxObjects})`);
   }
   if (totalExpectedEntries > Math.floor(Number.MAX_SAFE_INTEGER / entryWidth)) {
-    throw new Error('XRef stream entry byte count exceeds safe integer range');
+    throw new Error("XRef stream entry byte count exceeds safe integer range");
   }
   const totalExpectedBytes = totalExpectedEntries * entryWidth;
   if (totalExpectedBytes > data.length) {
     throw new Error(
       `XRef stream data too short: expected ${totalExpectedBytes} bytes for ` +
-        `${totalExpectedEntries} entries (width=${entryWidth}), got ${data.length} bytes`
+        `${totalExpectedEntries} entries (width=${entryWidth}), got ${data.length} bytes`,
     );
   }
 
@@ -212,7 +212,7 @@ function parseXRefStreamEntries(
       throw new Error(`Invalid XRef subsection [${firstObj}, ${count}]`);
     }
     if (firstObj + count > Number.MAX_SAFE_INTEGER) {
-      throw new Error('XRef subsection range exceeds safe integer range');
+      throw new Error("XRef subsection range exceeds safe integer range");
     }
 
     for (let j = 0; j < count; j++) {
@@ -220,7 +220,7 @@ function parseXRefStreamEntries(
       if (dataOffset + entryWidth > data.length) {
         throw new Error(
           `XRef stream data truncated: expected more entries but only ${data.length} bytes available. ` +
-            `Processed ${entries.size} entries so far.`
+            `Processed ${entries.size} entries so far.`,
         );
       }
 
@@ -241,14 +241,14 @@ function parseXRefStreamEntries(
 
       if ((type === 0 || type === 1) && field3 > MAX_PDF_GENERATION) {
         throw new Error(
-          `XRef generation ${field3} exceeds maximum allowed (${MAX_PDF_GENERATION}) for object ${objectNumber}`
+          `XRef generation ${field3} exceeds maximum allowed (${MAX_PDF_GENERATION}) for object ${objectNumber}`,
         );
       }
 
       switch (type) {
         case 0: // Free object
           entries.set(objectNumber, {
-            type: 'free',
+            type: "free",
             nextFreeObject: field2,
             generation: field3,
           });
@@ -256,7 +256,7 @@ function parseXRefStreamEntries(
 
         case 1: // Used object
           entries.set(objectNumber, {
-            type: 'used',
+            type: "used",
             offset: field2,
             generation: field3,
           });
@@ -264,7 +264,7 @@ function parseXRefStreamEntries(
 
         case 2: // Compressed object
           entries.set(objectNumber, {
-            type: 'compressed',
+            type: "compressed",
             objectStreamNumber: field2,
             indexInStream: field3,
           });

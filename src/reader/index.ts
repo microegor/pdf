@@ -50,7 +50,7 @@ export type {
   XRefEntryFree,
   XRefEntryUsed,
   XRefSection,
-} from './types.js';
+} from "./types.js";
 
 // ============================================================================
 // Type helpers and guards
@@ -83,13 +83,13 @@ export {
   ObjectVersionParseError,
   objectKey,
   objectVersionKey,
-} from './types.js';
+} from "./types.js";
 
 // ============================================================================
 // Main API
 // ============================================================================
 
-export { getCatalog, getInfo, getObject, getTrailer, parse, resolveReference } from './parser.js';
+export { getCatalog, getInfo, getObject, getTrailer, parse, resolveReference } from "./parser.js";
 
 // ============================================================================
 // Document Navigation
@@ -116,7 +116,7 @@ export {
   getSections,
   getSubject,
   getTitle,
-} from './document.js';
+} from "./document.js";
 
 // ============================================================================
 // History & Revision API
@@ -134,22 +134,22 @@ export {
   getObjectVersionDescriptors,
   getRevisionMetadata,
   resolveReferenceAtRevision,
-} from './history-api.js';
+} from "./history-api.js";
 
 // ============================================================================
 // Low-level API (for advanced usage)
 // ============================================================================
 
-export { bytesToString, createCursor } from './buffer.js';
-export { ObjectValueLimitError, parseIndirectObject, parseObject } from './objects.js';
-export { nextToken, peekToken } from './tokenizer.js';
+export { bytesToString, createCursor } from "./buffer.js";
+export { ObjectValueLimitError, parseIndirectObject, parseObject } from "./objects.js";
+export { nextToken, peekToken } from "./tokenizer.js";
 export {
   inflate,
   isXRefStream,
   isXRefTable,
   parseXRefStream,
   parseXRefTable,
-} from './xref/index.js';
+} from "./xref/index.js";
 
 // ============================================================================
 // Semantic Diff
@@ -161,11 +161,6 @@ export type {
   DictDiffEntry,
   DictionaryDiff,
   StreamDiff,
-} from './diff.js';
-export {
-  diffArrays,
-  diffDictionaries,
-  diffStreams,
-  equalPDFObject,
-} from './diff.js';
-export { decodeStream } from './stream.js';
+} from "./diff.js";
+export { diffArrays, diffDictionaries, diffStreams, equalPDFObject } from "./diff.js";
+export { decodeStream } from "./stream.js";

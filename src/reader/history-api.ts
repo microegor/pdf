@@ -8,8 +8,8 @@
  *   - Object lifecycle information
  */
 
-import { decodePDFString } from './encoding.js';
-import { getObjectAtRevision as coreGetObjectAtRevision, materializeVersion } from './history.js';
+import { decodePDFString } from "./encoding.js";
+import { getObjectAtRevision as coreGetObjectAtRevision, materializeVersion } from "./history.js";
 import type {
   IndirectObject,
   ObjectLifecycle,
@@ -18,8 +18,8 @@ import type {
   PDFDocument,
   PDFObject,
   RevisionMetadata,
-} from './types.js';
-import { ObjectVersionParseError, objectKey, objectVersionKey } from './types.js';
+} from "./types.js";
+import { ObjectVersionParseError, objectKey, objectVersionKey } from "./types.js";
 
 // ============================================================================
 // Written-Version APIs
@@ -32,7 +32,7 @@ import { ObjectVersionParseError, objectKey, objectVersionKey } from './types.js
 export function getObjectVersionDescriptors(
   doc: PDFDocument,
   objectNumber: number,
-  generation: number = 0
+  generation: number = 0,
 ): readonly ObjectVersionDescriptor[] {
   const events = doc.history.eventsByObject.get(objectNumber);
   if (!events) return [];
@@ -41,7 +41,7 @@ export function getObjectVersionDescriptors(
   let versionIndex = 0;
 
   for (const [eventIndex, event] of events.entries()) {
-    if (event.kind === 'version' && event.generation === generation) {
+    if (event.kind === "version" && event.generation === generation) {
       descriptors.push({
         objectNumber: event.objectNumber,
         generation: event.generation,
@@ -64,14 +64,14 @@ export function getObjectVersionDescriptors(
 export function getObjectVersionCount(
   doc: PDFDocument,
   objectNumber: number,
-  generation: number = 0
+  generation: number = 0,
 ): number {
   const events = doc.history.eventsByObject.get(objectNumber);
   if (!events) return 0;
 
   let count = 0;
   for (const event of events) {
-    if (event.kind === 'version' && event.generation === generation) {
+    if (event.kind === "version" && event.generation === generation) {
       count++;
     }
   }
@@ -88,7 +88,7 @@ export function getObjectVersionCount(
 export function getObjectHistory(
   doc: PDFDocument,
   objectNumber: number,
-  generation: number = 0
+  generation: number = 0,
 ): readonly IndirectObject[] {
   const descriptors = getObjectVersionDescriptors(doc, objectNumber, generation);
   const result: IndirectObject[] = [];
@@ -115,7 +115,7 @@ export function getObjectVersion(
   doc: PDFDocument,
   objectNumber: number,
   generation: number,
-  versionIndex: number
+  versionIndex: number,
 ): IndirectObject | null {
   const descriptors = getObjectVersionDescriptors(doc, objectNumber, generation);
 
@@ -139,7 +139,7 @@ export function getObjectVersion(
  */
 function materializeVersionByDescriptor(
   doc: PDFDocument,
-  descriptor: ObjectVersionDescriptor
+  descriptor: ObjectVersionDescriptor,
 ): IndirectObject {
   const events = doc.history.eventsByObject.get(descriptor.objectNumber);
   if (!events) {
@@ -148,7 +148,7 @@ function materializeVersionByDescriptor(
 
   const event = events[descriptor.eventIndex];
   if (
-    event?.kind === 'version' &&
+    event?.kind === "version" &&
     event.generation === descriptor.generation &&
     event.revisionIndex === descriptor.revisionIndex
   ) {
@@ -158,7 +158,7 @@ function materializeVersionByDescriptor(
   throw new Error(
     `Version descriptor not found in history: ` +
       `obj ${descriptor.objectNumber} gen ${descriptor.generation} ` +
-      `v${descriptor.versionIndex} rev ${descriptor.revisionIndex}`
+      `v${descriptor.versionIndex} rev ${descriptor.revisionIndex}`,
   );
 }
 
@@ -177,7 +177,7 @@ export function getObjectAtRevision(
   doc: PDFDocument,
   objectNumber: number,
   generation: number,
-  revisionIndex: number
+  revisionIndex: number,
 ): IndirectObject | null {
   return coreGetObjectAtRevision(doc, objectNumber, generation, revisionIndex);
 }
@@ -196,7 +196,7 @@ export function getObjectAtRevision(
 export function resolveReferenceAtRevision(
   doc: PDFDocument,
   value: PDFObject,
-  revisionIndex: number
+  revisionIndex: number,
 ): PDFObject {
   return resolveRefAtRevisionWithDepth(doc, value, revisionIndex, new Set<string>(), 0);
 }
@@ -206,26 +206,26 @@ function resolveRefAtRevisionWithDepth(
   obj: PDFObject,
   revisionIndex: number,
   visited: Set<string>,
-  depth: number
+  depth: number,
 ): PDFObject {
   const maxDepth = doc.history.limits.maxDepth;
   if (depth > maxDepth) {
     doc.diagnostics.push({
-      code: 'reference-depth',
+      code: "reference-depth",
       message: `Exceeded maximum reference resolution depth (${maxDepth}). Possible cycle.`,
     });
-    return { type: 'null' };
+    return { type: "null" };
   }
 
-  if (obj.type === 'reference') {
+  if (obj.type === "reference") {
     const refKey = objectKey(obj.objectNumber, obj.generation);
 
     if (visited.has(refKey)) {
       doc.diagnostics.push({
-        code: 'reference-cycle',
+        code: "reference-cycle",
         message: `Cyclic reference detected: ${refKey}. Returning null.`,
       });
-      return { type: 'null' };
+      return { type: "null" };
     }
 
     visited.add(refKey);
@@ -235,7 +235,7 @@ function resolveRefAtRevisionWithDepth(
       return resolveRefAtRevisionWithDepth(doc, resolved.value, revisionIndex, visited, depth + 1);
     }
 
-    return { type: 'null' };
+    return { type: "null" };
   }
 
   return obj;
@@ -254,7 +254,7 @@ function resolveRefAtRevisionWithDepth(
 export function getObjectLifecycle(
   doc: PDFDocument,
   objectNumber: number,
-  generation: number = 0
+  generation: number = 0,
 ): ObjectLifecycle | null {
   const events = doc.history.eventsByObject.get(objectNumber);
   if (!events) return null;
@@ -270,7 +270,7 @@ export function getObjectLifecycle(
   let activeGeneration: number | null = null;
 
   for (const event of events) {
-    if (event.kind === 'version') {
+    if (event.kind === "version") {
       activeGeneration = event.generation;
 
       if (event.generation === generation) {
@@ -281,7 +281,7 @@ export function getObjectLifecycle(
         versionCount++;
       }
     }
-    if (event.kind === 'free') {
+    if (event.kind === "free") {
       // Free event closes only the generation active before it
       if (activeGeneration === generation && freedInRevision === undefined) {
         freedInRevision = event.revisionIndex;
@@ -320,7 +320,7 @@ export function getAllObjectLifecycles(doc: PDFDocument): readonly ObjectLifecyc
   for (const [objNum, events] of doc.history.eventsByObject) {
     const generations = new Set<number>();
     for (const event of events) {
-      if (event.kind === 'version') {
+      if (event.kind === "version") {
         generations.add(event.generation);
       }
     }
@@ -343,9 +343,9 @@ export function getAllObjectLifecycles(doc: PDFDocument): readonly ObjectLifecyc
     if (seen.has(key)) continue;
     seen.add(key);
 
-    const parts = key.split('_');
-    const objNum = parseInt(parts[0] ?? '0', 10);
-    const gen = parseInt(parts[1] ?? '0', 10);
+    const parts = key.split("_");
+    const objNum = parseInt(parts[0] ?? "0", 10);
+    const gen = parseInt(parts[1] ?? "0", 10);
 
     const lifecycle = getObjectLifecycle(doc, objNum, gen);
     if (lifecycle) {
@@ -367,7 +367,7 @@ export function getAllObjectLifecycles(doc: PDFDocument): readonly ObjectLifecyc
 function getEffectiveTrailerValue(
   doc: PDFDocument,
   revisionIndex: number,
-  key: string
+  key: string,
 ): PDFObject | null {
   const sectionIndex = doc.sections.length - 1 - revisionIndex;
 
@@ -390,18 +390,18 @@ function getEffectiveTrailerValue(
  */
 export function extractRevisionMetadata(
   doc: PDFDocument,
-  revisionIndex: number
+  revisionIndex: number,
 ): RevisionMetadata | undefined {
-  const infoRef = getEffectiveTrailerValue(doc, revisionIndex, 'Info');
+  const infoRef = getEffectiveTrailerValue(doc, revisionIndex, "Info");
   const meta: RevisionMetadata = {};
 
   // Extract /ID from trailer independently of /Info (P2-2)
-  const idObj = getEffectiveTrailerValue(doc, revisionIndex, 'ID');
-  if (idObj?.type === 'array' && idObj.items.length >= 2) {
+  const idObj = getEffectiveTrailerValue(doc, revisionIndex, "ID");
+  if (idObj?.type === "array" && idObj.items.length >= 2) {
     const perm = idObj.items[0];
     const rev = idObj.items[1];
-    const permRaw = perm?.type === 'string' || perm?.type === 'hexstring' ? perm.raw : null;
-    const revRaw = rev?.type === 'string' || rev?.type === 'hexstring' ? rev.raw : null;
+    const permRaw = perm?.type === "string" || perm?.type === "hexstring" ? perm.raw : null;
+    const revRaw = rev?.type === "string" || rev?.type === "hexstring" ? rev.raw : null;
     if (permRaw && revRaw) {
       meta.fileId = {
         permanent: bytesToHex(permRaw),
@@ -411,20 +411,20 @@ export function extractRevisionMetadata(
   }
 
   // Resolve /Info if present
-  if (infoRef?.type !== 'reference') {
+  if (infoRef?.type !== "reference") {
     return Object.keys(meta).length > 0 ? meta : undefined;
   }
 
   const infoObj = getObjectAtRevision(doc, infoRef.objectNumber, infoRef.generation, revisionIndex);
-  if (infoObj?.value.type !== 'dictionary') {
+  if (infoObj?.value.type !== "dictionary") {
     return Object.keys(meta).length > 0 ? meta : undefined;
   }
 
   const dict = infoObj.value;
 
   // /ModDate
-  const modDate = dict.entries.get('ModDate');
-  if (modDate && (modDate.type === 'string' || modDate.type === 'hexstring')) {
+  const modDate = dict.entries.get("ModDate");
+  if (modDate && (modDate.type === "string" || modDate.type === "hexstring")) {
     const raw = decodePDFStringRaw(modDate.raw);
     meta.modifiedDate = {
       raw,
@@ -433,8 +433,8 @@ export function extractRevisionMetadata(
   }
 
   // /Producer
-  const producer = dict.entries.get('Producer');
-  if (producer && (producer.type === 'string' || producer.type === 'hexstring')) {
+  const producer = dict.entries.get("Producer");
+  if (producer && (producer.type === "string" || producer.type === "hexstring")) {
     meta.producer = decodePDFStringRaw(producer.raw);
   }
 
@@ -457,8 +457,8 @@ function decodePDFStringRaw(raw: Uint8Array): string {
 
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes)
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 /**
@@ -469,7 +469,7 @@ function bytesToHex(bytes: Uint8Array): string {
 function tryParsePDFDate(raw: string): string | undefined {
   // Strip the leading "D:" prefix
   let dateStr = raw;
-  if (dateStr.startsWith('D:')) {
+  if (dateStr.startsWith("D:")) {
     dateStr = dateStr.substring(2);
   }
 
@@ -496,7 +496,7 @@ function tryParsePDFDate(raw: string): string | undefined {
   if (tzMatch) {
     iso += `${tzMatch[1]}:${tzMatch[2]}`;
   } else {
-    iso += 'Z'; // Assume UTC if no timezone
+    iso += "Z"; // Assume UTC if no timezone
   }
 
   return iso;
@@ -522,7 +522,7 @@ export function getObjectsInSection(doc: PDFDocument, sectionIndex: number): Ind
   // Collect from history: find version events written in this section
   for (const [, events] of doc.history.eventsByObject) {
     for (const event of events) {
-      if (event.kind === 'version' && event.sectionIndex === sectionIndex) {
+      if (event.kind === "version" && event.sectionIndex === sectionIndex) {
         const locator = event as ObjectVersionLocator;
         try {
           const version = materializeVersion(doc, locator);

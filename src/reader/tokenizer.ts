@@ -42,8 +42,8 @@ import {
   read,
   SLASH,
   skipWhitespaceAndComments,
-} from './buffer.js';
-import type { Cursor, Token, TokenType } from './types.js';
+} from "./buffer.js";
+import type { Cursor, Token, TokenType } from "./types.js";
 
 // ============================================================================
 // Token Creation
@@ -68,7 +68,7 @@ export function nextToken(cursor: Cursor, maxNameBytes: number = Infinity): Toke
   skipWhitespaceAndComments(cursor);
 
   if (!hasMore(cursor)) {
-    return createToken('eof', cursor.position, cursor.position);
+    return createToken("eof", cursor.position, cursor.position);
   }
 
   const byte = peek(cursor);
@@ -77,13 +77,13 @@ export function nextToken(cursor: Cursor, maxNameBytes: number = Infinity): Toke
   // Dictionary start <<
   if (byte === LANGLE && cursor.buffer[cursor.position + 1] === LANGLE) {
     advance(cursor, 2);
-    return createToken('dict_start', start, cursor.position);
+    return createToken("dict_start", start, cursor.position);
   }
 
   // Dictionary end >>
   if (byte === RANGLE && cursor.buffer[cursor.position + 1] === RANGLE) {
     advance(cursor, 2);
-    return createToken('dict_end', start, cursor.position);
+    return createToken("dict_end", start, cursor.position);
   }
 
   // Hex string <...>
@@ -99,13 +99,13 @@ export function nextToken(cursor: Cursor, maxNameBytes: number = Infinity): Toke
   // Array start
   if (byte === LBRACKET) {
     advance(cursor);
-    return createToken('array_start', start, cursor.position);
+    return createToken("array_start", start, cursor.position);
   }
 
   // Array end
   if (byte === RBRACKET) {
     advance(cursor);
-    return createToken('array_end', start, cursor.position);
+    return createToken("array_end", start, cursor.position);
   }
 
   // Name /...
@@ -144,7 +144,7 @@ function readHexString(cursor: Cursor): Token {
     throw new Error(`Unterminated hex string at position ${start}`);
   }
 
-  return createToken('hexstring', start, cursor.position);
+  return createToken("hexstring", start, cursor.position);
 }
 
 /**
@@ -176,7 +176,7 @@ function readLiteralString(cursor: Cursor): Token {
     throw new Error(`Unterminated literal string at position ${start}`);
   }
 
-  return createToken('string', start, cursor.position);
+  return createToken("string", start, cursor.position);
 }
 
 /**
@@ -200,12 +200,12 @@ function readName(cursor: Cursor, maxNameBytes: number): Token {
   const nameBytes = cursor.buffer.subarray(nameStart, cursor.position);
   if (maxNameBytes !== Infinity && nameBytes.length > maxNameBytes) {
     throw new Error(
-      `PDF name size ${nameBytes.length} exceeds maximum allowed (${maxNameBytes} bytes)`
+      `PDF name size ${nameBytes.length} exceeds maximum allowed (${maxNameBytes} bytes)`,
     );
   }
   const name = decodeName(nameBytes);
 
-  return createToken('name', start, cursor.position, name);
+  return createToken("name", start, cursor.position, name);
 }
 
 /**
@@ -288,7 +288,7 @@ function readNumber(cursor: Cursor): Token {
   const numStr = bytesToString(cursor.buffer.subarray(start, cursor.position));
   const value = hasDecimal ? Number.parseFloat(numStr) : Number.parseInt(numStr, 10);
 
-  return createToken('number', start, cursor.position, value);
+  return createToken("number", start, cursor.position, value);
 }
 
 /**
@@ -327,25 +327,25 @@ function readKeyword(cursor: Cursor): Token {
 
   // Check for known keywords (ordered by length descending to avoid partial matches)
   const knownKeywords: [Uint8Array, string][] = [
-    [KEYWORD_ENDSTREAM, 'endstream'],
-    [KEYWORD_STARTXREF, 'startxref'],
-    [KEYWORD_TRAILER, 'trailer'],
-    [KEYWORD_ENDOBJ, 'endobj'],
-    [KEYWORD_STREAM, 'stream'],
-    [KEYWORD_FALSE, 'false'],
-    [KEYWORD_TRUE, 'true'],
-    [KEYWORD_NULL, 'null'],
-    [KEYWORD_XREF, 'xref'],
-    [KEYWORD_OBJ, 'obj'],
-    [KEYWORD_R, 'R'],
-    [KEYWORD_N, 'n'],
-    [KEYWORD_F, 'f'],
+    [KEYWORD_ENDSTREAM, "endstream"],
+    [KEYWORD_STARTXREF, "startxref"],
+    [KEYWORD_TRAILER, "trailer"],
+    [KEYWORD_ENDOBJ, "endobj"],
+    [KEYWORD_STREAM, "stream"],
+    [KEYWORD_FALSE, "false"],
+    [KEYWORD_TRUE, "true"],
+    [KEYWORD_NULL, "null"],
+    [KEYWORD_XREF, "xref"],
+    [KEYWORD_OBJ, "obj"],
+    [KEYWORD_R, "R"],
+    [KEYWORD_N, "n"],
+    [KEYWORD_F, "f"],
   ];
 
   for (const [keywordBytes, value] of knownKeywords) {
     const matched = tryMatchKeyword(cursor, keywordBytes, value);
     if (matched !== null) {
-      return createToken('keyword', start, cursor.position, matched);
+      return createToken("keyword", start, cursor.position, matched);
     }
   }
 
@@ -369,7 +369,7 @@ function readKeyword(cursor: Cursor): Token {
   }
 
   const keyword = bytesToString(cursor.buffer.subarray(start, cursor.position));
-  return createToken('keyword', start, cursor.position, keyword);
+  return createToken("keyword", start, cursor.position, keyword);
 }
 
 /**
@@ -389,7 +389,7 @@ export function expectToken(cursor: Cursor, expectedType: TokenType): Token {
   const token = nextToken(cursor);
   if (!token || token.type !== expectedType) {
     throw new Error(
-      `Expected token type ${expectedType}, got ${token?.type ?? 'null'} at position ${cursor.position}`
+      `Expected token type ${expectedType}, got ${token?.type ?? "null"} at position ${cursor.position}`,
     );
   }
   return token;
@@ -400,9 +400,9 @@ export function expectToken(cursor: Cursor, expectedType: TokenType): Token {
  */
 export function expectKeyword(cursor: Cursor, keyword: string): Token {
   const token = nextToken(cursor);
-  if (token?.type !== 'keyword' || token.value !== keyword) {
+  if (token?.type !== "keyword" || token.value !== keyword) {
     throw new Error(
-      `Expected keyword "${keyword}", got ${token?.value ?? 'null'} at position ${cursor.position}`
+      `Expected keyword "${keyword}", got ${token?.value ?? "null"} at position ${cursor.position}`,
     );
   }
   return token;

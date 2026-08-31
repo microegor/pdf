@@ -46,22 +46,22 @@ export function buildSingleRevisionPDF(objects: FixtureObject[], trailer?: strin
     off += d.length;
   }
 
-  const lines: string[] = ['xref'];
+  const lines: string[] = ["xref"];
   if (objects.length === 0) {
-    lines.push('0 0');
+    lines.push("0 0");
   } else {
     const ix = objects
       .map((o, i) => ({ ...o, offset: offsets[i] ?? 0 }))
       .sort((a, b) => a.objNum - b.objNum);
     lines.push(`${ix[0]?.objNum ?? 0} ${ix.length}`);
     for (const o of ix)
-      lines.push(`${String(o.offset).padStart(10, '0')} ${String(o.genNum).padStart(5, '0')} n`);
+      lines.push(`${String(o.offset).padStart(10, "0")} ${String(o.genNum).padStart(5, "0")} n`);
   }
   const max = objects.reduce((m, o) => Math.max(m, o.objNum), 0);
   const tp: string[] = [`/Size ${max + 1}`];
   if (trailer) tp.push(trailer);
-  lines.push(`trailer\n<<${tp.join(' ')}>>`);
-  const xref = str(`${lines.join('\n')}\n`);
+  lines.push(`trailer\n<<${tp.join(" ")}>>`);
+  const xref = str(`${lines.join("\n")}\n`);
   const xrefOff = off;
   parts.push(xref);
   parts.push(str(`startxref\n${xrefOff}\n%%EOF`));
@@ -80,7 +80,7 @@ export function buildMultiRevisionPDF(revisions: RevisionSpec[]): Uint8Array {
 
     const bp: string[] = [];
     for (const o of rev.objects) bp.push(`${o.objNum} ${o.genNum} obj\n${o.content}\nendobj\n`);
-    const body = str(bp.join(''));
+    const body = str(bp.join(""));
     off += body.length;
 
     const objOff = new Map<string, number>();
@@ -98,15 +98,15 @@ export function buildMultiRevisionPDF(revisions: RevisionSpec[]): Uint8Array {
       }
     }
 
-    const lines: string[] = ['xref'];
+    const lines: string[] = ["xref"];
     const sorted = Array.from(all.values()).sort((a, b) => a.objNum - b.objNum);
     if (sorted.length === 0) {
-      lines.push('0 0');
+      lines.push("0 0");
     } else {
       lines.push(`${sorted[0]?.objNum ?? 0} ${sorted.length}`);
       for (const o of sorted) {
         const a = objOff.get(`${o.objNum}_${o.genNum}`) ?? 0;
-        lines.push(`${String(a).padStart(10, '0')} ${String(o.genNum).padStart(5, '0')} n`);
+        lines.push(`${String(a).padStart(10, "0")} ${String(o.genNum).padStart(5, "0")} n`);
       }
     }
     const mx = Array.from(all.values()).reduce((m, o) => Math.max(m, o.objNum), 0);
@@ -116,8 +116,8 @@ export function buildMultiRevisionPDF(revisions: RevisionSpec[]): Uint8Array {
       if (p) tp.push(`/Prev ${p.xrefOff}`);
     }
     if (rev.trailer) tp.push(rev.trailer);
-    lines.push(`trailer\n<<${tp.join(' ')}>>`);
-    const xref = str(`${lines.join('\n')}\n`);
+    lines.push(`trailer\n<<${tp.join(" ")}>>`);
+    const xref = str(`${lines.join("\n")}\n`);
     const xrefOff = off;
     secs.push({ body, xref, xrefOff });
     off += xref.length;
