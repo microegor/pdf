@@ -20,7 +20,7 @@ type PdfListItem = {
 };
 
 function ObjectItemClick() {
-  alert("You've clicked on object")
+  alert("You've clicked on object");
 }
 
 function getObjectKind(value: PDFObject): string {
@@ -37,9 +37,7 @@ function getObjectKind(value: PDFObject): string {
 
 function getObjectType(value: PDFObject): string | null {
   if (value.type === "dictionary") {
-    const typeEntry =
-      value.entries.get("Type") ??
-      value.entries.get("/Type");
+    const typeEntry = value.entries.get("Type") ?? value.entries.get("/Type");
 
     if (typeEntry?.type === "name") {
       return typeEntry.value;
@@ -47,9 +45,7 @@ function getObjectType(value: PDFObject): string | null {
   }
 
   if (value.type === "stream") {
-    const typeEntry =
-      value.dictionary.entries.get("Type") ??
-      value.dictionary.entries.get("/Type");
+    const typeEntry = value.dictionary.entries.get("Type") ?? value.dictionary.entries.get("/Type");
 
     if (typeEntry?.type === "name") {
       return typeEntry.value;
@@ -90,22 +86,15 @@ function App() {
     });
   }, [objects, filter]);
 
-  const handleReferenceClick = (
-    objectNumber: number,
-    generation: number,
-  ) => {
+  const handleReferenceClick = (objectNumber: number, generation: number) => {
     const target = objects.find(
-      (item) =>
-        item.objectNumber === objectNumber &&
-        item.generation === generation,
+      (item) => item.objectNumber === objectNumber && item.generation === generation,
     );
 
     if (target) {
       setSelectedObject(target);
     } else {
-      console.warn(
-        `Object ${objectNumber} ${generation} R not found`,
-      );
+      console.warn(`Object ${objectNumber} ${generation} R not found`);
     }
   };
 
@@ -117,22 +106,19 @@ function App() {
       return;
     }
 
-
     const buf = await file.bytes();
     const doc = parse(buf);
 
-    const items: PdfListItem[] = Array.from(doc.objects.entries()).map(
-      ([id, indirectObject]) => ({
-        id,
-        objectNumber: indirectObject.objectNumber,
-        generation: indirectObject.generation,
+    const items: PdfListItem[] = Array.from(doc.objects.entries()).map(([id, indirectObject]) => ({
+      id,
+      objectNumber: indirectObject.objectNumber,
+      generation: indirectObject.generation,
 
-        kind: getObjectKind(indirectObject.value),
-        pdfType: getObjectType(indirectObject.value),
+      kind: getObjectKind(indirectObject.value),
+      pdfType: getObjectType(indirectObject.value),
 
-        value: indirectObject.value,
-      }),
-    );
+      value: indirectObject.value,
+    }));
 
     setObjects(items);
 
@@ -170,28 +156,13 @@ function App() {
           border: "1px solid #ccc",
         }}
       >
-        <Button
-          size="big"
-          variant="contained"
-          text="Add"
-          onClick={handleOpenModal}
-        />
+        <Button size="big" variant="contained" text="Add" onClick={handleOpenModal} />
 
-        <Modal
-          open={modalOpen}
-          onClose={handleCloseModal}
-        >
+        <Modal open={modalOpen} onClose={handleCloseModal}>
           <h2>Добавить PDF</h2>
 
-          <DropZone
-            accept="application/pdf"
-            onChange={handleFileChange}
-          />
-          {pdfFile && (
-            <p>
-              Выбран файл: {pdfFile.name}
-            </p>
-          )}
+          <DropZone accept="application/pdf" onChange={handleFileChange} />
+          {pdfFile && <p>Выбран файл: {pdfFile.name}</p>}
         </Modal>
 
         <div>
@@ -217,7 +188,8 @@ function App() {
             minHeight: 0,
           }}
         >
-          <input className="fill"
+          <input
+            className="fill"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filter objects..."
@@ -259,17 +231,13 @@ function App() {
           {selectedObject ? (
             <div>
               <h2>
-                Object {selectedObject.objectNumber}{" "}
-                {selectedObject.generation} R
+                Object {selectedObject.objectNumber} {selectedObject.generation} R
               </h2>
 
-              <p>
-                Generation: {selectedObject.generation}
-              </p>
+              <p>Generation: {selectedObject.generation}</p>
 
               <p>
-                Type: {selectedObject.pdfType ?? "—"} (
-                {selectedObject.value.type})
+                Type: {selectedObject.pdfType ?? "—"} ({selectedObject.value.type})
               </p>
 
               <div
@@ -281,10 +249,7 @@ function App() {
                 {selectedObject.value.type === "stream" ? (
                   <StreamView value={selectedObject.value} />
                 ) : (
-                  <PdfValue
-                    value={selectedObject.value}
-                    onReferenceClick={handleReferenceClick}
-                  />
+                  <PdfValue value={selectedObject.value} onReferenceClick={handleReferenceClick} />
                 )}
               </div>
             </div>

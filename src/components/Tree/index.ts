@@ -1,3 +1,3 @@
-export {TreeContainer} from "./TreeContainer"
+export { TreeContainer } from "./TreeContainer";
 
-export {TreeNode} from "./TreeNode"
+export { TreeNode } from "./TreeNode";

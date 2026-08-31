@@ -28,7 +28,6 @@
   background: #f3f4f6;
 }
 
-
 .isSelected {
   background: #bfdbfe;
 }
@@ -48,5 +47,5 @@
 }
 
 .indicator {
-    margin-left: auto;
+  margin-left: auto;
 }

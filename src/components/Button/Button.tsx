@@ -13,7 +13,13 @@ interface ButtonProps {
 type ButtonSize = "big" | "medium" | "small";
 type Variant = "text" | "contained" | "outlined";
 
-export function Button({ disabled = false, size="big", variant="contained", text, onClick }: ButtonProps) {
+export function Button({
+  disabled = false,
+  size = "big",
+  variant = "contained",
+  text,
+  onClick,
+}: ButtonProps) {
   return (
     <button
       type="button"

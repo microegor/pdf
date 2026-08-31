@@ -20,8 +20,7 @@ export function PdfObjectItem({
   return (
     <button
       type="button"
-      className={`${styles["pdf-object"]} ${active ? styles["pdf-object--active"] : ""
-        }`}
+      className={`${styles["pdf-object"]} ${active ? styles["pdf-object--active"] : ""}`}
       onClick={onClick}
     >
       <div className={styles["pdf-object__info"]}>

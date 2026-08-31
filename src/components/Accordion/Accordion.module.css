@@ -81,6 +81,6 @@
   border-color: #aaa;
 }
 
-.content:disabled{
+.content:disabled {
   opacity: 0;
 }

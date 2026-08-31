@@ -28,12 +28,7 @@ interface StackProps {
 
 type Direction = "row" | "column";
 
-export function Stack({
-  direction = "column",
-  spacing = 1,
-  sx = {},
-  children,
-}: StackProps) {
+export function Stack({ direction = "column", spacing = 1, sx = {}, children }: StackProps) {
   return (
     <div
       style={{

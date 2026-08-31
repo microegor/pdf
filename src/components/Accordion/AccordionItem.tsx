@@ -22,18 +22,14 @@ export function AccordionItem({
       <button
         type="button"
         disabled={disabled}
-        className={`${styles.title} ${isOpen ? styles.titleOpen : ""
-          }`}
+        className={`${styles.title} ${isOpen ? styles.titleOpen : ""}`}
         onClick={() => setIsOpen((previous) => !previous)}
         aria-expanded={isOpen}
       >
         {title}
       </button>
 
-      <div
-        className={`${styles.contentWrapper} ${isOpen ? styles.contentWrapperOpen : ""
-          }`}
-      >
+      <div className={`${styles.contentWrapper} ${isOpen ? styles.contentWrapperOpen : ""}`}>
         <div className={styles.content}>{children}</div>
       </div>
     </div>

@@ -1,42 +1,42 @@
 .pdf-object {
-    width: 100%;
-    padding: 10px 12px;
-    display: block;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    background: transparent;
-    text-align: left;
-    font-family: inherit;
-    cursor: pointer;
-    user-select: none;
+  width: 100%;
+  padding: 10px 12px;
+  display: block;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  user-select: none;
 }
 
 .pdf-object:hover {
-    background: #f1f5f9;
+  background: #f1f5f9;
 }
 
 .pdf-object--active {
-    background: #eff6ff;
-    border-color: #3b82f6;
+  background: #eff6ff;
+  border-color: #3b82f6;
 }
 
 .pdf-object__info {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
 }
 
 .pdf-object__number {
-    font-family: monospace;
-    font-size: 10px;
-    font-weight: 600;
-    color: #0f172a;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: #0f172a;
 }
 
 .pdf-object__type {
-    padding: 3px 7px;
-    font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-size: 13px;
-    font-weight: 600;
+  padding: 3px 7px;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
 }

@@ -62,12 +62,7 @@ export function PdfValue({ value, depth = 0, onReferenceClick }: Props) {
         <button
           type="button"
           className={styles.reference}
-          onClick={() =>
-            onReferenceClick?.(
-              value.objectNumber,
-              value.generation,
-            )
-          }
+          onClick={() => onReferenceClick?.(value.objectNumber, value.generation)}
         >
           {value.objectNumber} {value.generation} R
         </button>
@@ -82,24 +77,11 @@ export function PdfValue({ value, depth = 0, onReferenceClick }: Props) {
         <span className={styles.array}>
           <span>[</span>
 
-          <div
-            className={styles.nested}
-            style={{ paddingLeft: 12 }}
-          >
+          <div className={styles.nested} style={{ paddingLeft: 12 }}>
             {value.items.map((item, idx) => (
-              <div
-                key={idx}
-                className={styles.arrayItem}
-              >
-                <span className={styles.arrayIndex}>
-                  {idx}:
-                </span>{" "}
-
-                <PdfValue
-                  value={item}
-                  depth={depth + 1}
-                  onReferenceClick={onReferenceClick}
-                />
+              <div key={idx} className={styles.arrayItem}>
+                <span className={styles.arrayIndex}>{idx}:</span>{" "}
+                <PdfValue value={item} depth={depth + 1} onReferenceClick={onReferenceClick} />
               </div>
             ))}
           </div>
@@ -111,35 +93,18 @@ export function PdfValue({ value, depth = 0, onReferenceClick }: Props) {
 
     case "dictionary": {
       if (value.entries.size === 0) {
-        return (
-          <span className={styles.dictionary}>
-            &lt;&lt; &gt;&gt;
-          </span>
-        );
+        return <span className={styles.dictionary}>&lt;&lt; &gt;&gt;</span>;
       }
 
       return (
         <span className={styles.dictionary}>
           <span>&lt;&lt;</span>
 
-          <div
-            className={styles.nested}
-            style={{ paddingLeft: 12 }}
-          >
+          <div className={styles.nested} style={{ paddingLeft: 12 }}>
             {Array.from(value.entries).map(([key, entry]) => (
-              <div
-                key={key}
-                className={styles.dictRow}
-              >
-                <span className={styles.dictKey}>
-                  /{key}
-                </span>{" "}
-
-                <PdfValue
-                  value={entry}
-                  depth={depth + 1}
-                  onReferenceClick={onReferenceClick}
-                />
+              <div key={key} className={styles.dictRow}>
+                <span className={styles.dictKey}>/{key}</span>{" "}
+                <PdfValue value={entry} depth={depth + 1} onReferenceClick={onReferenceClick} />
               </div>
             ))}
           </div>

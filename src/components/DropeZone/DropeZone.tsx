@@ -1,9 +1,4 @@
-import {
-  useRef,
-  useState,
-  type ChangeEvent,
-  type DragEvent,
-} from "react";
+import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
 
 import styles from "./DropeZone.module.css";
 
@@ -13,11 +8,7 @@ interface DropZoneProps {
   disabled?: boolean;
 }
 
-export const DropZone = ({
-  accept,
-  onChange,
-  disabled = false,
-}: DropZoneProps) => {
+export const DropZone = ({ accept, onChange, disabled = false }: DropZoneProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [isDragging, setIsDragging] = useState(false);
@@ -34,17 +25,13 @@ export const DropZone = ({
     inputRef.current?.click();
   };
 
-  const handleInputChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
 
     handleFile(file);
   };
 
-  const handleDragOver = (
-    event: DragEvent<HTMLDivElement>
-  ) => {
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
 
     if (disabled) return;
@@ -52,17 +39,13 @@ export const DropZone = ({
     setIsDragging(true);
   };
 
-  const handleDragLeave = (
-    event: DragEvent<HTMLDivElement>
-  ) => {
+  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
 
     setIsDragging(false);
   };
 
-  const handleDrop = (
-    event: DragEvent<HTMLDivElement>
-  ) => {
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
 
     if (disabled) return;
@@ -95,13 +78,9 @@ export const DropZone = ({
         onChange={handleInputChange}
       />
 
-      <span className={styles.text}>
-        Перетащите файл сюда
-      </span>
+      <span className={styles.text}>Перетащите файл сюда</span>
 
-      <span className={styles.subText}>
-        или нажмите для выбора
-      </span>
+      <span className={styles.subText}>или нажмите для выбора</span>
     </div>
   );
 };

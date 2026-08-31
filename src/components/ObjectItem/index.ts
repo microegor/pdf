@@ -1,1 +1,1 @@
-export {PdfObjectItem} from "./PdfObjectItem"
+export { PdfObjectItem } from "./PdfObjectItem";

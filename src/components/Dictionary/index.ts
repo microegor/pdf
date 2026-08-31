@@ -1,1 +1,1 @@
-export {DictionaryView} from "./Dictionary"
+export { DictionaryView } from "./Dictionary";
