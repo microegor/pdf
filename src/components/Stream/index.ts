@@ -1,1 +1,1 @@
-export {StreamView} from "./Stream"
+export { StreamView } from "./Stream";
