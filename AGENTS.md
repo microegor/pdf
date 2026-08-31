@@ -71,3 +71,43 @@ feat: add PDF reader types and XRef parsing modules
 - Added flate decompression utility using pako for handling compressed data.
 - Created a unified index for XRef module exports.
 ```
+
+## 5. Атомарность
+
+Текущие изменения разбиваются на несколько коммитов по смыслу, а не одним большим. Правило из последних 4 коммитов:
+
+- `feat: add HexView component...` — только новые файлы `src/components/HexView/*`
+- `refactor: replace bytesToHex with HexView...` — только `src/components/Stream/*`
+- `style: normalize quoting and formatting across reader module and tests` — только `src/reader/**`
+- `style: format App and UI components with prettier` — только `src/App.tsx`, `src/components/**`, `style/App.css`
+
+Не смешивать форматирование (`'` → `"` , prettier) с функциональными изменениями в одном коммите.
+
+## 6. Merge-коммиты
+
+Формат GitHub по умолчанию сохраняется:
+
+```
+Merge pull request #4 from microegor/feat/trea
+```
+
+Не переписывать вручную.
+
+## 7. Технические требования
+
+- `core.autocrlf` даёт варнинг `LF will be replaced by CRLF` — игнорировать, коммитить с `LF`.
+- Форматтер — `oxfmt` (`.oxfmtrc.json`), кавычки — двойные `"` (см. `style: normalize quoting...`).
+- Каждый коммит должен собираться: `pnpm build` / `vitest` без ошибок.
+
+## 8. Шаблон для агента
+
+```bash
+git add <логическая группа файлов>
+git commit -m "feat: add HexView component with virtualized hex viewer and byte selection"
+git add <следующая группа>
+git commit -m "refactor: replace bytesToHex with HexView in StreamView for raw and decoded data"
+git add src/reader/** src/reader/__tests__/**
+git commit -m "style: normalize quoting and formatting across reader module and tests"
+git add src/App.tsx src/components/** style/**
+git commit -m "style: format App and UI components with prettier"
+```
