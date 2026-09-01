@@ -117,7 +117,11 @@ export function PdfValue({ value, depth = 0, onReferenceClick }: Props) {
       return (
         <span className={styles.stream}>
           <div className={styles.streamDict}>
-            <PdfValue value={value.dictionary} depth={depth + 1} />
+            <PdfValue
+              value={value.dictionary}
+              depth={depth + 1}
+              onReferenceClick={onReferenceClick}
+            />
           </div>
           <div className={styles.streamMeta}>
             stream: {value.data.length} bytes
