@@ -27,13 +27,13 @@ git log --oneline -5
 
 ## 2. Типы
 
-| type | когда использовать | пример из истории |
-|------|-------------------|-------------------|
-| `feat` | новая функциональность, компонент, проп | `feat: add DropZone component for file upload with drag-and-drop support` |
-| `refactor` | рефактор без нового функционала, переименование | `refactor: rename type to kind and pdfType in PdfListItem; update related functions` |
-| `style` | форматирование, prettier, кавычки, пробелы | `style: format App and UI components with prettier` |
-| `fix` | исправление бага (в истории не встречался, но разрешён) | `fix: handle truncated XRef table` |
-| `chore` | зависимости, конфиги | `feat: add pako dependency...` в истории идёт как `feat`, `chore` допустим |
+| type       | когда использовать                                      | пример из истории                                                                    |
+| ---------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `feat`     | новая функциональность, компонент, проп                 | `feat: add DropZone component for file upload with drag-and-drop support`            |
+| `refactor` | рефактор без нового функционала, переименование         | `refactor: rename type to kind and pdfType in PdfListItem; update related functions` |
+| `style`    | форматирование, prettier, кавычки, пробелы              | `style: format App and UI components with prettier`                                  |
+| `fix`      | исправление бага (в истории не встречался, но разрешён) | `fix: handle truncated XRef table`                                                   |
+| `chore`    | зависимости, конфиги                                    | `feat: add pako dependency...` в истории идёт как `feat`, `chore` допустим           |
 
 > В истории `feat:` используется даже для `feat: refactor ...` — это считается нормой проекта. `style: formatting` тоже встречается (`66941ce`).
 
@@ -47,12 +47,14 @@ Scope `feat(scope):` в истории **не используется** — н�
 - Без точки в конце заголовка.
 
 Хорошо:
+
 ```
 feat: add filtering functionality for PDF objects in App component
 feat: implement PdfValue component for rendering PDF object values; refactor DictionaryView and StreamView to use PdfValue
 ```
 
 Плохо:
+
 ```
 Feat: Add filtering.   # заглавная + точка
 feat(reader): add ...  # scope
