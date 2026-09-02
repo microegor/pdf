@@ -1,91 +1,243 @@
-.null {
-  color: #888;
-  font-style: italic;
-}
-
-.boolean {
-  color: #0b6e99;
-  font-weight: 600;
-}
-
-.number {
-  color: #1a7f37;
-}
-
-.name {
-  color: #cf222e;
-  font-weight: 600;
-}
-
-.string {
-  color: #0a3069;
-  word-break: break-all;
-}
-
-.hexstring {
-  color: #8250df;
-  font-family: monospace;
-  word-break: break-all;
-}
-
-.reference {
-  color: #0969da;
-  font-weight: 600;
-  font-family: monospace;
-}
-
-.array,
 .dictionary,
-.stream {
-  font-family: monospace;
-  font-size: 13px;
+.array {
+  width: 100%;
+  max-width: 100%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
-.nested {
-  border-left: 1px solid #e5e8eb;
-  margin: 2px 0;
+.dictionary::-webkit-scrollbar,
+.array::-webkit-scrollbar {
+  height: 6px;
+}
+
+.dictionary::-webkit-scrollbar-track,
+.array::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dictionary::-webkit-scrollbar-thumb,
+.array::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.dictionary::-webkit-scrollbar-thumb:hover,
+.array::-webkit-scrollbar-thumb:hover {
+  background: #98a2b3;
 }
 
 .dictRow {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  padding: 1px 0;
+  display: grid;
+
+  grid-template-columns:
+    160px
+    max-content;
+
+  gap: 16px;
+
+  min-width: max-content;
+
+  padding: 6px 10px;
+
+  border-bottom: 1px solid #f0f1f3;
+}
+
+.dictRow:last-child {
+  border-bottom: 0;
+}
+
+.dictRow:hover {
+  background: #f9fafb;
 }
 
 .dictKey {
-  color: #cf222e;
-  font-weight: 600;
-  flex-shrink: 0;
+  min-width: 0;
+
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 500;
+
+  color: #475467;
 }
 
-.arrayItem {
+.dictValue {
+  min-width: 0;
+
+  font-family: monospace;
+  font-size: 13px;
+
+  color: #101828;
+}
+
+.array {
   display: flex;
-  gap: 6px;
-  padding: 1px 0;
+  flex-direction: column;
+
+  min-width: 220px;
+
+  border: 1px solid #eaecf0;
+  border-radius: 6px;
+
+  overflow: hidden;
+}
+
+.arrayRow {
+  display: grid;
+
+  grid-template-columns:
+    32px
+    max-content;
+
+  min-width: max-content;
+
+  border-bottom: 1px solid #f2f4f7;
+}
+
+.arrayRow:last-child {
+  border-bottom: 0;
 }
 
 .arrayIndex {
-  color: #888;
-  min-width: 2ch;
-  flex-shrink: 0;
-}
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-.streamDict {
-  margin-bottom: 4px;
-}
-
-.streamMeta {
-  color: #57606a;
-  font-size: 12px;
   font-family: monospace;
+  font-size: 11px;
+
+  color: #98a2b3;
+
+  background: #f9fafb;
+
+  border-right: 1px solid #f2f4f7;
 }
 
-.streamPreview {
-  color: #656d76;
+.arrayValue {
+  min-width: max-content;
+
+  white-space: nowrap;
+
+  padding: 4px 8px;
+}
+
+.reference {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 2px 6px;
+
+  border: 0;
+  border-radius: 4px;
+
+  background: #eff4ff;
+
+  font-family: monospace;
+  font-size: 12px;
+
+  color: #175cd3;
+
+  cursor: pointer;
+}
+
+.reference:hover {
+  background: #dbe7ff;
+}
+
+.name {
+  font-family: monospace;
+
+  color: #6941c6;
+}
+
+.string {
+  font-family: monospace;
+
+  color: #067647;
+}
+
+.number {
+  font-family: monospace;
+
+  color: #b54708;
+}
+
+.boolean {
+  font-family: monospace;
+
+  color: #175cd3;
+}
+
+.null {
+  font-family: monospace;
+
+  color: #98a2b3;
+}
+
+.hexstring {
+  font-family: monospace;
+
+  color: #7f56d9;
+}
+
+.empty {
+  font-size: 12px;
+
+  color: #98a2b3;
 }
 
 .depthLimit {
-  color: #d1242f;
-  font-style: italic;
+  font-size: 12px;
+
+  color: #b42318;
+}
+
+.stream {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.streamDict {
+  border: 1px solid #eaecf0;
+  border-radius: 8px;
+
+  overflow: hidden;
+}
+
+.streamMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 8px 10px;
+
+  border-radius: 6px;
+
+  background: #f9fafb;
+
+  font-size: 12px;
+  color: #667085;
+}
+
+.streamPreview {
+  padding: 8px 10px;
+
+  border: 1px solid #eaecf0;
+  border-radius: 6px;
+
+  overflow: hidden;
+
+  font-family: monospace;
+  font-size: 11px;
+
+  color: #475467;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
