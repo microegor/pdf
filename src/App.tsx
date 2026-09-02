@@ -71,10 +71,8 @@ function App() {
 
   const [filter, setFilter] = useState("");
 
-  // История открытых объектов
   const [history, setHistory] = useState<PdfListItem[]>([]);
 
-  // Индекс текущего объекта в истории
   const [historyIndex, setHistoryIndex] = useState(-1);
 
   const filteredObjects = useMemo(() => {
@@ -101,11 +99,6 @@ function App() {
     });
   }, [objects, filter]);
 
-  /**
-   * Клик по объекту в левом списке.
-   *
-   * Считаем такой клик началом новой истории.
-   */
   const handleObjectSelect = (item: PdfListItem) => {
     setSelectedObject(item);
 
@@ -113,21 +106,7 @@ function App() {
     setHistoryIndex(0);
   };
 
-  /**
-   * Клик по reference внутри PDF объекта.
-   *
-   * Например:
-   *
-   * 1 0 R
-   *   ↓
-   * 5 0 R
-   *   ↓
-   * 12 0 R
-   *
-   * История станет:
-   *
-   * 1 0 R / 5 0 R / 12 0 R
-   */
+
   const handleReferenceClick = (
     objectNumber: number,
     generation: number,
@@ -176,9 +155,6 @@ function App() {
     setSelectedObject(target);
   };
 
-  /**
-   * Клик по BreadCrumb.
-   */
   const handleBreadCrumbSelect = (id: string) => {
     const index = Number(id);
 
@@ -197,10 +173,7 @@ function App() {
     setSelectedObject(target);
   };
 
-  /**
-   * Преобразуем историю PDF объектов
-   * в формат, который понимает BreadCrumbs.
-   */
+
   const breadCrumbItems = history.map(
     (item, index) => ({
       id: String(index),
@@ -276,23 +249,29 @@ function App() {
     >
       {/* HEADER */}
 
-      <Stack
-        direction="row"
-        spacing={1}
-        sx={{
-          width: "100%",
-          height: 70,
-          alignItems: "center",
-          justifyContent: "center",
-          border: "1px solid #ccc",
-        }}
-      >
-        <Button
-          size="big"
-          variant="contained"
-          text="Add"
-          onClick={handleOpenModal}
-        />
+      <div className="toolbar">
+        <div className="toolbar__left">
+          <div className="toolbar__logo">
+            PDF Inspector
+          </div>
+
+          {pdfFile && (
+            <div className="toolbar__file">
+              {pdfFile.name}
+            </div>
+          )}
+        </div>
+
+        <div className="toolbar__right">
+          <Preloader />
+
+          <Button
+            size="big"
+            variant="contained"
+            text="+ Add PDF"
+            onClick={handleOpenModal}
+          />
+        </div>
 
         <Modal
           open={modalOpen}
@@ -306,16 +285,10 @@ function App() {
           />
 
           {pdfFile && (
-            <p>
-              Выбран файл: {pdfFile.name}
-            </p>
+            <p>Выбран файл: {pdfFile.name}</p>
           )}
         </Modal>
-
-        <div>
-          <Preloader />
-        </div>
-      </Stack>
+      </div>
 
       {/* MAIN */}
 
@@ -339,14 +312,18 @@ function App() {
             minHeight: 0,
           }}
         >
-          <input
-            className="fill"
-            value={filter}
-            onChange={(event) =>
-              setFilter(event.target.value)
-            }
-            placeholder="Filter objects..."
-          />
+          <div className="searchBox">
+            <span className="searchIcon">⌕</span>
+
+            <input
+              className="searchInput"
+              value={filter}
+              onChange={(event) =>
+                setFilter(event.target.value)
+              }
+              placeholder="Search objects..."
+            />
+          </div>
 
           <div
             style={{
