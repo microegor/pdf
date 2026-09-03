@@ -1,6 +1,16 @@
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
 .toolbar {
   width: 100%;
   height: 52px;
+  flex-shrink: 0;
 
   display: flex;
   align-items: center;
@@ -20,6 +30,7 @@
   align-items: center;
 
   min-width: 0;
+
   gap: 14px;
 }
 
@@ -37,6 +48,7 @@
   max-width: 360px;
 
   overflow: hidden;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 

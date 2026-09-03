@@ -37,9 +37,7 @@ function getObjectKind(value: PDFObject): string {
 
 function getObjectType(value: PDFObject): string | null {
   if (value.type === "dictionary") {
-    const typeEntry =
-      value.entries.get("Type") ??
-      value.entries.get("/Type");
+    const typeEntry = value.entries.get("Type") ?? value.entries.get("/Type");
 
     if (typeEntry?.type === "name") {
       return typeEntry.value;
@@ -47,9 +45,7 @@ function getObjectType(value: PDFObject): string | null {
   }
 
   if (value.type === "stream") {
-    const typeEntry =
-      value.dictionary.entries.get("Type") ??
-      value.dictionary.entries.get("/Type");
+    const typeEntry = value.dictionary.entries.get("Type") ?? value.dictionary.entries.get("/Type");
 
     if (typeEntry?.type === "name") {
       return typeEntry.value;
@@ -66,8 +62,7 @@ function App() {
 
   const [objects, setObjects] = useState<PdfListItem[]>([]);
 
-  const [selectedObject, setSelectedObject] =
-    useState<PdfListItem | null>(null);
+  const [selectedObject, setSelectedObject] = useState<PdfListItem | null>(null);
 
   const [filter, setFilter] = useState("");
 
@@ -106,21 +101,13 @@ function App() {
     setHistoryIndex(0);
   };
 
-
-  const handleReferenceClick = (
-    objectNumber: number,
-    generation: number,
-  ) => {
+  const handleReferenceClick = (objectNumber: number, generation: number) => {
     const target = objects.find(
-      (item) =>
-        item.objectNumber === objectNumber &&
-        item.generation === generation,
+      (item) => item.objectNumber === objectNumber && item.generation === generation,
     );
 
     if (!target) {
-      console.warn(
-        `Object ${objectNumber} ${generation} R not found`,
-      );
+      console.warn(`Object ${objectNumber} ${generation} R not found`);
 
       return;
     }
@@ -141,10 +128,7 @@ function App() {
      *
      * 1 / 5 / 12 / 20 / 30
      */
-    const newHistory = history.slice(
-      0,
-      historyIndex + 1,
-    );
+    const newHistory = history.slice(0, historyIndex + 1);
 
     newHistory.push(target);
 
@@ -173,17 +157,12 @@ function App() {
     setSelectedObject(target);
   };
 
+  const breadCrumbItems = history.map((item, index) => ({
+    id: String(index),
+    label: `${item.objectNumber} ${item.generation} R`,
+  }));
 
-  const breadCrumbItems = history.map(
-    (item, index) => ({
-      id: String(index),
-      label: `${item.objectNumber} ${item.generation} R`,
-    }),
-  );
-
-  const handleFileChange = async (
-    file: File | null,
-  ) => {
+  const handleFileChange = async (file: File | null) => {
     if (!file) {
       return;
     }
@@ -198,9 +177,7 @@ function App() {
 
     const doc = parse(buf);
 
-    const items: PdfListItem[] = Array.from(
-      doc.objects.entries(),
-    ).map(([id, indirectObject]) => ({
+    const items: PdfListItem[] = Array.from(doc.objects.entries()).map(([id, indirectObject]) => ({
       id,
 
       objectNumber: indirectObject.objectNumber,
@@ -245,48 +222,31 @@ function App() {
       sx={{
         width: "100%",
         height: "100%",
+        minHeight: 0,
+        overflow: "hidden",
       }}
     >
       {/* HEADER */}
 
       <div className="toolbar">
         <div className="toolbar__left">
-          <div className="toolbar__logo">
-            PDF Inspector
-          </div>
+          <div className="toolbar__logo">PDF Inspector</div>
 
-          {pdfFile && (
-            <div className="toolbar__file">
-              {pdfFile.name}
-            </div>
-          )}
+          {pdfFile && <div className="toolbar__file">{pdfFile.name}</div>}
         </div>
 
         <div className="toolbar__right">
           <Preloader />
 
-          <Button
-            size="big"
-            variant="contained"
-            text="+ Add PDF"
-            onClick={handleOpenModal}
-          />
+          <Button size="big" variant="contained" text="+ Add PDF" onClick={handleOpenModal} />
         </div>
 
-        <Modal
-          open={modalOpen}
-          onClose={handleCloseModal}
-        >
+        <Modal open={modalOpen} onClose={handleCloseModal}>
           <h2>Добавить PDF</h2>
 
-          <DropZone
-            accept="application/pdf"
-            onChange={handleFileChange}
-          />
+          <DropZone accept="application/pdf" onChange={handleFileChange} />
 
-          {pdfFile && (
-            <p>Выбран файл: {pdfFile.name}</p>
-          )}
+          {pdfFile && <p>Выбран файл: {pdfFile.name}</p>}
         </Modal>
       </div>
 
@@ -299,6 +259,7 @@ function App() {
           width: "100%",
           flex: 1,
           minHeight: 0,
+          overflow: "hidden",
         }}
       >
         {/* LEFT SIDEBAR */}
@@ -310,45 +271,41 @@ function App() {
             width: 300,
             height: "100%",
             minHeight: 0,
+            overflow: "hidden",
           }}
         >
+          {/* SEARCH */}
+
           <div className="searchBox">
             <span className="searchIcon">⌕</span>
 
             <input
               className="searchInput"
               value={filter}
-              onChange={(event) =>
-                setFilter(event.target.value)
-              }
+              onChange={(event) => setFilter(event.target.value)}
               placeholder="Search objects..."
             />
           </div>
 
+          {/* OBJECT LIST */}
+
           <div
             style={{
               flex: 1,
-              overflow: "auto",
+              minHeight: 0,
+              overflowY: "auto",
+              overflowX: "hidden",
             }}
           >
             {filteredObjects.map((item) => (
               <PdfObjectItem
                 key={item.id}
-                objectNumber={
-                  item.objectNumber
-                }
-                generation={
-                  item.generation
-                }
+                objectNumber={item.objectNumber}
+                generation={item.generation}
                 type={item.kind}
                 pdfType={item.pdfType}
-                active={
-                  selectedObject?.id ===
-                  item.id
-                }
-                onClick={() =>
-                  handleObjectSelect(item)
-                }
+                active={selectedObject?.id === item.id}
+                onClick={() => handleObjectSelect(item)}
               />
             ))}
           </div>
@@ -363,44 +320,20 @@ function App() {
 
               <BreadCrumbs
                 items={breadCrumbItems}
-                activeId={String(
-                  historyIndex,
-                )}
-                onSelect={
-                  handleBreadCrumbSelect
-                }
+                activeId={String(historyIndex)}
+                onSelect={handleBreadCrumbSelect}
               />
 
               {/* CURRENT OBJECT */}
 
               <h2>
-                Object{" "}
-                {
-                  selectedObject.objectNumber
-                }{" "}
-                {
-                  selectedObject.generation
-                }{" "}
-                R
+                Object {selectedObject.objectNumber} {selectedObject.generation} R
               </h2>
 
-              <p>
-                Generation:{" "}
-                {
-                  selectedObject.generation
-                }
-              </p>
+              <p>Generation: {selectedObject.generation}</p>
 
               <p>
-                Type:{" "}
-                {selectedObject.pdfType ??
-                  "—"}{" "}
-                (
-                {
-                  selectedObject.value
-                    .type
-                }
-                )
+                Type: {selectedObject.pdfType ?? "—"} ({selectedObject.value.type})
               </p>
 
               <div
@@ -409,22 +342,10 @@ function App() {
                   textAlign: "left",
                 }}
               >
-                {selectedObject.value
-                  .type === "stream" ? (
-                  <StreamView
-                    value={
-                      selectedObject.value
-                    }
-                  />
+                {selectedObject.value.type === "stream" ? (
+                  <StreamView value={selectedObject.value} />
                 ) : (
-                  <PdfValue
-                    value={
-                      selectedObject.value
-                    }
-                    onReferenceClick={
-                      handleReferenceClick
-                    }
-                  />
+                  <PdfValue value={selectedObject.value} onReferenceClick={handleReferenceClick} />
                 )}
               </div>
             </div>
