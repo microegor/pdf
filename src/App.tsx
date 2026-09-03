@@ -269,6 +269,7 @@ function App() {
           spacing={1}
           sx={{
             width: 300,
+            flex: "0 0 300px",
             height: "100%",
             minHeight: 0,
             overflow: "hidden",
@@ -277,8 +278,6 @@ function App() {
           {/* SEARCH */}
 
           <div className="searchBox">
-            <span className="searchIcon">⌕</span>
-
             <input
               className="searchInput"
               value={filter}
