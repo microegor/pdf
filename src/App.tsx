@@ -216,86 +216,68 @@ function App() {
   };
 
   return (
-    <Stack
-      direction="column"
-      spacing={0}
-      sx={{
-        width: "100%",
-        height: "100%",
-        minHeight: 0,
-        overflow: "hidden",
-      }}
-    >
+    <div className="app">
       {/* HEADER */}
 
       <div className="toolbar">
         <div className="toolbar__left">
-          <div className="toolbar__logo">PDF Inspector</div>
+          <div className="toolbar__logo">
+            PDF Inspector
+          </div>
 
-          {pdfFile && <div className="toolbar__file">{pdfFile.name}</div>}
+          {pdfFile && (
+            <div className="toolbar__file">
+              {pdfFile.name}
+            </div>
+          )}
         </div>
 
         <div className="toolbar__right">
           <Preloader />
 
-          <Button size="big" variant="contained" text="+ Add PDF" onClick={handleOpenModal} />
+          <Button
+            size="big"
+            variant="contained"
+            text="+ Add PDF"
+            onClick={handleOpenModal}
+          />
         </div>
 
-        <Modal open={modalOpen} onClose={handleCloseModal}>
+        <Modal
+          open={modalOpen}
+          onClose={handleCloseModal}
+        >
           <h2>Добавить PDF</h2>
 
-          <DropZone accept="application/pdf" onChange={handleFileChange} />
+          <DropZone
+            accept="application/pdf"
+            onChange={handleFileChange}
+          />
 
-          {pdfFile && <p>Выбран файл: {pdfFile.name}</p>}
+          {pdfFile && (
+            <p>Выбран файл: {pdfFile.name}</p>
+          )}
         </Modal>
       </div>
 
       {/* MAIN */}
 
-      <Stack
-        direction="row"
-        spacing={0}
-        sx={{
-          width: "100%",
-          flex: 1,
-          minHeight: 0,
-          overflow: "hidden",
-        }}
-      >
+      <main className="main">
         {/* LEFT SIDEBAR */}
 
-        <Stack
-          direction="column"
-          spacing={1}
-          sx={{
-            width: 300,
-            flex: "0 0 300px",
-            height: "100%",
-            minHeight: 0,
-            overflow: "hidden",
-          }}
-        >
-          {/* SEARCH */}
-
+        <aside className="sidebar">
           <div className="searchBox">
             <input
               className="searchInput"
               value={filter}
-              onChange={(event) => setFilter(event.target.value)}
+              onChange={(event) =>
+                setFilter(event.target.value)
+              }
               placeholder="Search objects..."
             />
           </div>
 
-          {/* OBJECT LIST */}
-
-          <div
-            style={{
-              flex: 1,
-              minHeight: 0,
-              overflowY: "auto",
-              overflowX: "hidden",
-            }}
-          >
+          <div className="objectList">
             {filteredObjects.map((item) => (
               <PdfObjectItem
                 key={item.id}
@@ -303,36 +285,40 @@ function App() {
                 generation={item.generation}
                 type={item.kind}
                 pdfType={item.pdfType}
-                active={selectedObject?.id === item.id}
-                onClick={() => handleObjectSelect(item)}
+                active={
+                  selectedObject?.id === item.id
+                }
+                onClick={() =>
+                  handleObjectSelect(item)
+                }
               />
             ))}
           </div>
-        </Stack>
+        </aside>
 
         {/* OBJECT SCREEN */}
 
         <div className="screen">
           {selectedObject ? (
             <div>
-              {/* BREAD CRUMBS */}
-
               <BreadCrumbs
                 items={breadCrumbItems}
                 activeId={String(historyIndex)}
                 onSelect={handleBreadCrumbSelect}
               />
 
-              {/* CURRENT OBJECT */}
-
               <h2>
-                Object {selectedObject.objectNumber} {selectedObject.generation} R
+                Object {selectedObject.objectNumber}{" "}
+                {selectedObject.generation} R
               </h2>
 
-              <p>Generation: {selectedObject.generation}</p>
+              <p>
+                Generation: {selectedObject.generation}
+              </p>
 
               <p>
-                Type: {selectedObject.pdfType ?? "—"} ({selectedObject.value.type})
+                Type: {selectedObject.pdfType ?? "—"} (
+                {selectedObject.value.type})
               </p>
 
               <div
@@ -344,7 +330,10 @@ function App() {
                 {selectedObject.value.type === "stream" ? (
                   <StreamView value={selectedObject.value} />
                 ) : (
-                  <PdfValue value={selectedObject.value} onReferenceClick={handleReferenceClick} />
+                  <PdfValue
+                    value={selectedObject.value}
+                    onReferenceClick={handleReferenceClick}
+                  />
                 )}
               </div>
             </div>
@@ -352,8 +341,8 @@ function App() {
             <p>Выберите объект</p>
           )}
         </div>
-      </Stack>
-    </Stack>
+      </main>
+    </div>
   );
 }
 

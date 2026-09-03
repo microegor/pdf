@@ -2,6 +2,7 @@
 .array {
   width: 100%;
   max-width: 100%;
+  min-width: 0;
 
   overflow-x: auto;
   overflow-y: hidden;
@@ -35,12 +36,12 @@
   display: grid;
 
   grid-template-columns:
-    160px
-    max-content;
+    160px max-content;
 
   gap: 16px;
 
-  min-width: max-content;
+  width: max-content;
+  min-width: 100%;
 
   padding: 6px 10px;
 
@@ -90,16 +91,12 @@
   display: grid;
 
   grid-template-columns:
-    32px
-    max-content;
+    32px max-content;
 
-  min-width: max-content;
+  width: max-content;
+  min-width: 100%;
 
   border-bottom: 1px solid #f2f4f7;
-}
-
-.arrayRow:last-child {
-  border-bottom: 0;
 }
 
 .arrayIndex {
@@ -118,7 +115,7 @@
 }
 
 .arrayValue {
-  min-width: max-content;
+  min-width: 0;
 
   white-space: nowrap;
 
