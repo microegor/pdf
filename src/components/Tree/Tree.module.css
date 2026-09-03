@@ -1,26 +1,20 @@
-.treeContainer {
-  flex-direction: column;
-  display: flex;
-}
-
 .treeNode {
   display: flex;
   flex-direction: column;
-
-  &selected {
-    background-color: rgb(161, 158, 158);
-  }
 }
 
 .treeNodeHeader {
   display: flex;
   align-items: center;
+
   gap: 8px;
 
   padding: 6px 15px;
+
   border-radius: 6px;
 
   cursor: pointer;
+
   user-select: none;
 }
 
@@ -33,10 +27,12 @@
 }
 
 .treeNodeArrow {
-  width: 16px;
-  font-size: 12px;
   display: flex;
   justify-content: center;
+
+  width: 16px;
+
+  font-size: 12px;
 }
 
 .treeNodeChildren {
