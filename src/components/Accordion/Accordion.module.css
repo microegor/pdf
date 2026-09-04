@@ -1,4 +1,4 @@
-.accordion {
+.root {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -8,6 +8,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
+
   font-family: Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -16,18 +17,24 @@
 
   width: 100%;
   padding: 16px 48px 16px 16px;
+
   box-sizing: border-box;
 
   border: 0;
+
   background: transparent;
+
   color: inherit;
+
   font: inherit;
   text-align: left;
+
   cursor: pointer;
 }
 
 .title::after {
   position: absolute;
+
   top: 50%;
   right: 20px;
 
@@ -38,7 +45,9 @@
   border-bottom: 2px solid #777;
 
   content: "";
+
   transform: translateY(-70%) rotate(45deg);
+
   transition: transform 150ms ease;
 }
 
@@ -48,7 +57,9 @@
 
 .contentWrapper {
   display: grid;
+
   grid-template-rows: 0fr;
+
   opacity: 0;
 
   transition:
@@ -63,24 +74,24 @@
 
 .content {
   min-height: 0;
+
   overflow: hidden;
+
   padding-inline: 16px;
 }
 
-.contentWrapperOpen .Content {
+.contentWrapperOpen .content {
   padding-bottom: 16px;
 }
 
 .title:disabled {
   background-color: #f2f2f2;
+
   color: #999;
+
   cursor: not-allowed;
 }
 
 .title:disabled::after {
   border-color: #aaa;
-}
-
-.content:disabled {
-  opacity: 0;
 }

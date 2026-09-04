@@ -36,18 +36,12 @@ export function PdfObjectItem({
   return (
     <button
       type="button"
-      className={`${styles["pdf-object"]} ${
-        active ? styles["pdf-object--active"] : ""
-      }`}
+      className={`${styles["pdf-object"]} ${active ? styles["pdf-object--active"] : ""}`}
       onClick={onClick}
     >
       <div className={styles["pdf-object__info"]}>
         <div className={styles["pdf-object__main"]}>
-          {symbol && (
-            <span className={styles["pdf-object__symbol"]}>
-              {symbol}
-            </span>
-          )}
+          {symbol && <span className={styles["pdf-object__symbol"]}>{symbol}</span>}
 
           <span className={styles["pdf-object__number"]}>
             {objectNumber} {generation} R

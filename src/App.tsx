@@ -37,9 +37,7 @@ function getObjectKind(value: PDFObject): string {
 
 function getObjectType(value: PDFObject): string | null {
   if (value.type === "dictionary") {
-    const typeEntry =
-      value.entries.get("Type") ??
-      value.entries.get("/Type");
+    const typeEntry = value.entries.get("Type") ?? value.entries.get("/Type");
 
     if (typeEntry?.type === "name") {
       return typeEntry.value;
@@ -47,9 +45,7 @@ function getObjectType(value: PDFObject): string | null {
   }
 
   if (value.type === "stream") {
-    const typeEntry =
-      value.dictionary.entries.get("Type") ??
-      value.dictionary.entries.get("/Type");
+    const typeEntry = value.dictionary.entries.get("Type") ?? value.dictionary.entries.get("/Type");
 
     if (typeEntry?.type === "name") {
       return typeEntry.value;
@@ -66,8 +62,7 @@ function App() {
 
   const [objects, setObjects] = useState<PdfListItem[]>([]);
 
-  const [selectedObject, setSelectedObject] =
-    useState<PdfListItem | null>(null);
+  const [selectedObject, setSelectedObject] = useState<PdfListItem | null>(null);
 
   const [filter, setFilter] = useState("");
 
@@ -106,21 +101,13 @@ function App() {
     setHistoryIndex(0);
   };
 
-
-  const handleReferenceClick = (
-    objectNumber: number,
-    generation: number,
-  ) => {
+  const handleReferenceClick = (objectNumber: number, generation: number) => {
     const target = objects.find(
-      (item) =>
-        item.objectNumber === objectNumber &&
-        item.generation === generation,
+      (item) => item.objectNumber === objectNumber && item.generation === generation,
     );
 
     if (!target) {
-      console.warn(
-        `Object ${objectNumber} ${generation} R not found`,
-      );
+      console.warn(`Object ${objectNumber} ${generation} R not found`);
 
       return;
     }
@@ -141,10 +128,7 @@ function App() {
      *
      * 1 / 5 / 12 / 20 / 30
      */
-    const newHistory = history.slice(
-      0,
-      historyIndex + 1,
-    );
+    const newHistory = history.slice(0, historyIndex + 1);
 
     newHistory.push(target);
 
@@ -173,17 +157,12 @@ function App() {
     setSelectedObject(target);
   };
 
+  const breadCrumbItems = history.map((item, index) => ({
+    id: String(index),
+    label: `${item.objectNumber} ${item.generation} R`,
+  }));
 
-  const breadCrumbItems = history.map(
-    (item, index) => ({
-      id: String(index),
-      label: `${item.objectNumber} ${item.generation} R`,
-    }),
-  );
-
-  const handleFileChange = async (
-    file: File | null,
-  ) => {
+  const handleFileChange = async (file: File | null) => {
     if (!file) {
       return;
     }
@@ -198,9 +177,7 @@ function App() {
 
     const doc = parse(buf);
 
-    const items: PdfListItem[] = Array.from(
-      doc.objects.entries(),
-    ).map(([id, indirectObject]) => ({
+    const items: PdfListItem[] = Array.from(doc.objects.entries()).map(([id, indirectObject]) => ({
       id,
 
       objectNumber: indirectObject.objectNumber,
@@ -239,14 +216,7 @@ function App() {
   };
 
   return (
-    <Stack
-      direction="column"
-      spacing={0}
-      sx={{
-        width: "100%",
-        height: "100%",
-      }}
-    >
+    <div className="app">
       {/* HEADER */}
 
       <div className="toolbar">
@@ -292,29 +262,11 @@ function App() {
 
       {/* MAIN */}
 
-      <Stack
-        direction="row"
-        spacing={0}
-        sx={{
-          width: "100%",
-          flex: 1,
-          minHeight: 0,
-        }}
-      >
+      <main className="main">
         {/* LEFT SIDEBAR */}
 
-        <Stack
-          direction="column"
-          spacing={1}
-          sx={{
-            width: 300,
-            height: "100%",
-            minHeight: 0,
-          }}
-        >
+        <aside className="sidebar">
           <div className="searchBox">
-            <span className="searchIcon">⌕</span>
-
             <input
               className="searchInput"
               value={filter}
@@ -325,26 +277,16 @@ function App() {
             />
           </div>
 
-          <div
-            style={{
-              flex: 1,
-              overflow: "auto",
-            }}
-          >
+          <div className="objectList">
             {filteredObjects.map((item) => (
               <PdfObjectItem
                 key={item.id}
-                objectNumber={
-                  item.objectNumber
-                }
-                generation={
-                  item.generation
-                }
+                objectNumber={item.objectNumber}
+                generation={item.generation}
                 type={item.kind}
                 pdfType={item.pdfType}
                 active={
-                  selectedObject?.id ===
-                  item.id
+                  selectedObject?.id === item.id
                 }
                 onClick={() =>
                   handleObjectSelect(item)
@@ -352,55 +294,31 @@ function App() {
               />
             ))}
           </div>
-        </Stack>
+        </aside>
 
         {/* OBJECT SCREEN */}
 
         <div className="screen">
           {selectedObject ? (
             <div>
-              {/* BREAD CRUMBS */}
-
               <BreadCrumbs
                 items={breadCrumbItems}
-                activeId={String(
-                  historyIndex,
-                )}
-                onSelect={
-                  handleBreadCrumbSelect
-                }
+                activeId={String(historyIndex)}
+                onSelect={handleBreadCrumbSelect}
               />
 
-              {/* CURRENT OBJECT */}
-
               <h2>
-                Object{" "}
-                {
-                  selectedObject.objectNumber
-                }{" "}
-                {
-                  selectedObject.generation
-                }{" "}
-                R
+                Object {selectedObject.objectNumber}{" "}
+                {selectedObject.generation} R
               </h2>
 
               <p>
-                Generation:{" "}
-                {
-                  selectedObject.generation
-                }
+                Generation: {selectedObject.generation}
               </p>
 
               <p>
-                Type:{" "}
-                {selectedObject.pdfType ??
-                  "—"}{" "}
-                (
-                {
-                  selectedObject.value
-                    .type
-                }
-                )
+                Type: {selectedObject.pdfType ?? "—"} (
+                {selectedObject.value.type})
               </p>
 
               <div
@@ -409,21 +327,12 @@ function App() {
                   textAlign: "left",
                 }}
               >
-                {selectedObject.value
-                  .type === "stream" ? (
-                  <StreamView
-                    value={
-                      selectedObject.value
-                    }
-                  />
+                {selectedObject.value.type === "stream" ? (
+                  <StreamView value={selectedObject.value} />
                 ) : (
                   <PdfValue
-                    value={
-                      selectedObject.value
-                    }
-                    onReferenceClick={
-                      handleReferenceClick
-                    }
+                    value={selectedObject.value}
+                    onReferenceClick={handleReferenceClick}
                   />
                 )}
               </div>
@@ -432,8 +341,8 @@ function App() {
             <p>Выберите объект</p>
           )}
         </div>
-      </Stack>
-    </Stack>
+      </main>
+    </div>
   );
 }
 
