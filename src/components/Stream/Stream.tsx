@@ -10,12 +10,25 @@ type StreamObject = Extract<PDFObject, { type: "stream" }>;
 
 type Props = {
   value: StreamObject;
+  onReferenceClick?: (
+    objectNumber: number,
+    generation: number,
+  ) => void;
+};
 
-  onReferenceClick?: (objectNumber: number, generation: number) => void;
+type StreamTextProps = {
+  text: string;
+  onReferenceClick?: (
+    objectNumber: number,
+    generation: number,
+  ) => void;
 };
 
 function bytesToText(data: Uint8Array, limit = 100_000): string {
-  const visible = data.subarray(0, Math.min(data.length, limit));
+  const visible = data.subarray(
+    0,
+    Math.min(data.length, limit),
+  );
 
   const text = new TextDecoder("latin1").decode(visible);
 
@@ -26,7 +39,57 @@ function bytesToText(data: Uint8Array, limit = 100_000): string {
   return text;
 }
 
-export function StreamView({ value, onReferenceClick }: Props) {
+function StreamText({
+  text,
+  onReferenceClick,
+}: StreamTextProps) {
+  // Не матчим R внутри операторов RG и т.п.
+  const referenceRegex = /(\d+)\s+(\d+)\s+R(?![A-Za-z])/g;
+
+  const result: React.ReactNode[] = [];
+
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = referenceRegex.exec(text)) !== null) {
+    result.push(text.slice(lastIndex, match.index));
+
+    const objectNumber = Number(match[1]);
+    const generation = Number(match[2]);
+
+    result.push(
+      <button
+        key={`${match.index}-${objectNumber}-${generation}`}
+        type="button"
+        onClick={() => {
+          console.log(
+            "reference click:",
+            objectNumber,
+            generation,
+          );
+
+          onReferenceClick?.(
+            objectNumber,
+            generation,
+          );
+        }}
+      >
+        {objectNumber} {generation} R
+      </button>,
+    );
+
+    lastIndex = referenceRegex.lastIndex;
+  }
+
+  result.push(text.slice(lastIndex));
+
+  return <>{result}</>;
+}
+
+export function StreamView({
+  value,
+  onReferenceClick,
+}: Props) {
   const decoded = useMemo(() => {
     try {
       const data = decodeStream(value);
@@ -39,7 +102,10 @@ export function StreamView({ value, onReferenceClick }: Props) {
     } catch (error) {
       return {
         ok: false as const,
-        error: error instanceof Error ? error.message : String(error),
+        error:
+          error instanceof Error
+            ? error.message
+            : String(error),
       };
     }
   }, [value]);
@@ -48,7 +114,10 @@ export function StreamView({ value, onReferenceClick }: Props) {
     <div>
       <h3>Stream</h3>
 
-      <PdfValue value={value.dictionary} onReferenceClick={onReferenceClick} />
+      <PdfValue
+        value={value.dictionary}
+        onReferenceClick={onReferenceClick}
+      />
 
       <h4>Raw data</h4>
 
@@ -74,12 +143,19 @@ export function StreamView({ value, onReferenceClick }: Props) {
                   maxHeight: 600,
                 }}
               >
-                {decoded.text}
+                <StreamText
+                  text={decoded.text}
+                  onReferenceClick={onReferenceClick}
+                />
               </pre>
             </Tab>
 
             <Tab value="hex" text="Hex">
-              <HexView data={decoded.data} limit={decoded.data.length} maxHeight={600} />
+              <HexView
+                data={decoded.data}
+                limit={decoded.data.length}
+                maxHeight={600}
+              />
             </Tab>
           </Tabs>
         </>
