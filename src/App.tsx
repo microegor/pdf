@@ -68,18 +68,18 @@ function App() {
   const [objects, setObjects] = useState<PdfListItem[]>([]);
 
   const [filter, setFilter] = useState("");
-
+  
   // Вся object-navigation теперь живёт здесь.
   const {
-    currentObject: selectedObject,
-    history,
-    historyIndex,
     openObject,
     openReference,
     goToHistoryItem,
     reset,
+    history,
+    historyIndex,
+    currentObject
   } = useObjectNavigation(objects);
-
+  
   const filteredObjects = useMemo(() => {
     const query = filter.trim().toLowerCase();
 
@@ -144,11 +144,8 @@ function App() {
 
     // Новый PDF — очищаем navigation state.
     reset();
-
     setPdfFile(file);
 
-    console.log(doc);
-    console.log("Полученный PDF:", file);
   };
 
   const handleOpenModal = () => {
@@ -229,7 +226,7 @@ function App() {
                 generation={item.generation}
                 type={item.kind}
                 pdfType={item.pdfType}
-                active={selectedObject?.id === item.id}
+                active={currentObject?.id === item.id}
                 onClick={() => openObject(item)}
               />
             ))}
@@ -239,7 +236,7 @@ function App() {
         {/* OBJECT SCREEN */}
 
         <div className="screen">
-          {selectedObject ? (
+          {currentObject ? (
             <div>
               <BreadCrumbs
                 items={breadCrumbItems}
@@ -250,17 +247,17 @@ function App() {
               />
 
               <h2>
-                Object {selectedObject.objectNumber}{" "}
-                {selectedObject.generation} R
+                Object {currentObject.objectNumber}{" "}
+                {currentObject.generation} R
               </h2>
 
               <p>
-                Generation: {selectedObject.generation}
+                Generation: {currentObject.generation}
               </p>
 
               <p>
-                Type: {selectedObject.pdfType ?? "—"} (
-                {selectedObject.value.type})
+                Type: {currentObject.pdfType ?? "—"} (
+                {currentObject.value.type})
               </p>
 
               <div
@@ -269,14 +266,14 @@ function App() {
                   textAlign: "left",
                 }}
               >
-                {selectedObject.value.type === "stream" ? (
+                {currentObject.value.type === "stream" ? (
                   <StreamView
-                    value={selectedObject.value}
-                    onReferenceClick={handleReferenceClick}
+                    value={currentObject.value}
+                    onReferenceClick={openReference}
                   />
                 ) : (
                   <PdfValue
-                    value={selectedObject.value}
+                    value={currentObject.value}
                     onReferenceClick={openReference}
                   />
                 )}

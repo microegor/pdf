@@ -21,7 +21,10 @@ export function useObjectNavigation<T extends NavigableObject>(
   const currentObject = getCurrentObject(state);
 
   const openObject = useCallback((object: T) => {
-    setState(startNavigation(object));
+    setState({
+      ...startNavigation(object),
+      
+  });
   }, []);
 
   const openReference = useCallback(
