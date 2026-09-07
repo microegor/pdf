@@ -9,8 +9,9 @@ import { Preloader } from "./components/Loader";
 import { Modal } from "./components/Modal";
 import { PdfObjectItem } from "./components/ObjectItem";
 import { PdfValue } from "./components/PdfValue";
-import { Stack } from "./components/Stack";
 import { StreamView } from "./components/Stream";
+
+import { useObjectNavigation } from "./features/ObjectNavigation.tsx";
 
 import { parse, type PDFObject } from "./reader";
 
@@ -37,7 +38,9 @@ function getObjectKind(value: PDFObject): string {
 
 function getObjectType(value: PDFObject): string | null {
   if (value.type === "dictionary") {
-    const typeEntry = value.entries.get("Type") ?? value.entries.get("/Type");
+    const typeEntry =
+      value.entries.get("Type") ??
+      value.entries.get("/Type");
 
     if (typeEntry?.type === "name") {
       return typeEntry.value;
@@ -45,7 +48,9 @@ function getObjectType(value: PDFObject): string | null {
   }
 
   if (value.type === "stream") {
-    const typeEntry = value.dictionary.entries.get("Type") ?? value.dictionary.entries.get("/Type");
+    const typeEntry =
+      value.dictionary.entries.get("Type") ??
+      value.dictionary.entries.get("/Type");
 
     if (typeEntry?.type === "name") {
       return typeEntry.value;
@@ -62,13 +67,18 @@ function App() {
 
   const [objects, setObjects] = useState<PdfListItem[]>([]);
 
-  const [selectedObject, setSelectedObject] = useState<PdfListItem | null>(null);
-
   const [filter, setFilter] = useState("");
 
-  const [history, setHistory] = useState<PdfListItem[]>([]);
-
-  const [historyIndex, setHistoryIndex] = useState(-1);
+  // Вся object-navigation теперь живёт здесь.
+  const {
+    currentObject: selectedObject,
+    history,
+    historyIndex,
+    openObject,
+    openReference,
+    goToHistoryItem,
+    reset,
+  } = useObjectNavigation(objects);
 
   const filteredObjects = useMemo(() => {
     const query = filter.trim().toLowerCase();
@@ -94,69 +104,6 @@ function App() {
     });
   }, [objects, filter]);
 
-  const handleObjectSelect = (item: PdfListItem) => {
-    setSelectedObject(item);
-
-    setHistory([item]);
-    setHistoryIndex(0);
-  };
-
-  const handleReferenceClick = (objectNumber: number, generation: number) => {
-    const target = objects.find(
-      (item) => item.objectNumber === objectNumber && item.generation === generation,
-    );
-
-    if (!target) {
-      console.warn(`Object ${objectNumber} ${generation} R not found`);
-
-      return;
-    }
-
-    /**
-     * Если пользователь сначала вернулся назад:
-     *
-     * 1 / 5 / 12 / 20
-     *     ↑
-     *
-     * а потом из 5 перешёл в 30,
-     *
-     * получаем:
-     *
-     * 1 / 5 / 30
-     *
-     * а не:
-     *
-     * 1 / 5 / 12 / 20 / 30
-     */
-    const newHistory = history.slice(0, historyIndex + 1);
-
-    newHistory.push(target);
-
-    setHistory(newHistory);
-
-    setHistoryIndex(newHistory.length - 1);
-
-    setSelectedObject(target);
-  };
-
-  const handleBreadCrumbSelect = (id: string) => {
-    const index = Number(id);
-
-    if (Number.isNaN(index)) {
-      return;
-    }
-
-    const target = history[index];
-
-    if (!target) {
-      return;
-    }
-
-    setHistoryIndex(index);
-
-    setSelectedObject(target);
-  };
-
   const breadCrumbItems = history.map((item, index) => ({
     id: String(index),
     label: `${item.objectNumber} ${item.generation} R`,
@@ -177,7 +124,9 @@ function App() {
 
     const doc = parse(buf);
 
-    const items: PdfListItem[] = Array.from(doc.objects.entries()).map(([id, indirectObject]) => ({
+    const items: PdfListItem[] = Array.from(
+      doc.objects.entries(),
+    ).map(([id, indirectObject]) => ({
       id,
 
       objectNumber: indirectObject.objectNumber,
@@ -193,13 +142,8 @@ function App() {
 
     setObjects(items);
 
-    // Загружается новый PDF —
-    // очищаем выбранный объект и старую историю.
-    setSelectedObject(null);
-
-    setHistory([]);
-
-    setHistoryIndex(-1);
+    // Новый PDF — очищаем navigation state.
+    reset();
 
     setPdfFile(file);
 
@@ -285,12 +229,8 @@ function App() {
                 generation={item.generation}
                 type={item.kind}
                 pdfType={item.pdfType}
-                active={
-                  selectedObject?.id === item.id
-                }
-                onClick={() =>
-                  handleObjectSelect(item)
-                }
+                active={selectedObject?.id === item.id}
+                onClick={() => openObject(item)}
               />
             ))}
           </div>
@@ -304,7 +244,9 @@ function App() {
               <BreadCrumbs
                 items={breadCrumbItems}
                 activeId={String(historyIndex)}
-                onSelect={handleBreadCrumbSelect}
+                onSelect={(id) =>
+                  goToHistoryItem(Number(id))
+                }
               />
 
               <h2>
@@ -328,11 +270,13 @@ function App() {
                 }}
               >
                 {selectedObject.value.type === "stream" ? (
-                  <StreamView value={selectedObject.value} />
+                  <StreamView
+                    value={selectedObject.value}
+                  />
                 ) : (
                   <PdfValue
                     value={selectedObject.value}
-                    onReferenceClick={handleReferenceClick}
+                    onReferenceClick={openReference}
                   />
                 )}
               </div>
