@@ -272,6 +272,7 @@ function App() {
                 {selectedObject.value.type === "stream" ? (
                   <StreamView
                     value={selectedObject.value}
+                    onReferenceClick={handleReferenceClick}
                   />
                 ) : (
                   <PdfValue
