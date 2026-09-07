@@ -11,7 +11,7 @@ import { PdfObjectItem } from "./components/ObjectItem";
 import { PdfValue } from "./components/PdfValue";
 import { StreamView } from "./components/Stream";
 
-import { useObjectNavigation } from "./features/ObjectNavigation.tsx";
+import { useObjectNavigation } from "./features/ObjectNavigation/index.ts";
 
 import { parse, type PDFObject } from "./reader";
 
