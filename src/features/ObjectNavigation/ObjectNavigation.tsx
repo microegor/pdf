@@ -2,47 +2,39 @@ import { BreadCrumbs } from "../../components/BreadCrumbs";
 import { PdfValue } from "../../components/PdfValue";
 import type { PDFObject } from "../../reader";
 
-type HistoryItem = {
+type NavigationObject = {
   objectNumber: number;
   generation: number;
+  value: PDFObject;
 };
 
-type Props = {
-  currentObject: {
-    objectNumber: number;
-    generation: number;
-    value: PDFObject;
-  };
-
-  history: HistoryItem[];
-  historyIndex: number;
+type Props<T extends NavigationObject> = {
+  currentObject: T;
+  history: readonly T[];
 
   onReferenceClick: (
     objectNumber: number,
     generation: number,
   ) => void;
 
-  onHistoryItemClick: (index: number) => void;
+  onHistoryItemClick: (object: T) => void;
 };
 
-export function ObjectNavigation({
+export function ObjectNavigation<T extends NavigationObject>({
   currentObject,
   history,
-  historyIndex,
   onReferenceClick,
   onHistoryItemClick,
-}: Props) {
-  const breadCrumbItems = history.map((item, index) => ({
-    id: String(index),
-    label: `${item.objectNumber} ${item.generation} R`,
-  }));
-
+}: Props<T>) {
   return (
     <div>
       <BreadCrumbs
-        items={breadCrumbItems}
-        activeId={String(historyIndex)}
-        onSelect={(id) => onHistoryItemClick(Number(id))}
+        items={history}
+        activeItem={currentObject}
+        getLabel={(item) =>
+          `${item.objectNumber} ${item.generation} R`
+        }
+        onSelect={onHistoryItemClick}
       />
 
       <PdfValue

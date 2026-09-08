@@ -11,6 +11,21 @@ import {
   type ObjectNavigationState,
 } from "./navigation";
 
+type NavigationTarget<T extends NavigableObject> =
+  | {
+      type: "object";
+      object: T;
+    }
+  | {
+      type: "reference";
+      objectNumber: number;
+      generation: number;
+    }
+  | {
+      type: "history";
+      object: T;
+    };
+
 export function useObjectNavigation<T extends NavigableObject>(
   objects: readonly T[],
 ) {
@@ -20,40 +35,41 @@ export function useObjectNavigation<T extends NavigableObject>(
 
   const currentObject = getCurrentObject(state);
 
-  const openObject = useCallback((object: T) => {
-    setState({
-      ...startNavigation(object),
-      
-  });
-  }, []);
+  const navigate = useCallback(
+    (target: NavigationTarget<T>) => {
+      setState((currentState) => {
+        switch (target.type) {
+          case "object":
+            return startNavigation(target.object);
 
-  const openReference = useCallback(
-    (objectNumber: number, generation: number) => {
-      const target = findObjectByReference(
-        objects,
-        objectNumber,
-        generation,
-      );
+          case "reference": {
+            const object = findObjectByReference(
+              objects,
+              target.objectNumber,
+              target.generation,
+            );
 
-      if (!target) {
-        console.warn(
-          `Object ${objectNumber} ${generation} R not found`,
-        );
-        return;
-      }
+            if (!object) {
+              console.warn(
+                `Object ${target.objectNumber} ${target.generation} R not found`,
+              );
 
-      setState((currentState) =>
-        followReference(currentState, target),
-      );
+              return currentState;
+            }
+
+            return followReference(currentState, object);
+          }
+
+          case "history":
+            return selectHistoryItem(
+              currentState,
+              target.object,
+            );
+        }
+      });
     },
     [objects],
   );
-
-  const goToHistoryItem = useCallback((index: number) => {
-    setState((currentState) =>
-      selectHistoryItem(currentState, index),
-    );
-  }, []);
 
   const reset = useCallback(() => {
     setState(createObjectNavigationState<T>());
@@ -62,10 +78,7 @@ export function useObjectNavigation<T extends NavigableObject>(
   return {
     currentObject,
     history: state.history,
-    historyIndex: state.historyIndex,
-    openObject,
-    openReference,
-    goToHistoryItem,
+    navigate,
     reset,
   };
 }

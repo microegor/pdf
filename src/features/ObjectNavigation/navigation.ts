@@ -49,13 +49,11 @@ export function followReference<T extends NavigableObject>(
 
 export function selectHistoryItem<T extends NavigableObject>(
   state: ObjectNavigationState<T>,
-  index: number,
+  object: T,
 ): ObjectNavigationState<T> {
-  if (
-    !Number.isInteger(index) ||
-    index < 0 ||
-    index >= state.history.length
-  ) {
+  const index = state.history.indexOf(object);
+
+  if (index === -1) {
     return state;
   }
 

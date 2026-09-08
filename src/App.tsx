@@ -68,18 +68,14 @@ function App() {
   const [objects, setObjects] = useState<PdfListItem[]>([]);
 
   const [filter, setFilter] = useState("");
-  
-  // Вся object-navigation теперь живёт здесь.
+
   const {
-    openObject,
-    openReference,
-    goToHistoryItem,
+    navigate,
     reset,
     history,
-    historyIndex,
-    currentObject
+    currentObject,
   } = useObjectNavigation(objects);
-  
+
   const filteredObjects = useMemo(() => {
     const query = filter.trim().toLowerCase();
 
@@ -104,12 +100,9 @@ function App() {
     });
   }, [objects, filter]);
 
-  const breadCrumbItems = history.map((item, index) => ({
-    id: String(index),
-    label: `${item.objectNumber} ${item.generation} R`,
-  }));
-
-  const handleFileChange = async (file: File | null) => {
+  const handleFileChange = async (
+    file: File | null,
+  ) => {
     if (!file) {
       return;
     }
@@ -142,10 +135,9 @@ function App() {
 
     setObjects(items);
 
-    // Новый PDF — очищаем navigation state.
     reset();
-    setPdfFile(file);
 
+    setPdfFile(file);
   };
 
   const handleOpenModal = () => {
@@ -154,6 +146,17 @@ function App() {
 
   const handleCloseModal = () => {
     setModalOpen(false);
+  };
+
+  const handleReferenceClick = (
+    objectNumber: number,
+    generation: number,
+  ) => {
+    navigate({
+      type: "reference",
+      objectNumber,
+      generation,
+    });
   };
 
   return (
@@ -226,8 +229,15 @@ function App() {
                 generation={item.generation}
                 type={item.kind}
                 pdfType={item.pdfType}
-                active={currentObject?.id === item.id}
-                onClick={() => openObject(item)}
+                active={
+                  currentObject?.id === item.id
+                }
+                onClick={() =>
+                  navigate({
+                    type: "object",
+                    object: item,
+                  })
+                }
               />
             ))}
           </div>
@@ -239,10 +249,16 @@ function App() {
           {currentObject ? (
             <div>
               <BreadCrumbs
-                items={breadCrumbItems}
-                activeId={String(historyIndex)}
-                onSelect={(id) =>
-                  goToHistoryItem(Number(id))
+                items={history}
+                activeItem={currentObject}
+                getLabel={(item) =>
+                  `${item.objectNumber} ${item.generation} R`
+                }
+                onSelect={(item) =>
+                  navigate({
+                    type: "history",
+                    object: item,
+                  })
                 }
               />
 
@@ -252,11 +268,13 @@ function App() {
               </h2>
 
               <p>
-                Generation: {currentObject.generation}
+                Generation:{" "}
+                {currentObject.generation}
               </p>
 
               <p>
-                Type: {currentObject.pdfType ?? "—"} (
+                Type:{" "}
+                {currentObject.pdfType ?? "—"} (
                 {currentObject.value.type})
               </p>
 
@@ -266,15 +284,20 @@ function App() {
                   textAlign: "left",
                 }}
               >
-                {currentObject.value.type === "stream" ? (
+                {currentObject.value.type ===
+                "stream" ? (
                   <StreamView
                     value={currentObject.value}
-                    onReferenceClick={openReference}
+                    onReferenceClick={
+                      handleReferenceClick
+                    }
                   />
                 ) : (
                   <PdfValue
                     value={currentObject.value}
-                    onReferenceClick={openReference}
+                    onReferenceClick={
+                      handleReferenceClick
+                    }
                   />
                 )}
               </div>
