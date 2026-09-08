@@ -1,37 +1,45 @@
 import styles from "./BreadCrumbs.module.css";
 
-export type BreadcrumbItem = {
-  id: string;
-  label: string;
+type BreadcrumbsProps<T> = {
+  items: readonly T[];
+  activeItem: T | null;
+  getLabel: (item: T) => string;
+  onSelect: (item: T) => void;
 };
 
-type BreadcrumbsProps = {
-  items: BreadcrumbItem[];
-  activeId: string;
-  onSelect: (id: string) => void;
-};
-
-export function BreadCrumbs({ items, activeId, onSelect }: BreadcrumbsProps) {
+export function BreadCrumbs<T>({
+  items,
+  activeItem,
+  getLabel,
+  onSelect,
+}: BreadcrumbsProps<T>) {
   return (
     <nav aria-label="Navigation history">
       <ol className={styles.breadcrumbs}>
         {items.map((item, index) => {
-          const isActive = item.id === activeId;
+          const isActive = item === activeItem;
           const isLast = index === items.length - 1;
 
           return (
-            <li key={item.id} className={styles.item}>
+            <li key={index} className={styles.item}>
               <button
                 type="button"
-                className={isActive ? styles.active : styles.link}
-                onClick={() => onSelect(item.id)}
-                aria-current={isActive ? "page" : undefined}
+                className={
+                  isActive ? styles.active : styles.link
+                }
+                onClick={() => onSelect(item)}
+                aria-current={
+                  isActive ? "page" : undefined
+                }
               >
-                {item.label}
+                {getLabel(item)}
               </button>
 
               {!isLast && (
-                <span className={styles.separator} aria-hidden="true">
+                <span
+                  className={styles.separator}
+                  aria-hidden="true"
+                >
                   /
                 </span>
               )}
