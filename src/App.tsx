@@ -63,11 +63,19 @@ function getObjectType(value: PDFObject): string | null {
 function App() {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(
+    null,
+  );
 
-  const [objects, setObjects] = useState<PdfListItem[]>([]);
+  const [objects, setObjects] = useState<PdfListItem[]>(
+    [],
+  );
 
   const [filter, setFilter] = useState("");
+
+  const [error, setError] = useState<string | null>(
+    null,
+  );
 
   const {
     navigate,
@@ -107,45 +115,73 @@ function App() {
       return;
     }
 
-    if (file.type !== "application/pdf") {
-      alert("Можно загружать только PDF");
+    // Убираем предыдущую ошибку
+    setError(null);
 
+    // Проверяем тип файла
+    if (file.type !== "application/pdf") {
+      setError("Можно загружать только PDF-файлы");
       return;
     }
 
-    const buf = await file.bytes();
+    try {
+      // Читаем файл
+      const buf = await file.bytes();
 
-    const doc = parse(buf);
+      // Пытаемся распарсить PDF.
+      // Если PDF некорректный, parse должен выбросить ошибку.
+      const doc = parse(buf);
 
-    const items: PdfListItem[] = Array.from(
-      doc.objects.entries(),
-    ).map(([id, indirectObject]) => ({
-      id,
+      const items: PdfListItem[] = Array.from(
+        doc.objects.entries(),
+      ).map(([id, indirectObject]) => ({
+        id,
 
-      objectNumber: indirectObject.objectNumber,
+        objectNumber:
+          indirectObject.objectNumber,
 
-      generation: indirectObject.generation,
+        generation:
+          indirectObject.generation,
 
-      kind: getObjectKind(indirectObject.value),
+        kind: getObjectKind(
+          indirectObject.value,
+        ),
 
-      pdfType: getObjectType(indirectObject.value),
+        pdfType: getObjectType(
+          indirectObject.value,
+        ),
 
-      value: indirectObject.value,
-    }));
+        value: indirectObject.value,
+      }));
 
-    setObjects(items);
+      // Если всё успешно
+      setObjects(items);
 
-    reset();
+      reset();
 
-    setPdfFile(file);
+      setPdfFile(file);
+
+      setError(null);
+    } catch (error) {
+      console.error(
+        "Ошибка при чтении PDF:",
+        error,
+      );
+
+      setError(
+        "Не удалось открыть PDF. Файл повреждён или имеет некорректную структуру.",
+      );
+    }
   };
 
   const handleOpenModal = () => {
+    setError(null);
     setModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setModalOpen(false);
+    setError(null);
   };
 
   const handleReferenceClick = (
@@ -198,8 +234,20 @@ function App() {
             onChange={handleFileChange}
           />
 
-          {pdfFile && (
-            <p>Выбран файл: {pdfFile.name}</p>
+          {/* Ошибка */}
+
+          {error && (
+            <div className="pdfError">
+              {error}
+            </div>
+          )}
+
+          {/* Успешно выбранный файл */}
+
+          {pdfFile && !error && (
+            <p>
+              Выбран файл: {pdfFile.name}
+            </p>
           )}
         </Modal>
       </div>
@@ -225,12 +273,17 @@ function App() {
             {filteredObjects.map((item) => (
               <PdfObjectItem
                 key={item.id}
-                objectNumber={item.objectNumber}
-                generation={item.generation}
+                objectNumber={
+                  item.objectNumber
+                }
+                generation={
+                  item.generation
+                }
                 type={item.kind}
                 pdfType={item.pdfType}
                 active={
-                  currentObject?.id === item.id
+                  currentObject?.id ===
+                  item.id
                 }
                 onClick={() =>
                   navigate({
@@ -263,7 +316,8 @@ function App() {
               />
 
               <h2>
-                Object {currentObject.objectNumber}{" "}
+                Object{" "}
+                {currentObject.objectNumber}{" "}
                 {currentObject.generation} R
               </h2>
 
@@ -287,14 +341,18 @@ function App() {
                 {currentObject.value.type ===
                 "stream" ? (
                   <StreamView
-                    value={currentObject.value}
+                    value={
+                      currentObject.value
+                    }
                     onReferenceClick={
                       handleReferenceClick
                     }
                   />
                 ) : (
                   <PdfValue
-                    value={currentObject.value}
+                    value={
+                      currentObject.value
+                    }
                     onReferenceClick={
                       handleReferenceClick
                     }
