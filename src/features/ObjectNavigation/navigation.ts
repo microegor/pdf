@@ -8,9 +8,7 @@ export type ObjectNavigationState<T extends NavigableObject> = {
   historyIndex: number;
 };
 
-export function createObjectNavigationState<
-  T extends NavigableObject,
->(): ObjectNavigationState<T> {
+export function createObjectNavigationState<T extends NavigableObject>(): ObjectNavigationState<T> {
   return {
     history: [],
     historyIndex: -1,
@@ -23,9 +21,7 @@ export function getCurrentObject<T extends NavigableObject>(
   return state.history[state.historyIndex] ?? null;
 }
 
-export function startNavigation<T extends NavigableObject>(
-  object: T,
-): ObjectNavigationState<T> {
+export function startNavigation<T extends NavigableObject>(object: T): ObjectNavigationState<T> {
   return {
     history: [object],
     historyIndex: 0,
@@ -36,10 +32,7 @@ export function followReference<T extends NavigableObject>(
   state: ObjectNavigationState<T>,
   object: T,
 ): ObjectNavigationState<T> {
-  const history = [
-    ...state.history.slice(0, state.historyIndex + 1),
-    object,
-  ];
+  const history = [...state.history.slice(0, state.historyIndex + 1), object];
 
   return {
     history,
@@ -69,8 +62,6 @@ export function findObjectByReference<T extends NavigableObject>(
   generation: number,
 ): T | undefined {
   return objects.find(
-    (object) =>
-      object.objectNumber === objectNumber &&
-      object.generation === generation,
+    (object) => object.objectNumber === objectNumber && object.generation === generation,
   );
 }

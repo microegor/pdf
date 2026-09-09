@@ -7,12 +7,7 @@ type BreadcrumbsProps<T> = {
   onSelect: (item: T) => void;
 };
 
-export function BreadCrumbs<T>({
-  items,
-  activeItem,
-  getLabel,
-  onSelect,
-}: BreadcrumbsProps<T>) {
+export function BreadCrumbs<T>({ items, activeItem, getLabel, onSelect }: BreadcrumbsProps<T>) {
   return (
     <nav aria-label="Navigation history">
       <ol className={styles.breadcrumbs}>
@@ -24,22 +19,15 @@ export function BreadCrumbs<T>({
             <li key={index} className={styles.item}>
               <button
                 type="button"
-                className={
-                  isActive ? styles.active : styles.link
-                }
+                className={isActive ? styles.active : styles.link}
                 onClick={() => onSelect(item)}
-                aria-current={
-                  isActive ? "page" : undefined
-                }
+                aria-current={isActive ? "page" : undefined}
               >
                 {getLabel(item)}
               </button>
 
               {!isLast && (
-                <span
-                  className={styles.separator}
-                  aria-hidden="true"
-                >
+                <span className={styles.separator} aria-hidden="true">
                   /
                 </span>
               )}

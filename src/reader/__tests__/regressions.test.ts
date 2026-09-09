@@ -1,5 +1,7 @@
-import pako from "pako";
+import * as pakoModule from "pako";
 import { describe, expect, it } from "vitest";
+
+const pako: any = (pakoModule as any).default ?? pakoModule;
 import { buildCurrentState, buildHistoryIndex, getObjectAtRevision } from "../history.js";
 import {
   bytesToString,
