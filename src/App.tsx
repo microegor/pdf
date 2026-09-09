@@ -77,6 +77,8 @@ function App() {
     null,
   );
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     navigate,
     reset,
@@ -108,69 +110,53 @@ function App() {
     });
   }, [objects, filter]);
 
-  const handleFileChange = async (
-    file: File | null,
-  ) => {
+  const handleFileChange = async (file: File | null) => {
     if (!file) {
       return;
     }
 
-    // Убираем предыдущую ошибку
     setError(null);
 
-    // Проверяем тип файла
     if (file.type !== "application/pdf") {
       setError("Можно загружать только PDF-файлы");
       return;
     }
 
     try {
-      // Читаем файл
+      setIsLoading(true);
+
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      });
+
       const buf = await file.bytes();
 
-      // Пытаемся распарсить PDF.
-      // Если PDF некорректный, parse должен выбросить ошибку.
       const doc = parse(buf);
 
       const items: PdfListItem[] = Array.from(
         doc.objects.entries(),
       ).map(([id, indirectObject]) => ({
         id,
-
-        objectNumber:
-          indirectObject.objectNumber,
-
-        generation:
-          indirectObject.generation,
-
-        kind: getObjectKind(
-          indirectObject.value,
-        ),
-
-        pdfType: getObjectType(
-          indirectObject.value,
-        ),
-
+        objectNumber: indirectObject.objectNumber,
+        generation: indirectObject.generation,
+        kind: getObjectKind(indirectObject.value),
+        pdfType: getObjectType(indirectObject.value),
         value: indirectObject.value,
       }));
 
-      // Если всё успешно
       setObjects(items);
-
       reset();
-
       setPdfFile(file);
 
-      setError(null);
+      setModalOpen(false);
     } catch (error) {
-      console.error(
-        "Ошибка при чтении PDF:",
-        error,
-      );
+      console.error("Ошибка загрузки PDF:", error);
 
       setError(
         "Не удалось открыть PDF. Файл повреждён или имеет некорректную структуру.",
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -213,7 +199,7 @@ function App() {
         </div>
 
         <div className="toolbar__right">
-          <Preloader />
+          {isLoading && <Preloader />}
 
           <Button
             size="big"
@@ -339,7 +325,7 @@ function App() {
                 }}
               >
                 {currentObject.value.type ===
-                "stream" ? (
+                  "stream" ? (
                   <StreamView
                     value={
                       currentObject.value
