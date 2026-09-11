@@ -143,10 +143,8 @@ The custom reader includes support for:
 
 ### Requirements
 
-Install:
-
-- Node.js
-- pnpm
+- Node.js 24 LTS
+- pnpm 10
 
 ### Install dependencies
 
@@ -222,9 +220,7 @@ Storybook browser testing is configured with Vitest and Playwright using Chromiu
 
 Reader tests are located in:
 
-```text
-src/reader/__tests__/
-```
+`src/reader/__tests__/`
 
 They currently cover areas including:
 
@@ -237,9 +233,50 @@ They currently cover areas including:
 - semantic diffing
 - parser regressions
 
+Run the unit test suite:
+
+```bash
+pnpm test
+```
+
+Run unit tests in watch mode:
+
+```bash
+pnpm test:watch
+```
+
+Run tests with coverage:
+
+```bash
+pnpm test:coverage
+```
+
+Run Storybook tests:
+
+```bash
+pnpm test:storybook
+```
+
 Vitest is used as the test runner, with Playwright available for browser-based component tests.
 
-A dedicated project-level `test` script should be added to `package.json` before documenting `pnpm test` as the standard test command.
+## CI checks
+
+The same quality checks that run in CI can be executed locally:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm build
+pnpm lint
+pnpm fmt:check
+pnpm test
+```
+
+The CI workflow runs automatically on:
+
+- pull requests
+- pushes to `main`
+
+A failure in any check causes the CI workflow to fail.
 
 ## Reader API
 
