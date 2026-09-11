@@ -78,9 +78,7 @@ describe("document navigation", () => {
   });
 
   it("getDict helpers resolve references", () => {
-    const inner = createDictionary(
-      new Map<string, PDFObject>([["Value", createNumber(99)]]),
-    );
+    const inner = createDictionary(new Map<string, PDFObject>([["Value", createNumber(99)]]));
 
     // Build a doc with reference resolution via parser: use simple dict without refs
     const dict = createDictionary(
@@ -92,9 +90,7 @@ describe("document navigation", () => {
     );
 
     const dict2 = createDictionary(
-      new Map<string, PDFObject>([
-        ["Arr", { type: "array", items: [createNumber(1)] }],
-      ]),
+      new Map<string, PDFObject>([["Arr", { type: "array", items: [createNumber(1)] }]]),
     );
 
     const fakeDoc: any = {

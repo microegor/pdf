@@ -1,12 +1,7 @@
 import * as pakoModule from "pako";
 import { describe, expect, it } from "vitest";
 
-import {
-  createDictionary,
-  createNumber,
-  createStream,
-  DEFAULT_PARSE_LIMITS,
-} from "../types.js";
+import { createDictionary, createNumber, createStream, DEFAULT_PARSE_LIMITS } from "../types.js";
 
 import { decodeStream } from "../stream.js";
 
@@ -14,52 +9,36 @@ const pako: any = (pakoModule as any).default ?? pakoModule;
 
 describe("decodeStream", () => {
   it("returns raw data when no filter", () => {
-    const dict = createDictionary(
-      new Map<string, any>([
-        ["Length", createNumber(3)],
-      ]),
-    );
+    const dict = createDictionary(new Map<string, any>([["Length", createNumber(3)]]));
 
     const data = new Uint8Array([1, 2, 3]);
 
-    expect(
-      decodeStream(createStream(dict, data)),
-    ).toEqual(data);
+    expect(decodeStream(createStream(dict, data))).toEqual(data);
   });
 
   it("throws when raw size exceeds maxStreamBytes", () => {
-    const dict = createDictionary(
-      new Map<string, any>(),
-    );
+    const dict = createDictionary(new Map<string, any>());
 
     const data = new Uint8Array([1, 2, 3]);
 
     expect(() =>
-      decodeStream(
-        createStream(dict, data),
-        {
-          ...DEFAULT_PARSE_LIMITS,
-          maxStreamBytes: 2,
-        },
-      ),
+      decodeStream(createStream(dict, data), {
+        ...DEFAULT_PARSE_LIMITS,
+        maxStreamBytes: 2,
+      }),
     ).toThrow(/raw size/);
   });
 
   it("throws when decoded size exceeds limit without filter", () => {
-    const dict = createDictionary(
-      new Map<string, any>(),
-    );
+    const dict = createDictionary(new Map<string, any>());
 
     const data = new Uint8Array([1, 2]);
 
     expect(() =>
-      decodeStream(
-        createStream(dict, data),
-        {
-          ...DEFAULT_PARSE_LIMITS,
-          maxDecodedStreamBytes: 1,
-        },
-      ),
+      decodeStream(createStream(dict, data), {
+        ...DEFAULT_PARSE_LIMITS,
+        maxDecodedStreamBytes: 1,
+      }),
     ).toThrow(/Decoded stream size/);
   });
 
@@ -80,13 +59,7 @@ describe("decodeStream", () => {
       ]),
     );
 
-    expect(
-      Array.from(
-        decodeStream(
-          createStream(dict, compressed),
-        ),
-      ),
-    ).toEqual([10, 20, 30]);
+    expect(Array.from(decodeStream(createStream(dict, compressed)))).toEqual([10, 20, 30]);
   });
 
   it("decodes FlateDecode via array Filter", () => {
@@ -111,19 +84,11 @@ describe("decodeStream", () => {
       ]),
     );
 
-    expect(
-      Array.from(
-        decodeStream(
-          createStream(dict, compressed),
-        ),
-      ),
-    ).toEqual([1, 2, 3]);
+    expect(Array.from(decodeStream(createStream(dict, compressed)))).toEqual([1, 2, 3]);
   });
 
   it("decodes FlateDecode with TIFF predictor 2", () => {
-    const compressed = pako.deflate(
-      new Uint8Array([10, 10, 10]),
-    );
+    const compressed = pako.deflate(new Uint8Array([10, 10, 10]));
 
     const parms = createDictionary(
       new Map<string, any>([
@@ -148,19 +113,11 @@ describe("decodeStream", () => {
       ]),
     );
 
-    expect(
-      Array.from(
-        decodeStream(
-          createStream(dict, compressed),
-        ),
-      ),
-    ).toEqual([10, 20, 30]);
+    expect(Array.from(decodeStream(createStream(dict, compressed)))).toEqual([10, 20, 30]);
   });
 
   it("decodes FlateDecode with PNG predictor", () => {
-    const compressed = pako.deflate(
-      new Uint8Array([1, 2, 3]),
-    );
+    const compressed = pako.deflate(new Uint8Array([1, 2, 3]));
 
     const parms = createDictionary(
       new Map<string, any>([
@@ -183,11 +140,7 @@ describe("decodeStream", () => {
       ]),
     );
 
-    expect(() =>
-      decodeStream(
-        createStream(dict, compressed),
-      ),
-    ).toThrow(/PNG predictor/);
+    expect(() => decodeStream(createStream(dict, compressed))).toThrow(/PNG predictor/);
   });
 
   it("decodes ASCIIHexDecode", () => {
@@ -206,13 +159,7 @@ describe("decodeStream", () => {
       ]),
     );
 
-    expect(
-      new TextDecoder().decode(
-        decodeStream(
-          createStream(dict, data),
-        ),
-      ),
-    ).toBe("AB");
+    expect(new TextDecoder().decode(decodeStream(createStream(dict, data)))).toBe("AB");
   });
 
   it("decodes ASCII85Decode with z", () => {
@@ -231,13 +178,7 @@ describe("decodeStream", () => {
       ]),
     );
 
-    expect(
-      Array.from(
-        decodeStream(
-          createStream(dict, data),
-        ),
-      ),
-    ).toEqual([0, 0, 0, 0]);
+    expect(Array.from(decodeStream(createStream(dict, data)))).toEqual([0, 0, 0, 0]);
   });
 
   it("throws on unsupported filter", () => {
@@ -256,11 +197,7 @@ describe("decodeStream", () => {
       ]),
     );
 
-    expect(() =>
-      decodeStream(
-        createStream(dict, data),
-      ),
-    ).toThrow(/Unsupported stream filter/);
+    expect(() => decodeStream(createStream(dict, data))).toThrow(/Unsupported stream filter/);
   });
 
   it("throws on invalid Filter type", () => {
@@ -279,17 +216,11 @@ describe("decodeStream", () => {
       ]),
     );
 
-    expect(() =>
-      decodeStream(
-        createStream(dict, data),
-      ),
-    ).toThrow(/Stream \/Filter/);
+    expect(() => decodeStream(createStream(dict, data))).toThrow(/Stream \/Filter/);
   });
 
   it("enforces maxDecodedStreamBytes after filter", () => {
-    const compressed = pako.deflate(
-      new Uint8Array(128).fill(7),
-    );
+    const compressed = pako.deflate(new Uint8Array(128).fill(7));
 
     const dict = createDictionary(
       new Map<string, any>([
@@ -305,13 +236,10 @@ describe("decodeStream", () => {
     );
 
     expect(() =>
-      decodeStream(
-        createStream(dict, compressed),
-        {
-          ...DEFAULT_PARSE_LIMITS,
-          maxDecodedStreamBytes: 32,
-        },
-      ),
+      decodeStream(createStream(dict, compressed), {
+        ...DEFAULT_PARSE_LIMITS,
+        maxDecodedStreamBytes: 32,
+      }),
     ).toThrow(/Decoded stream size/);
   });
 
@@ -343,12 +271,8 @@ describe("decodeStream", () => {
       ]),
     );
 
-    const result = decodeStream(
-      createStream(dict, c2),
-    );
+    const result = decodeStream(createStream(dict, c2));
 
-    expect(
-      Array.from(result),
-    ).toEqual([1, 2, 3]);
+    expect(Array.from(result)).toEqual([1, 2, 3]);
   });
 });

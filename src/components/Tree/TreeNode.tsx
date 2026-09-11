@@ -46,9 +46,7 @@ export function TreeNode({ nodeKey, Title, indicator, children }: TreeNodeProps)
         <span className={styles.indicator}>{indicator}</span>
       </div>
 
-      {isOpen && hasChildren && (
-        <div className={styles.treeNodeChildren}>{children}</div>
-      )}
+      {isOpen && hasChildren && <div className={styles.treeNodeChildren}>{children}</div>}
     </div>
   );
 }
