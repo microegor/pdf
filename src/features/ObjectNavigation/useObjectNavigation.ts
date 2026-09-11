@@ -26,9 +26,7 @@ type NavigationTarget<T extends NavigableObject> =
       object: T;
     };
 
-export function useObjectNavigation<T extends NavigableObject>(
-  objects: readonly T[],
-) {
+export function useObjectNavigation<T extends NavigableObject>(objects: readonly T[]) {
   const [state, setState] = useState<ObjectNavigationState<T>>(() =>
     createObjectNavigationState<T>(),
   );
@@ -43,16 +41,10 @@ export function useObjectNavigation<T extends NavigableObject>(
             return startNavigation(target.object);
 
           case "reference": {
-            const object = findObjectByReference(
-              objects,
-              target.objectNumber,
-              target.generation,
-            );
+            const object = findObjectByReference(objects, target.objectNumber, target.generation);
 
             if (!object) {
-              console.warn(
-                `Object ${target.objectNumber} ${target.generation} R not found`,
-              );
+              console.warn(`Object ${target.objectNumber} ${target.generation} R not found`);
 
               return currentState;
             }
@@ -61,10 +53,7 @@ export function useObjectNavigation<T extends NavigableObject>(
           }
 
           case "history":
-            return selectHistoryItem(
-              currentState,
-              target.object,
-            );
+            return selectHistoryItem(currentState, target.object);
         }
       });
     },

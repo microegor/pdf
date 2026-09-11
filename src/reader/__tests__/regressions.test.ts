@@ -1,5 +1,7 @@
-import pako from "pako";
+import * as pakoModule from "pako";
 import { describe, expect, it } from "vitest";
+
+const pako: any = (pakoModule as any).default ?? pakoModule;
 import { buildCurrentState, buildHistoryIndex, getObjectAtRevision } from "../history.js";
 import {
   bytesToString,
@@ -144,7 +146,7 @@ function buildCompressedMaterializationDocument(
         entries: new Map([
           [42, { type: "compressed" as const, objectStreamNumber: 10, indexInStream }],
         ]),
-        trailer: createDictionary(new Map()),
+        trailer: createDictionary(new Map<string, PDFObject>()),
         startXRef: 0,
         revisionIndex: 0,
       },
@@ -229,7 +231,7 @@ function buildCompressedStateDocument(): PDFDocument {
         [10, { type: "used" as const, offset: oldObjectStream.length, generation: 0 }],
         [42, newCompressed.entry],
       ]),
-      trailer: createDictionary(new Map()),
+      trailer: createDictionary(new Map<string, PDFObject>()),
       startXRef: 0,
       revisionIndex: 1,
     },
@@ -238,7 +240,7 @@ function buildCompressedStateDocument(): PDFDocument {
         [10, { type: "used" as const, offset: 0, generation: 0 }],
         [42, oldCompressed.entry],
       ]),
-      trailer: createDictionary(new Map()),
+      trailer: createDictionary(new Map<string, PDFObject>()),
       startXRef: 0,
       revisionIndex: 0,
     },
@@ -531,6 +533,7 @@ describe("parser hardening regressions", () => {
     expect(() =>
       parseXRefTable(
         textBytes(["xref", "0 1", "0000000000 99999 f", "trailer", "<< /Size 1 >>"].join("\n")),
+        0,
       ),
     ).toThrow(/XRef generation/);
 
@@ -539,7 +542,7 @@ describe("parser hardening regressions", () => {
       new Uint8Array([1, 0, 1, 0, 0]),
       textBytes("\nendstream\nendobj\n"),
     );
-    expect(() => parseXRefStream(xrefStreamWithInvalidGeneration)).toThrow(/XRef generation/);
+    expect(() => parseXRefStream(xrefStreamWithInvalidGeneration, 0)).toThrow(/XRef generation/);
   });
 
   it("rejects malformed XRef stream Index types instead of using the default range", () => {
@@ -736,7 +739,7 @@ describe("parser hardening regressions", () => {
 
     const ordinarySections = Array.from({ length: 32 }, (_, index) => ({
       entries: new Map([[100 + index, { type: "used" as const, offset: 0, generation: 0 }]]),
-      trailer: createDictionary(new Map()),
+      trailer: createDictionary(new Map<string, PDFObject>()),
       startXRef: 0,
     }));
     doc.sections = [...ordinarySections.reverse(), rewrittenStreamSection, originalSection];
@@ -810,7 +813,7 @@ describe("binary and diff regressions", () => {
   it("decodes TIFF Predictor 2 with bytes per pixel", () => {
     const compressed = pako.deflate(new Uint8Array([10, 10, 10]));
     const decodeParms = createDictionary(
-      new Map([
+      new Map<string, PDFObject>([
         ["Predictor", createNumber(2)],
         ["Columns", createNumber(3)],
         ["Colors", createNumber(1)],
@@ -818,7 +821,7 @@ describe("binary and diff regressions", () => {
       ]),
     );
     const dictionary = createDictionary(
-      new Map([
+      new Map<string, PDFObject>([
         ["Length", createNumber(compressed.length)],
         ["Filter", { type: "name" as const, value: "FlateDecode" }],
         ["DecodeParms", decodeParms],
@@ -832,7 +835,7 @@ describe("binary and diff regressions", () => {
     const decode = (encoded: Uint8Array, bitsPerComponent: number, columns: number): Uint8Array => {
       const compressed = pako.deflate(encoded);
       const decodeParms = createDictionary(
-        new Map([
+        new Map<string, PDFObject>([
           ["Predictor", createNumber(2)],
           ["Columns", createNumber(columns)],
           ["Colors", createNumber(1)],
@@ -840,7 +843,7 @@ describe("binary and diff regressions", () => {
         ]),
       );
       const dictionary = createDictionary(
-        new Map([
+        new Map<string, PDFObject>([
           ["Length", createNumber(compressed.length)],
           ["Filter", { type: "name" as const, value: "FlateDecode" }],
           ["DecodeParms", decodeParms],
@@ -888,7 +891,7 @@ describe("binary and diff regressions", () => {
   });
 
   it("compares decoded bytes for unfiltered streams", () => {
-    const dict = createDictionary(new Map([["Length", createNumber(2)]]));
+    const dict = createDictionary(new Map<string, PDFObject>([["Length", createNumber(2)]]));
     const diff = diffStreams(
       createStream(dict, new Uint8Array([1, 2])),
       createStream(dict, new Uint8Array([1, 3])),
@@ -899,7 +902,7 @@ describe("binary and diff regressions", () => {
 
   it("enforces decoded-size limits while ASCII filters accumulate output", () => {
     const ascii85Dictionary = createDictionary(
-      new Map([
+      new Map<string, PDFObject>([
         ["Length", createNumber(1)],
         ["Filter", { type: "name" as const, value: "ASCII85Decode" }],
       ]),
@@ -912,7 +915,7 @@ describe("binary and diff regressions", () => {
     ).toThrow(/ASCII85Decode output/);
 
     const asciiHexDictionary = createDictionary(
-      new Map([
+      new Map<string, PDFObject>([
         ["Length", createNumber(2)],
         ["Filter", { type: "name" as const, value: "ASCIIHexDecode" }],
       ]),
@@ -939,7 +942,7 @@ describe("binary and diff regressions", () => {
     const decodeASCII85 = (value: string): Uint8Array => {
       const data = textBytes(value);
       const dictionary = createDictionary(
-        new Map([
+        new Map<string, PDFObject>([
           ["Length", createNumber(data.length)],
           ["Filter", { type: "name" as const, value: "ASCII85Decode" }],
         ]),
@@ -955,7 +958,7 @@ describe("binary and diff regressions", () => {
 
   it("bounds Flate output before returning a decoded buffer", () => {
     const dictionary = createDictionary(
-      new Map([
+      new Map<string, PDFObject>([
         ["Length", createNumber(1)],
         ["Filter", { type: "name" as const, value: "FlateDecode" }],
       ]),

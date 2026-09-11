@@ -38,9 +38,7 @@ function getObjectKind(value: PDFObject): string {
 
 function getObjectType(value: PDFObject): string | null {
   if (value.type === "dictionary") {
-    const typeEntry =
-      value.entries.get("Type") ??
-      value.entries.get("/Type");
+    const typeEntry = value.entries.get("Type") ?? value.entries.get("/Type");
 
     if (typeEntry?.type === "name") {
       return typeEntry.value;
@@ -48,9 +46,7 @@ function getObjectType(value: PDFObject): string | null {
   }
 
   if (value.type === "stream") {
-    const typeEntry =
-      value.dictionary.entries.get("Type") ??
-      value.dictionary.entries.get("/Type");
+    const typeEntry = value.dictionary.entries.get("Type") ?? value.dictionary.entries.get("/Type");
 
     if (typeEntry?.type === "name") {
       return typeEntry.value;
@@ -63,28 +59,17 @@ function getObjectType(value: PDFObject): string | null {
 function App() {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const [pdfFile, setPdfFile] = useState<File | null>(
-    null,
-  );
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
 
-  const [objects, setObjects] = useState<PdfListItem[]>(
-    [],
-  );
+  const [objects, setObjects] = useState<PdfListItem[]>([]);
 
   const [filter, setFilter] = useState("");
 
-  const [error, setError] = useState<string | null>(
-    null,
-  );
+  const [error, setError] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const {
-    navigate,
-    reset,
-    history,
-    currentObject,
-  } = useObjectNavigation(objects);
+  const { navigate, reset, history, currentObject } = useObjectNavigation(objects);
 
   const filteredObjects = useMemo(() => {
     const query = filter.trim().toLowerCase();
@@ -133,16 +118,16 @@ function App() {
 
       const doc = parse(buf);
 
-      const items: PdfListItem[] = Array.from(
-        doc.objects.entries(),
-      ).map(([id, indirectObject]) => ({
-        id,
-        objectNumber: indirectObject.objectNumber,
-        generation: indirectObject.generation,
-        kind: getObjectKind(indirectObject.value),
-        pdfType: getObjectType(indirectObject.value),
-        value: indirectObject.value,
-      }));
+      const items: PdfListItem[] = Array.from(doc.objects.entries()).map(
+        ([id, indirectObject]) => ({
+          id,
+          objectNumber: indirectObject.objectNumber,
+          generation: indirectObject.generation,
+          kind: getObjectKind(indirectObject.value),
+          pdfType: getObjectType(indirectObject.value),
+          value: indirectObject.value,
+        }),
+      );
 
       setObjects(items);
       reset();
@@ -152,9 +137,7 @@ function App() {
     } catch (error) {
       console.error("Ошибка загрузки PDF:", error);
 
-      setError(
-        "Не удалось открыть PDF. Файл повреждён или имеет некорректную структуру.",
-      );
+      setError("Не удалось открыть PDF. Файл повреждён или имеет некорректную структуру.");
     } finally {
       setIsLoading(false);
     }
@@ -170,10 +153,7 @@ function App() {
     setError(null);
   };
 
-  const handleReferenceClick = (
-    objectNumber: number,
-    generation: number,
-  ) => {
+  const handleReferenceClick = (objectNumber: number, generation: number) => {
     navigate({
       type: "reference",
       objectNumber,
@@ -187,54 +167,29 @@ function App() {
 
       <div className="toolbar">
         <div className="toolbar__left">
-          <div className="toolbar__logo">
-            PDF Inspector
-          </div>
+          <div className="toolbar__logo">PDF Inspector</div>
 
-          {pdfFile && (
-            <div className="toolbar__file">
-              {pdfFile.name}
-            </div>
-          )}
+          {pdfFile && <div className="toolbar__file">{pdfFile.name}</div>}
         </div>
 
         <div className="toolbar__right">
           {isLoading && <Preloader />}
 
-          <Button
-            size="big"
-            variant="contained"
-            text="+ Add PDF"
-            onClick={handleOpenModal}
-          />
+          <Button size="big" variant="contained" text="+ Add PDF" onClick={handleOpenModal} />
         </div>
 
-        <Modal
-          open={modalOpen}
-          onClose={handleCloseModal}
-        >
+        <Modal open={modalOpen} onClose={handleCloseModal}>
           <h2>Добавить PDF</h2>
 
-          <DropZone
-            accept="application/pdf"
-            onChange={handleFileChange}
-          />
+          <DropZone accept="application/pdf" onChange={handleFileChange} />
 
           {/* Ошибка */}
 
-          {error && (
-            <div className="pdfError">
-              {error}
-            </div>
-          )}
+          {error && <div className="pdfError">{error}</div>}
 
           {/* Успешно выбранный файл */}
 
-          {pdfFile && !error && (
-            <p>
-              Выбран файл: {pdfFile.name}
-            </p>
-          )}
+          {pdfFile && !error && <p>Выбран файл: {pdfFile.name}</p>}
         </Modal>
       </div>
 
@@ -248,9 +203,7 @@ function App() {
             <input
               className="searchInput"
               value={filter}
-              onChange={(event) =>
-                setFilter(event.target.value)
-              }
+              onChange={(event) => setFilter(event.target.value)}
               placeholder="Search objects..."
             />
           </div>
@@ -259,18 +212,11 @@ function App() {
             {filteredObjects.map((item) => (
               <PdfObjectItem
                 key={item.id}
-                objectNumber={
-                  item.objectNumber
-                }
-                generation={
-                  item.generation
-                }
+                objectNumber={item.objectNumber}
+                generation={item.generation}
                 type={item.kind}
                 pdfType={item.pdfType}
-                active={
-                  currentObject?.id ===
-                  item.id
-                }
+                active={currentObject?.id === item.id}
                 onClick={() =>
                   navigate({
                     type: "object",
@@ -290,9 +236,7 @@ function App() {
               <BreadCrumbs
                 items={history}
                 activeItem={currentObject}
-                getLabel={(item) =>
-                  `${item.objectNumber} ${item.generation} R`
-                }
+                getLabel={(item) => `${item.objectNumber} ${item.generation} R`}
                 onSelect={(item) =>
                   navigate({
                     type: "history",
@@ -302,20 +246,13 @@ function App() {
               />
 
               <h2>
-                Object{" "}
-                {currentObject.objectNumber}{" "}
-                {currentObject.generation} R
+                Object {currentObject.objectNumber} {currentObject.generation} R
               </h2>
 
-              <p>
-                Generation:{" "}
-                {currentObject.generation}
-              </p>
+              <p>Generation: {currentObject.generation}</p>
 
               <p>
-                Type:{" "}
-                {currentObject.pdfType ?? "—"} (
-                {currentObject.value.type})
+                Type: {currentObject.pdfType ?? "—"} ({currentObject.value.type})
               </p>
 
               <div
@@ -324,25 +261,10 @@ function App() {
                   textAlign: "left",
                 }}
               >
-                {currentObject.value.type ===
-                  "stream" ? (
-                  <StreamView
-                    value={
-                      currentObject.value
-                    }
-                    onReferenceClick={
-                      handleReferenceClick
-                    }
-                  />
+                {currentObject.value.type === "stream" ? (
+                  <StreamView value={currentObject.value} onReferenceClick={handleReferenceClick} />
                 ) : (
-                  <PdfValue
-                    value={
-                      currentObject.value
-                    }
-                    onReferenceClick={
-                      handleReferenceClick
-                    }
-                  />
+                  <PdfValue value={currentObject.value} onReferenceClick={handleReferenceClick} />
                 )}
               </div>
             </div>

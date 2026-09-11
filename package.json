@@ -12,7 +12,11 @@
     "fmt:check": "oxfmt --check",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test": "vitest run --project unit",
+    "test:watch": "vitest --project unit",
+    "test:coverage": "vitest run --project unit --coverage",
+    "test:storybook": "vitest run --project storybook"
   },
   "dependencies": {
     "cors": "^2.8.6",
@@ -27,8 +31,8 @@
     "@storybook/addon-a11y": "^10.5.5",
     "@storybook/addon-docs": "^10.5.5",
     "@storybook/addon-onboarding": "^10.5.5",
-    "@storybook/addon-vitest": "^10.5.5",
-    "@storybook/react-vite": "^10.5.5",
+    "@storybook/addon-vitest": "^10.6.0",
+    "@storybook/react-vite": "^10.6.0",
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
@@ -38,7 +42,7 @@
     "oxfmt": "^0.61.0",
     "oxlint": "^1.71.0",
     "playwright": "^1.62.0",
-    "storybook": "^10.5.5",
+    "storybook": "^10.6.0",
     "typescript": "~6.0.2",
     "vite": "^8.1.1",
     "vitest": "^4.1.10"

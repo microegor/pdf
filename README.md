@@ -10,13 +10,13 @@ The application includes a custom PDF parser written in TypeScript and a React i
 
 ### PDF inspection
 
-* Load PDF files directly from the browser
-* Parse indirect PDF objects
-* Browse objects from the sidebar
-* Search objects by object number, generation, type, and PDF type
-* Inspect dictionaries, arrays, names, strings, numbers, booleans, null values, references, and streams
-* Follow indirect references between objects
-* Navigate previously opened references using breadcrumbs
+- Load PDF files directly from the browser
+- Parse indirect PDF objects
+- Browse objects from the sidebar
+- Search objects by object number, generation, type, and PDF type
+- Inspect dictionaries, arrays, names, strings, numbers, booleans, null values, references, and streams
+- Follow indirect references between objects
+- Navigate previously opened references using breadcrumbs
 
 ### Stream inspection
 
@@ -30,24 +30,24 @@ Raw stream data is displayed using a Hex viewer:
 
 The Hex viewer provides:
 
-* hexadecimal byte representation
-* ASCII representation
-* byte selection
-* horizontal and vertical scrolling
-* virtualized rendering for large streams
+- hexadecimal byte representation
+- ASCII representation
+- byte selection
+- horizontal and vertical scrolling
+- virtualized rendering for large streams
 
 Decoded streams can be viewed as:
 
-* Text
-* Hex + ASCII
+- Text
+- Hex + ASCII
 
 ### Stream filters
 
 The parser currently supports:
 
-* `FlateDecode`
-* `ASCIIHexDecode`
-* `ASCII85Decode`
+- `FlateDecode`
+- `ASCIIHexDecode`
+- `ASCII85Decode`
 
 Flate streams also support PDF predictor processing, including TIFF and PNG predictors.
 
@@ -57,41 +57,41 @@ Unsupported filters produce a decoding error instead of silently returning incor
 
 The custom reader includes support for:
 
-* PDF header parsing
-* indirect objects
-* object references
-* dictionaries
-* arrays
-* literal strings
-* hexadecimal strings
-* names
-* numbers
-* booleans
-* null values
-* streams
-* traditional XRef tables
-* XRef streams
-* compressed objects
-* multiple PDF revisions
-* object history
-* reference resolution
-* document metadata
-* page tree navigation
-* semantic object diffing
-* configurable parser limits and diagnostics
+- PDF header parsing
+- indirect objects
+- object references
+- dictionaries
+- arrays
+- literal strings
+- hexadecimal strings
+- names
+- numbers
+- booleans
+- null values
+- streams
+- traditional XRef tables
+- XRef streams
+- compressed objects
+- multiple PDF revisions
+- object history
+- reference resolution
+- document metadata
+- page tree navigation
+- semantic object diffing
+- configurable parser limits and diagnostics
 
 ## Tech stack
 
-* React
-* TypeScript
-* Vite
-* Vitest
-* Playwright
-* Storybook
-* pako
-* Oxlint
-* Oxfmt
-* pnpm
+- React
+- TypeScript
+- Vite
+- Vitest
+- Playwright
+- Storybook
+- pako
+- Oxlint
+- Oxfmt
+- pnpm
 
 ## Project structure
 
@@ -145,8 +145,8 @@ The custom reader includes support for:
 
 Install:
 
-* Node.js
-* pnpm
+- Node.js
+- pnpm
 
 ### Install dependencies
 
@@ -228,14 +228,14 @@ src/reader/__tests__/
 
 They currently cover areas including:
 
-* buffer operations
-* tokenization
-* PDF object parsing
-* XRef tables
-* XRef streams
-* document history
-* semantic diffing
-* parser regressions
+- buffer operations
+- tokenization
+- PDF object parsing
+- XRef tables
+- XRef streams
+- document history
+- semantic diffing
+- parser regressions
 
 Vitest is used as the test runner, with Playwright available for browser-based component tests.
 
@@ -262,56 +262,38 @@ console.log(document.sections);
 Retrieve an object:
 
 ```ts
-import {
-  getObject,
-  parse,
-} from "./reader";
+import { getObject, parse } from "./reader";
 
 const document = parse(bytes);
 
-const object = getObject(
-  document,
-  10,
-  0,
-);
+const object = getObject(document, 10, 0);
 ```
 
 Resolve a reference:
 
 ```ts
-import {
-  parse,
-  resolveReference,
-} from "./reader";
+import { parse, resolveReference } from "./reader";
 
 const document = parse(bytes);
 
-const result = resolveReference(
-  document,
-  {
-    type: "reference",
-    objectNumber: 10,
-    generation: 0,
-  },
-);
+const result = resolveReference(document, {
+  type: "reference",
+  objectNumber: 10,
+  generation: 0,
+});
 ```
 
 Decode a stream:
 
 ```ts
-import {
-  decodeStream,
-  parse,
-} from "./reader";
+import { decodeStream, parse } from "./reader";
 
 const document = parse(bytes);
 
-const object =
-  document.objects.get("10 0");
+const object = document.objects.get("10 0");
 
 if (object?.value.type === "stream") {
-  const decoded =
-    decodeStream(object.value);
+  const decoded = decodeStream(object.value);
 
   console.log(decoded);
 }
@@ -323,20 +305,19 @@ The parser uses configurable limits to prevent malformed or unusually large PDF 
 
 Limits include restrictions for areas such as:
 
-* input file size
-* stream size
-* decoded stream size
-* object parsing
-* document history
-* XRef processing
+- input file size
+- stream size
+- decoded stream size
+- object parsing
+- document history
+- XRef processing
 
 Custom limits can be passed to `parse()` when necessary.
 
 ```ts
 const document = parse(bytes, {
   limits: {
-    maxFileBytes:
-      100 * 1024 * 1024,
+    maxFileBytes: 100 * 1024 * 1024,
   },
 });
 ```
@@ -351,10 +332,10 @@ The parser does not currently aim to support every feature defined by the PDF sp
 
 Current areas of development include:
 
-* improving PDF compatibility
-* expanding stream filter support
-* improving Hex and stream inspection
-* strengthening parser regression tests
-* improving object navigation
-* improving large-document performance
-* improving layout stability for large PDF objects
+- improving PDF compatibility
+- expanding stream filter support
+- improving Hex and stream inspection
+- strengthening parser regression tests
+- improving object navigation
+- improving large-document performance
+- improving layout stability for large PDF objects

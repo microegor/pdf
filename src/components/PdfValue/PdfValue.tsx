@@ -103,7 +103,7 @@ export function PdfValue({ value, depth = 0, onReferenceClick }: Props) {
         <div className={styles.dictionary}>
           {Array.from(value.entries.entries()).map(([key, entry]) => (
             <div key={key} className={styles.dictRow}>
-              <div className={styles.dictKey}>/{key}</div>
+              <div className={styles.dictKey}>{key}</div>
 
               <div className={styles.dictValue}>
                 <PdfValue value={entry} depth={depth + 1} onReferenceClick={onReferenceClick} />
