@@ -1,4 +1,4 @@
-import { useState, type PropsWithChildren, type ReactNode, type MouseEvent } from "react";
+import { useState, type PropsWithChildren, type ReactNode } from "react";
 
 import { useTreeContext } from "./TreeContext";
 import styles from "./Tree.module.css";
@@ -13,7 +13,6 @@ export function TreeNode({ nodeKey, Title, indicator, children }: TreeNodeProps)
   const [isOpen, setIsOpen] = useState(false);
 
   const { selectedKey, select } = useTreeContext();
-
   const isSelected = selectedKey === nodeKey;
   const hasChildren = Boolean(children);
 
@@ -44,11 +43,12 @@ export function TreeNode({ nodeKey, Title, indicator, children }: TreeNodeProps)
         )}
 
         <span>{Title}</span>
-
         <span className={styles.indicator}>{indicator}</span>
       </div>
 
-      {isOpen && hasChildren && <div className={styles.treeNodeChildren}>{children}</div>}
+      {isOpen && hasChildren && (
+        <div className={styles.treeNodeChildren}>{children}</div>
+      )}
     </div>
   );
 }
