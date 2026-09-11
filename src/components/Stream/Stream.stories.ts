@@ -8,32 +8,19 @@ import {
   createNumber,
   createStream,
   createReference,
-  createName
+  createName,
 } from "../../reader";
 
 import { StreamView } from "./Stream";
 
-const textData = new TextEncoder().encode(
-  "Hello from PDF stream!\nThis is decoded text.",
-);
+const textData = new TextEncoder().encode("Hello from PDF stream!\nThis is decoded text.");
 
 const textStream = createStream(
-  createDictionary(
-    new Map<string, PDFObject>([
-      ["Length", createNumber(textData.length)],
-    ]),
-  ),
+  createDictionary(new Map<string, PDFObject>([["Length", createNumber(textData.length)]])),
   textData,
 );
 
-const binaryData = new Uint8Array([
-  0x00,
-  0x01,
-  0x02,
-  0xff,
-  0xaa,
-  0xbb,
-]);
+const binaryData = new Uint8Array([0x00, 0x01, 0x02, 0xff, 0xaa, 0xbb]);
 
 const binaryStream = createStream(
   createDictionary(
