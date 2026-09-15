@@ -100,16 +100,13 @@ function App() {
     filteredObjects[0]?.id ??
     null;
 
-
   const handleObjectListKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
       return;
     }
 
     const buttons = Array.from(
-      event.currentTarget.querySelectorAll<HTMLButtonElement>(
-        "[data-pdf-object-item]",
-      ),
+      event.currentTarget.querySelectorAll<HTMLButtonElement>("[data-pdf-object-item]"),
     );
 
     if (buttons.length === 0) {
@@ -256,7 +253,6 @@ function App() {
           <DropZone accept="application/pdf" onChange={handleFileChange} />
 
           {error && <div className="pdfError">{error}</div>}
-
 
           {pdfFile && !error && <p>Выбран файл: {pdfFile.name}</p>}
         </Modal>

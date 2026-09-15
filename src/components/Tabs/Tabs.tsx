@@ -19,19 +19,13 @@ interface TabsProps {
   onValueChange?: (value: string) => void;
 }
 
-export function Tabs({
-  defaultValue,
-  onValueChange,
-  children,
-}: TabsProps) {
+export function Tabs({ defaultValue, onValueChange, children }: TabsProps) {
   const tabs = Children.toArray(children).filter(
     (child): child is ReactElement<TabProps> =>
       isValidElement<TabProps>(child) && child.type === Tab,
   );
 
-  const [internalValue, setInternalValue] = useState(
-    defaultValue ?? tabs[0]?.props.value,
-  );
+  const [internalValue, setInternalValue] = useState(defaultValue ?? tabs[0]?.props.value);
 
   const tabsId = useId();
 
@@ -57,10 +51,7 @@ export function Tabs({
     tabRefs.current[index]?.focus();
   }
 
-  function handleKeyDown(
-    event: KeyboardEvent<HTMLButtonElement>,
-    currentIndex: number,
-  ) {
+  function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>, currentIndex: number) {
     if (tabs.length === 0) {
       return;
     }
@@ -92,17 +83,13 @@ export function Tabs({
     selectTab(nextIndex);
   }
 
-  const activeIndex = tabs.findIndex(
-    (tab) => tab.props.value === internalValue,
-  );
+  const activeIndex = tabs.findIndex((tab) => tab.props.value === internalValue);
 
   const activeTab = activeIndex >= 0 ? tabs[activeIndex] : undefined;
 
-  const activeTabId =
-    activeIndex >= 0 ? `${tabsId}-tab-${activeIndex}` : undefined;
+  const activeTabId = activeIndex >= 0 ? `${tabsId}-tab-${activeIndex}` : undefined;
 
-  const activePanelId =
-    activeIndex >= 0 ? `${tabsId}-panel-${activeIndex}` : undefined;
+  const activePanelId = activeIndex >= 0 ? `${tabsId}-panel-${activeIndex}` : undefined;
 
   return (
     <TabsContext
@@ -112,10 +99,7 @@ export function Tabs({
       }}
     >
       <div className={styles.tabs}>
-        <div
-          className={styles.tabsList}
-          role="tablist"
-        >
+        <div className={styles.tabsList} role="tablist">
           {tabs.map((tab, index) => {
             const tabId = `${tabsId}-tab-${index}`;
             const panelId = `${tabsId}-panel-${index}`;
@@ -132,9 +116,7 @@ export function Tabs({
                 id={tabId}
                 panelId={panelId}
                 tabIndex={isActive ? 0 : -1}
-                onKeyDown={(event) =>
-                  handleKeyDown(event, index)
-                }
+                onKeyDown={(event) => handleKeyDown(event, index)}
               />
             );
           })}

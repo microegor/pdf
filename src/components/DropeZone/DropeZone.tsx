@@ -1,9 +1,4 @@
-import {
-  useRef,
-  useState,
-  type ChangeEvent,
-  type DragEvent,
-} from "react";
+import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
 
 import styles from "./DropeZone.module.css";
 
@@ -13,11 +8,7 @@ interface DropZoneProps {
   disabled?: boolean;
 }
 
-export const DropZone = ({
-  accept,
-  onChange,
-  disabled = false,
-}: DropZoneProps) => {
+export const DropZone = ({ accept, onChange, disabled = false }: DropZoneProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [isDragging, setIsDragging] = useState(false);
@@ -34,17 +25,13 @@ export const DropZone = ({
     inputRef.current?.click();
   };
 
-  const handleInputChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
 
     handleFile(file);
   };
 
-  const handleDragOver = (
-    event: DragEvent<HTMLButtonElement>,
-  ) => {
+  const handleDragOver = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     if (disabled) {
@@ -54,17 +41,13 @@ export const DropZone = ({
     setIsDragging(true);
   };
 
-  const handleDragLeave = (
-    event: DragEvent<HTMLButtonElement>,
-  ) => {
+  const handleDragLeave = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     setIsDragging(false);
   };
 
-  const handleDrop = (
-    event: DragEvent<HTMLButtonElement>,
-  ) => {
+  const handleDrop = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     if (disabled) {
@@ -93,13 +76,9 @@ export const DropZone = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <span className={styles.text}>
-          Перетащите файл сюда
-        </span>
+        <span className={styles.text}>Перетащите файл сюда</span>
 
-        <span className={styles.subText}>
-          или нажмите для выбора
-        </span>
+        <span className={styles.subText}>или нажмите для выбора</span>
       </button>
 
       <input
