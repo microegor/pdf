@@ -4,6 +4,7 @@ import "../style/App.css";
 
 import { Button } from "./components/Button";
 import { BreadCrumbs } from "./components/BreadCrumbs";
+import { DictionaryView } from "./components/Dictionary";
 import { DropZone } from "./components/DropeZone";
 import { Preloader } from "./components/Loader";
 import { Modal } from "./components/Modal";
@@ -14,6 +15,8 @@ import { StreamView } from "./components/Stream";
 import { useObjectNavigation } from "./features/ObjectNavigation/index.ts";
 
 import { parse, type PDFObject } from "./reader";
+
+type DictionaryObject = Extract<PDFObject, { type: "dictionary" }>;
 
 type PdfListItem = {
   id: string;
@@ -36,24 +39,55 @@ function getObjectKind(value: PDFObject): string {
   return value.type.charAt(0).toUpperCase();
 }
 
-function getObjectType(value: PDFObject): string | null {
+function getObjectDictionary(value: PDFObject): DictionaryObject | null {
   if (value.type === "dictionary") {
-    const typeEntry = value.entries.get("Type") ?? value.entries.get("/Type");
-
-    if (typeEntry?.type === "name") {
-      return typeEntry.value;
-    }
+    return value;
   }
 
   if (value.type === "stream") {
-    const typeEntry = value.dictionary.entries.get("Type") ?? value.dictionary.entries.get("/Type");
-
-    if (typeEntry?.type === "name") {
-      return typeEntry.value;
-    }
+    return value.dictionary;
   }
 
   return null;
+}
+
+function getDictionaryName(dictionary: DictionaryObject, key: string): string | null {
+  const entry = dictionary.entries.get(key) ?? dictionary.entries.get(`/${key}`);
+
+  return entry?.type === "name" ? entry.value : null;
+}
+
+function getObjectType(value: PDFObject): string | null {
+  const dictionary = getObjectDictionary(value);
+
+  if (!dictionary) {
+    return null;
+  }
+
+  const type = getDictionaryName(dictionary, "Type");
+  const subtype = getDictionaryName(dictionary, "Subtype");
+
+  if (type && subtype) {
+    return `${type} / ${subtype}`;
+  }
+
+  if (type) {
+    return type;
+  }
+
+  if (subtype) {
+    return `Subtype / ${subtype}`;
+  }
+
+  return null;
+}
+
+function getHeaderType(value: PDFObject, pdfType: string | null): string | null {
+  if (value.type === "dictionary" || value.type === "stream") {
+    return pdfType ? `${pdfType} (${value.type})` : null;
+  }
+
+  return `— (${value.type})`;
 }
 
 function App() {
@@ -99,6 +133,12 @@ function App() {
     filteredObjects.find((item) => item.id === currentObject?.id)?.id ??
     filteredObjects[0]?.id ??
     null;
+
+  const currentDictionary = currentObject ? getObjectDictionary(currentObject.value) : null;
+
+  const currentHeaderType = currentObject
+    ? getHeaderType(currentObject.value, currentObject.pdfType)
+    : null;
 
   const handleObjectListKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
@@ -315,11 +355,9 @@ function App() {
                 Object {currentObject.objectNumber} {currentObject.generation} R
               </h2>
 
-              <p>Generation: {currentObject.generation}</p>
+              {currentHeaderType && <p>{currentHeaderType}</p>}
 
-              <p>
-                Type: {currentObject.pdfType ?? "—"} ({currentObject.value.type})
-              </p>
+              <p>Generation: {currentObject.generation}</p>
 
               <div
                 style={{
@@ -327,8 +365,17 @@ function App() {
                   textAlign: "left",
                 }}
               >
-                {currentObject.value.type === "stream" ? (
-                  <StreamView value={currentObject.value} onReferenceClick={handleReferenceClick} />
+                {currentDictionary ? (
+                  <>
+                    <DictionaryView
+                      value={currentDictionary}
+                      onReferenceClick={handleReferenceClick}
+                    />
+
+                    {currentObject.value.type === "stream" && (
+                      <StreamView value={currentObject.value} />
+                    )}
+                  </>
                 ) : (
                   <PdfValue value={currentObject.value} onReferenceClick={handleReferenceClick} />
                 )}

@@ -3,15 +3,12 @@ import { useMemo } from "react";
 import { Tabs, Tab } from "../Tabs";
 import type { PDFObject } from "../../reader";
 import { decodeStream } from "../../reader";
-import { PdfValue } from "../PdfValue";
 import { HexView } from "../HexView";
 
 type StreamObject = Extract<PDFObject, { type: "stream" }>;
 
 type Props = {
   value: StreamObject;
-
-  onReferenceClick?: (objectNumber: number, generation: number) => void;
 };
 
 function bytesToText(data: Uint8Array, limit = 100_000): string {
@@ -26,7 +23,7 @@ function bytesToText(data: Uint8Array, limit = 100_000): string {
   return text;
 }
 
-export function StreamView({ value, onReferenceClick }: Props) {
+export function StreamView({ value }: Props) {
   const decoded = useMemo(() => {
     try {
       const data = decodeStream(value);
@@ -45,16 +42,24 @@ export function StreamView({ value, onReferenceClick }: Props) {
   }, [value]);
 
   return (
-    <div>
+    <section>
       <h3>Stream</h3>
 
-      <PdfValue value={value.dictionary} onReferenceClick={onReferenceClick} />
+      <hr />
 
-      <h4>Raw data</h4>
+      <div
+        style={{
+          padding: "24px",
+        }}
+      >
+        <div>{value.data.length} bytes</div>
 
-      <div>{value.data.length} bytes</div>
-
-      <HexView data={value.data} />
+        <HexView
+          data={value.data}
+          limit={value.data.length}
+          maxHeight={160}
+        />
+      </div>
 
       <h4>Decoded data</h4>
 
@@ -84,6 +89,6 @@ export function StreamView({ value, onReferenceClick }: Props) {
           </Tabs>
         </>
       )}
-    </div>
+    </section>
   );
 }
