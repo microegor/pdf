@@ -14,14 +14,14 @@ export const DropZone = ({ accept, onChange, disabled = false }: DropZoneProps) 
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFile = (file: File | null) => {
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     onChange?.(file);
   };
 
   const handleClick = () => {
-    if (disabled) return;
-
     inputRef.current?.click();
   };
 
@@ -31,24 +31,28 @@ export const DropZone = ({ accept, onChange, disabled = false }: DropZoneProps) 
     handleFile(file);
   };
 
-  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    if (disabled) return;
+    if (disabled) {
+      return;
+    }
 
     setIsDragging(true);
   };
 
-  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     setIsDragging(false);
   };
 
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    if (disabled) return;
+    if (disabled) {
+      return;
+    }
 
     setIsDragging(false);
 
@@ -58,17 +62,25 @@ export const DropZone = ({ accept, onChange, disabled = false }: DropZoneProps) 
   };
 
   return (
-    <div
-      className={`
-        ${styles.dropZone}
-        ${isDragging ? styles.dragging : ""}
-        ${disabled ? styles.disabled : ""}
-      `}
-      onClick={handleClick}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-    >
+    <>
+      <button
+        type="button"
+        className={`
+          ${styles.dropZone}
+          ${isDragging ? styles.dragging : ""}
+          ${disabled ? styles.disabled : ""}
+        `}
+        disabled={disabled}
+        onClick={handleClick}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <span className={styles.text}>Перетащите файл сюда</span>
+
+        <span className={styles.subText}>или нажмите для выбора</span>
+      </button>
+
       <input
         ref={inputRef}
         className={styles.input}
@@ -77,10 +89,6 @@ export const DropZone = ({ accept, onChange, disabled = false }: DropZoneProps) 
         disabled={disabled}
         onChange={handleInputChange}
       />
-
-      <span className={styles.text}>Перетащите файл сюда</span>
-
-      <span className={styles.subText}>или нажмите для выбора</span>
-    </div>
+    </>
   );
 };

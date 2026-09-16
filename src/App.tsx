@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type KeyboardEvent } from "react";
 
 import "../style/App.css";
 
@@ -95,6 +95,75 @@ function App() {
     });
   }, [objects, filter]);
 
+  const tabbableObjectId =
+    filteredObjects.find((item) => item.id === currentObject?.id)?.id ??
+    filteredObjects[0]?.id ??
+    null;
+
+  const handleObjectListKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+      return;
+    }
+
+    const buttons = Array.from(
+      event.currentTarget.querySelectorAll<HTMLButtonElement>("[data-pdf-object-item]"),
+    );
+
+    if (buttons.length === 0) {
+      return;
+    }
+
+    const currentButton = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      "[data-pdf-object-item]",
+    );
+
+    if (!currentButton) {
+      return;
+    }
+
+    const currentIndex = buttons.indexOf(currentButton);
+
+    if (currentIndex === -1) {
+      return;
+    }
+
+    let nextIndex = currentIndex;
+
+    switch (event.key) {
+      case "ArrowDown":
+        nextIndex = Math.min(currentIndex + 1, buttons.length - 1);
+        break;
+
+      case "ArrowUp":
+        nextIndex = Math.max(currentIndex - 1, 0);
+        break;
+
+      case "Home":
+        nextIndex = 0;
+        break;
+
+      case "End":
+        nextIndex = buttons.length - 1;
+        break;
+    }
+
+    event.preventDefault();
+
+    if (nextIndex === currentIndex) {
+      return;
+    }
+
+    const nextButton = buttons[nextIndex];
+
+    nextButton.focus();
+
+    nextButton.click();
+
+    nextButton.scrollIntoView({
+      block: "nearest",
+    });
+  };
+
   const handleFileChange = async (file: File | null) => {
     if (!file) {
       return;
@@ -183,11 +252,7 @@ function App() {
 
           <DropZone accept="application/pdf" onChange={handleFileChange} />
 
-          {/* Ошибка */}
-
           {error && <div className="pdfError">{error}</div>}
-
-          {/* Успешно выбранный файл */}
 
           {pdfFile && !error && <p>Выбран файл: {pdfFile.name}</p>}
         </Modal>
@@ -208,7 +273,7 @@ function App() {
             />
           </div>
 
-          <div className="objectList">
+          <div className="objectList" onKeyDown={handleObjectListKeyDown}>
             {filteredObjects.map((item) => (
               <PdfObjectItem
                 key={item.id}
@@ -217,6 +282,7 @@ function App() {
                 type={item.kind}
                 pdfType={item.pdfType}
                 active={currentObject?.id === item.id}
+                tabIndex={item.id === tabbableObjectId ? 0 : -1}
                 onClick={() =>
                   navigate({
                     type: "object",

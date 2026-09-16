@@ -12,17 +12,30 @@
 
   box-sizing: border-box;
 
+  padding: 0;
+
   border: 2px dashed #bdbdbd;
   border-radius: 10px;
+
+  background: transparent;
+  color: inherit;
+
+  font: inherit;
+  text-align: center;
 
   cursor: pointer;
 
   transition: 0.2s;
 }
 
-.dropZone:hover {
+.dropZone:hover:not(:disabled) {
   border-color: #777;
   background-color: #f7f7f7;
+}
+
+.dropZone:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
 }
 
 .dragging {
