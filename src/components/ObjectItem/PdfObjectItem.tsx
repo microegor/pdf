@@ -36,7 +36,7 @@ export function PdfObjectItem({
 
         <span className={styles["pdf-object__type"]}>
           {type}
-          {pdfType ? ` /${pdfType}` : ""}
+          {pdfType ? ` ${pdfType}` : ""}
         </span>
       </div>
     </button>
