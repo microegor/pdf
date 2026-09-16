@@ -355,7 +355,6 @@ function App() {
           <div className="screen">
             {currentObject ? (
               <div>
-
                 <h2>
                   Object {currentObject.objectNumber} {currentObject.generation} R
                 </h2>
