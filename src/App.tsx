@@ -357,8 +357,6 @@ function App() {
 
               {currentHeaderType && <p>{currentHeaderType}</p>}
 
-              <p>Generation: {currentObject.generation}</p>
-
               <div
                 style={{
                   marginTop: 12,
