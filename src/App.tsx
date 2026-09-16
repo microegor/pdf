@@ -334,54 +334,59 @@ function App() {
           </div>
         </aside>
 
-        {/* OBJECT SCREEN */}
+        <div className="fullScreen">
+          {/* BREAD CRUMBS */}
+          <div>
+            <BreadCrumbs
+              items={history}
+              activeItem={currentObject}
+              getLabel={(item) => `${item.objectNumber} ${item.generation} R`}
+              onSelect={(item) =>
+                navigate({
+                  type: "history",
+                  object: item,
+                })
+              }
+            />
+          </div>
 
-        <div className="screen">
-          {currentObject ? (
-            <div>
-              <BreadCrumbs
-                items={history}
-                activeItem={currentObject}
-                getLabel={(item) => `${item.objectNumber} ${item.generation} R`}
-                onSelect={(item) =>
-                  navigate({
-                    type: "history",
-                    object: item,
-                  })
-                }
-              />
+          {/* OBJECT SCREEN */}
 
-              <h2>
-                Object {currentObject.objectNumber} {currentObject.generation} R
-              </h2>
+          <div className="screen">
+            {currentObject ? (
+              <div>
+                <h2>
+                  Object {currentObject.objectNumber} {currentObject.generation} R
+                </h2>
 
-              {currentHeaderType && <p>{currentHeaderType}</p>}
+                {currentHeaderType && <p>{currentHeaderType}</p>}
 
-              <div
-                style={{
-                  marginTop: 12,
-                  textAlign: "left",
-                }}
-              >
-                {currentDictionary ? (
-                  <>
-                    <DictionaryView
-                      value={currentDictionary}
-                      onReferenceClick={handleReferenceClick}
-                    />
+                <div
+                  style={{
+                    marginTop: 12,
+                    textAlign: "left",
+                  }}
+                >
+                  {currentDictionary ? (
+                    <>
+                      <DictionaryView
+                        value={currentDictionary}
+                        onReferenceClick={handleReferenceClick}
+                      />
 
-                    {currentObject.value.type === "stream" && (
-                      <StreamView value={currentObject.value} />
-                    )}
-                  </>
-                ) : (
-                  <PdfValue value={currentObject.value} onReferenceClick={handleReferenceClick} />
-                )}
+                      {currentObject.value.type === "stream" && (
+                        <StreamView value={currentObject.value} />
+                      )}
+                    </>
+                  ) : (
+                    <PdfValue value={currentObject.value} onReferenceClick={handleReferenceClick} />
+                  )}
+                </div>
               </div>
-            </div>
-          ) : (
-            <p>Выберите объект</p>
-          )}
+            ) : (
+              <p>Выберите объект</p>
+            )}
+          </div>
         </div>
       </main>
     </div>
