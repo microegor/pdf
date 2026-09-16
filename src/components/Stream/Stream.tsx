@@ -54,11 +54,7 @@ export function StreamView({ value }: Props) {
       >
         <div>{value.data.length} bytes</div>
 
-        <HexView
-          data={value.data}
-          limit={value.data.length}
-          maxHeight={160}
-        />
+        <HexView data={value.data} limit={value.data.length} maxHeight={160} />
       </div>
 
       <h4>Decoded data</h4>
