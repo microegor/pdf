@@ -47,24 +47,10 @@ export function StreamView({ value }: Props) {
 
       <hr />
 
-      <div
-        style={{
-          padding: "24px",
-        }}
-      >
-        <div>{value.data.length} bytes</div>
-
-        <HexView data={value.data} limit={value.data.length} maxHeight={160} />
-      </div>
-
-      <h4>Decoded data</h4>
-
       {!decoded.ok ? (
         <pre>Decode error: {decoded.error}</pre>
       ) : (
         <>
-          <div>{decoded.data.length} bytes</div>
-
           <Tabs defaultValue="text">
             <Tab value="text" text="Text">
               <pre
