@@ -334,22 +334,25 @@ function App() {
           </div>
         </aside>
 
+        {/* BREAD CRUMBS */}
+
+        <BreadCrumbs
+          items={history}
+          activeItem={currentObject}
+          getLabel={(item) => `${item.objectNumber} ${item.generation} R`}
+          onSelect={(item) =>
+            navigate({
+              type: "history",
+              object: item,
+            })
+          }
+        />
+
         {/* OBJECT SCREEN */}
 
         <div className="screen">
           {currentObject ? (
             <div>
-              <BreadCrumbs
-                items={history}
-                activeItem={currentObject}
-                getLabel={(item) => `${item.objectNumber} ${item.generation} R`}
-                onSelect={(item) =>
-                  navigate({
-                    type: "history",
-                    object: item,
-                  })
-                }
-              />
 
               <h2>
                 Object {currentObject.objectNumber} {currentObject.generation} R
