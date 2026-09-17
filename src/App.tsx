@@ -379,7 +379,10 @@ function App() {
                       )}
                     </>
                   ) : (
-                    <PdfValue value={currentObject.value} onReferenceClick={handleReferenceClick} />
+                    <PdfValue
+                      value={currentObject.value}
+                      onReferenceClick={handleReferenceClick}
+                    />
                   )}
                 </div>
               </div>

@@ -1,10 +1,8 @@
-import type { PDFObject } from "../../reader";
-import { PdfValue } from "../PdfValue";
-
-type DictionaryObject = Extract<PDFObject, { type: "dictionary" }>;
+import type { PDFDictionary } from "../../reader";
+import { PdfDictionaryTree } from "./DictionaryTree";
 
 type Props = {
-  value: DictionaryObject;
+  value: PDFDictionary;
   onReferenceClick?: (objectNumber: number, generation: number) => void;
 };
 
@@ -15,7 +13,10 @@ export function DictionaryView({ value, onReferenceClick }: Props) {
 
       <hr />
 
-      <PdfValue value={value} onReferenceClick={onReferenceClick} />
+      <PdfDictionaryTree
+        value={value}
+        onReferenceClick={onReferenceClick}
+      />
     </section>
   );
 }

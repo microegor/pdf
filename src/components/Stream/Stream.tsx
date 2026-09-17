@@ -1,14 +1,16 @@
 import { useMemo } from "react";
 
-import { Tabs, Tab } from "../Tabs";
 import type { PDFObject } from "../../reader";
 import { decodeStream } from "../../reader";
+import { PdfDictionaryTree } from "../Dictionary";
 import { HexView } from "../HexView";
+import { Tab, Tabs } from "../Tabs";
 
 type StreamObject = Extract<PDFObject, { type: "stream" }>;
 
 type Props = {
   value: StreamObject;
+  onReferenceClick?: (objectNumber: number, generation: number) => void;
 };
 
 function bytesToText(data: Uint8Array, limit = 100_000): string {
@@ -23,7 +25,7 @@ function bytesToText(data: Uint8Array, limit = 100_000): string {
   return text;
 }
 
-export function StreamView({ value }: Props) {
+export function StreamView({ value, onReferenceClick }: Props) {
   const decoded = useMemo(() => {
     try {
       const data = decodeStream(value);
@@ -42,15 +44,26 @@ export function StreamView({ value }: Props) {
   }, [value]);
 
   return (
-    <section>
-      <h3>Stream</h3>
+    <>
+      <section>
+        <h3>Dictionary</h3>
 
-      <hr />
+        <hr />
 
-      {!decoded.ok ? (
-        <pre>Decode error: {decoded.error}</pre>
-      ) : (
-        <>
+        <PdfDictionaryTree
+          value={value.dictionary}
+          onReferenceClick={onReferenceClick}
+        />
+      </section>
+
+      <section>
+        <h3>Stream</h3>
+
+        <hr />
+
+        {!decoded.ok ? (
+          <pre>Decode error: {decoded.error}</pre>
+        ) : (
           <Tabs defaultValue="text">
             <Tab value="text" text="Text">
               <pre
@@ -66,11 +79,15 @@ export function StreamView({ value }: Props) {
             </Tab>
 
             <Tab value="hex" text="Hex">
-              <HexView data={decoded.data} limit={decoded.data.length} maxHeight={600} />
+              <HexView
+                data={decoded.data}
+                limit={decoded.data.length}
+                maxHeight={600}
+              />
             </Tab>
           </Tabs>
-        </>
-      )}
-    </section>
+        )}
+      </section>
+    </>
   );
 }
