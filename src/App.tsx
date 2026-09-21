@@ -29,14 +29,14 @@ type PdfListItem = {
 
 function getObjectKind(value: PDFObject): string {
   if (value.type === "dictionary") {
-    return "[D]";
+    return "D";
   }
 
   if (value.type === "stream") {
-    return "[S]";
+    return "S";
   }
 
-  return value.type.charAt(0).toUpperCase();
+  return value.type;
 }
 
 function getObjectDictionary(value: PDFObject): DictionaryObject | null {

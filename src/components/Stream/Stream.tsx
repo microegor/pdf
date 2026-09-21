@@ -48,8 +48,6 @@ export function StreamView({ value, onReferenceClick }: Props) {
       <section>
         <h3>Dictionary</h3>
 
-        <hr />
-
         <PdfDictionaryTree
           value={value.dictionary}
           onReferenceClick={onReferenceClick}
@@ -58,8 +56,6 @@ export function StreamView({ value, onReferenceClick }: Props) {
 
       <section>
         <h3>Stream</h3>
-
-        <hr />
 
         {!decoded.ok ? (
           <pre>Decode error: {decoded.error}</pre>
