@@ -20,7 +20,6 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-
   gap: 10px;
   min-width: 0;
 }
@@ -28,7 +27,6 @@
 .pdfObject_main {
   display: flex;
   align-items: center;
-
   gap: 6px;
   min-width: 0;
 }
@@ -51,44 +49,39 @@
 
 .pdfObject_type {
   flex: 0 1 auto;
-
   display: flex;
   align-items: center;
-
   gap: 6px;
-
+  min-width: 0;
   overflow: hidden;
-
   font-size: 12px;
   color: #667085;
-
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-
 .pdfObject_kind {
   display: inline-flex;
+  flex: 0 0 20px;
   align-items: center;
   justify-content: center;
-
   width: 20px;
   height: 20px;
-
+  border: 1px solid transparent;
   border-radius: 4px;
-
   font-size: 11px;
   font-weight: 600;
+  line-height: 1;
 }
 
-.pdfObject__kind-dictionary {
+.pdfObject_kind-dictionary {
   color: #6941c6;
   background: #f4ebff;
-  border: 1px solid #d6bbfb;
+  border-color: #d6bbfb;
 }
 
-.pdfObject__kind--stream {
+.pdfObject_kind-stream {
   color: #026aa2;
   background: #e0f2fe;
-  border: 1px solid #b9e6fe;
+  border-color: #b9e6fe;
 }

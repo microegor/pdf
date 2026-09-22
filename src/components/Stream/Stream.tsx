@@ -46,15 +46,6 @@ export function StreamView({ value, onReferenceClick }: Props) {
   return (
     <>
       <section>
-        <h3>Dictionary</h3>
-
-        <PdfDictionaryTree
-          value={value.dictionary}
-          onReferenceClick={onReferenceClick}
-        />
-      </section>
-
-      <section>
         <h3>Stream</h3>
 
         {!decoded.ok ? (
