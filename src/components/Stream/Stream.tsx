@@ -66,11 +66,7 @@ export function StreamView({ value, onReferenceClick }: Props) {
             </Tab>
 
             <Tab value="hex" text="Hex">
-              <HexView
-                data={decoded.data}
-                limit={decoded.data.length}
-                maxHeight={600}
-              />
+              <HexView data={decoded.data} limit={decoded.data.length} maxHeight={600} />
             </Tab>
           </Tabs>
         )}

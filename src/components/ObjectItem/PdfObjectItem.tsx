@@ -14,12 +14,13 @@ function renderTypeIcon(type: string) {
   return (
     <span className={styles["pdfObject_type"]}>
       <span
-        className={`${styles["pdfObject_kind"]} ${type === "D"
-          ? styles["pdfObject_kind-dictionary"]
-          : type === "S"
-            ? styles["pdfObject_kind-stream"]
-            : ""
-          }`}
+        className={`${styles["pdfObject_kind"]} ${
+          type === "D"
+            ? styles["pdfObject_kind-dictionary"]
+            : type === "S"
+              ? styles["pdfObject_kind-stream"]
+              : ""
+        }`}
       >
         {type}
       </span>
@@ -41,8 +42,7 @@ export function PdfObjectItem({
       type="button"
       data-pdf-object-item
       tabIndex={tabIndex}
-      className={`${styles["pdfObject"]} ${active ? styles["pdfObject-active"] : ""
-        }`}
+      className={`${styles["pdfObject"]} ${active ? styles["pdfObject-active"] : ""}`}
       onClick={onClick}
     >
       <div className={styles["pdfObject_info"]}>

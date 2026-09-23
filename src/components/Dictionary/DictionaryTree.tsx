@@ -162,19 +162,10 @@ function buildRows(
   return rows;
 }
 
-export function PdfDictionaryTree({
-  value,
-  selectedId,
-  onSelect,
-  onReferenceClick,
-}: Props) {
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    () => new Set<string>(),
-  );
+export function PdfDictionaryTree({ value, selectedId, onSelect, onReferenceClick }: Props) {
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set<string>());
 
-  const [internalSelectedId, setInternalSelectedId] = useState<
-    string | undefined
-  >(undefined);
+  const [internalSelectedId, setInternalSelectedId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setExpandedIds(new Set<string>());

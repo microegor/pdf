@@ -11,10 +11,7 @@ export function DictionaryView({ value, onReferenceClick }: Props) {
     <section>
       <h3>Dictionary</h3>
 
-      <PdfDictionaryTree
-        value={value}
-        onReferenceClick={onReferenceClick}
-      />
+      <PdfDictionaryTree value={value} onReferenceClick={onReferenceClick} />
     </section>
   );
 }
