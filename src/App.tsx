@@ -359,8 +359,12 @@ function App() {
                   Object {currentObject.objectNumber} {currentObject.generation} R
                 </h2>
 
-                {currentHeaderType && <p>{currentHeaderType}</p>}
-
+                {currentHeaderType && (
+                  <p className="objectHeaderType">
+                    {currentHeaderType}
+                  </p>
+                )}
+                
                 <div
                   style={{
                     marginTop: 12,
