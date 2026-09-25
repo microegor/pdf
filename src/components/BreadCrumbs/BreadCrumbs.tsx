@@ -7,9 +7,14 @@ type BreadcrumbsProps<T> = {
   onSelect: (item: T) => void;
 };
 
-export function BreadCrumbs<T>({ items, activeItem, getLabel, onSelect }: BreadcrumbsProps<T>) {
+export function BreadCrumbs<T>({
+  items,
+  activeItem,
+  getLabel,
+  onSelect,
+}: BreadcrumbsProps<T>) {
   return (
-    <nav aria-label="Navigation history">
+    <nav className={styles.navigation} aria-label="Navigation history">
       <ol className={styles.breadcrumbs}>
         {items.map((item, index) => {
           const isActive = item === activeItem;
@@ -27,9 +32,22 @@ export function BreadCrumbs<T>({ items, activeItem, getLabel, onSelect }: Breadc
               </button>
 
               {!isLast && (
-                <span className={styles.separator} aria-hidden="true">
-                  /
-                </span>
+                <svg
+                  className={styles.separator}
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M6 4L10 8L6 12"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               )}
             </li>
           );
